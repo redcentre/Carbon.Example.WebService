@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<doc>
+  <members name="GenTabParams">
+    <param name="format">TODO</param>
+    <param name="name">Name of the report (may appear in the report title).</param>
+    <param name="top">Top variable(s).</param>
+    <param name="side">Side variable(s).</param>
+    <param name="filter">Filter expression.</param>
+    <param name="weight">Weight expression.</param>
+    <param name="sprops">Specification properties.</param>
+    <param name="dprops">Display properties.</param>
+  </members>
+</doc>

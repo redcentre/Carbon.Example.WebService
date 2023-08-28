@@ -1,0 +1,203 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ Assembly Name="System.Core.dll" #>
+<#@ Assembly Name="System.Xml.dll" #>
+<#@ Assembly Name="System.Core.dll" #>
+<#@ Assembly Name="System.Xml.Linq.dll" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="System.Globalization" #>
+<#@ include file="..\..\ServiceCodegen.ttinclude" #>
+<#
+	string rulesfile = Host.ResolvePath(@"..\..\ServiceCodegen.xml");
+	PMethod[] mlist = LoadCodegen(rulesfile);
+	EmitHeader();
+#>
+using System;
+using System.ComponentModel;
+using System.Reflection;
+using System.Threading.Tasks;
+using Carbon.Examples.WebService.Common;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using RCS.Azure.Data.Common;
+using RCS.Carbon.Licensing.Shared;
+using RCS.Carbon.Shared;
+
+#nullable enable
+
+namespace Carbon.Examples.WebService.WebApi.Controllers
+{
+<#
+	var groups = mlist.GroupBy(m => m.RouteBase).Select(x => new { RBase = x.Key, Methods = x.ToArray() }).ToArray();
+	foreach (var grp in groups)
+	{
+		EmitClass(grp.RBase, grp.Methods);
+	}
+#>
+}
+<#
+
+void EmitClass(string rbase, PMethod[] methods)
+{
+	string ClsName = TitleCase(rbase) + "Controller";
+#>
+	/// <summary>
+	/// Web API controller for endpoint /<#=rbase#>
+	/// </summary>
+	[ApiController]
+	[Route("<#=rbase#>")]
+	[TypeFilter(typeof(GeneralActionFilterAttribute))]
+	public partial class <#=ClsName#> : ServiceControllerBase
+	{
+		/// <summary>
+		/// Constructs a service controller for endpoint /<#=rbase#>. Lifetime is controlled by the service hosting.
+		/// </summary>
+		/// <param name="logfac">Logger factory reference provided by dependency injection.</param>
+		/// <param name="config">Configuration reference provided by dependency injection.</param>
+		public <#=ClsName#>(ILoggerFactory logfac, IConfiguration config, ILicensingProvider licprov)
+			: base(logfac, config, licprov)
+		{
+		}
+
+<#
+	foreach (var m in methods)
+	{
+		if (m.Summary != null)
+		{
+			string[] lines = NiceLines(m.Summary);
+#>
+		/// <summary>
+<#
+			foreach (string line in lines)
+			{
+#>
+		/// <#=Unesc(line)#>
+<#
+			}
+#>
+		/// </summary>
+<#
+		}
+		if (m.WebPostType == null && m.WebFromHeaderName == null)
+		{
+			// Emit help for any normal parameters
+			foreach (var p in m.Params.Where(p => p.IsRoute == true))
+			{
+#>
+		/// <param name="<#=p.Name#>"><#=p.Desc#></param>
+<#
+			}
+		}
+		else if (m.WebPostType != null)
+		{
+			// Emit help for WebPostType which is the only body parameter
+#>
+		/// <param name="request">A serialized <c><#=m.WebPostType#></c> provided in the request body.</param>
+<#
+		}
+		else if (m.WebFromHeader != null)
+		{
+			// Emit help for WebFromHeaderName which is the only headers extracted parameter 
+#>
+		/// <param name="<#=m.WebFromHeader#>">Parameter taken from the request headers.</param>
+<#
+		}
+		if (m.ReturnType != null)
+		{
+#>
+		/// <response code="200"><#=Unesc(m.ReturnDesc)#></response>
+<#
+		}
+		if (m.Auths != null)
+		{
+#>
+		/// <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+<#
+		}
+		if (m.Remarks != null)
+		{
+			string[] lines = NiceLines(m.Remarks);
+#>
+		/// <remarks>
+<#
+			foreach (string line in lines)
+			{
+#>
+		/// <#=Unesc(line)#>
+<#
+			}
+#>
+		/// </remarks>
+<#
+		}
+		string webargs = string.Join(", ", m.Params.Where(p => p.IsRoute == true).Select(p => string.Format("[FromRoute] {0} {1}", p.Type, p.Name)));;
+		string implargs = m.MakeParams2();
+		if (m.WebPostType != null)
+		{
+			webargs = "[FromBody] " + m.WebPostType + " request";
+			implargs = "request";
+		}
+		if (m.WebFromHeader != null)
+		{
+			webargs = "[FromHeader(Name = " + m.WebFromHeaderName  + ")] string " + m.WebFromHeader;
+			implargs = m.WebFromHeader;
+		}
+		string methpoint = m.Endpoint.Substring(m.Endpoint.IndexOf('/') + 1);
+#>
+		[global::System.CodeDom.Compiler.GeneratedCode("<#=TTName#>", "<#=TTVer#>")]
+		[global::System.Diagnostics.DebuggerNonUserCode]
+		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+<#
+		if (m.Browsable == false)
+		{
+#>
+		[Browsable(false)]
+<#
+		}
+#>
+		[Http<#=m.Method#>]
+		[Route("<#=methpoint#>")]
+<#
+		if (m.Auths != null)
+		{
+			if (m.Auths.Length == 0)
+			{
+#>
+		[AuthFilter]
+<#
+			}
+			else
+			{
+				string authjoin = string.Join(", ", m.Auths.Select(a => "\"" + a + "\""));
+#>
+		[AuthFilter(<#=authjoin#>)]
+<#
+			}
+		}
+#>
+		[Produces("application/json", "text/xml")]
+		[ProducesResponseType(typeof(<#=m.ReturnType#>), StatusCodes.Status200OK)]
+<#
+		if (m.Auths != null)
+		{
+#>
+		[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+<#
+		}
+#>
+		public async Task<ActionResult<<#=m.ReturnType#>>> <#=m.Name#>(<#=webargs#>) => await <#=m.Name#>Impl(<#=implargs#>);
+
+<#
+	}
+#>
+	}
+
+<#
+}
+ #>

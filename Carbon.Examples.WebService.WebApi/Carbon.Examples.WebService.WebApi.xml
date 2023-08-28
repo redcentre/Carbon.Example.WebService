@@ -1,0 +1,762 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Carbon.Examples.WebService.WebApi</name>
+    </assembly>
+    <members>
+        <member name="T:Carbon.Examples.WebService.WebApi.AuthFilterAttribute">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.AuthFilterAttribute.#ctor(System.String[])">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.AuthFilterAttribute.OnAuthorization(Microsoft.AspNetCore.Mvc.Filters.AuthorizationFilterContext)">
+            <summary>
+            This filter runs before anyting in the general action filter. An error must be fully
+            logged here because the action filter won't do it.
+            </summary>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.Controllers.DashboardController">
+            <summary>
+            Web API controller for endpoint /dashboard
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.DashboardController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
+            <summary>
+            Constructs a service controller for endpoint /dashboard. Lifetime is controlled by the service hosting.
+            </summary>
+            <param name="logfac">Logger factory reference provided by dependency injection.</param>
+            <param name="config">Configuration reference provided by dependency injection.</param>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.DashboardController.ListDashboards(System.String,System.String)">
+            <summary>
+            Lists dashboards for a customer and job.
+            </summary>
+            <param name="cust">Customer name.</param>
+            <param name="job">Job name.</param>
+            <response code="200">An array of <c>AzDashboard</c> objects.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.DashboardController.GetDashboard(Carbon.Examples.WebService.Common.DashboardRequest)">
+            <summary>
+            Get a dashboard in a customer and job.
+            </summary>
+            <param name="request">A serialized <c>DashboardRequest</c> provided in the request body.</param>
+            <response code="200">The Dashboard or null if not found.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.DashboardController.DeleteDashboard(Carbon.Examples.WebService.Common.DashboardRequest)">
+            <summary>
+            Deletes a dashboard in a customer and job.
+            </summary>
+            <param name="request">A serialized <c>DashboardRequest</c> provided in the request body.</param>
+            <response code="200">True if the dashboard was delete, false if was not found.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.DashboardController.UpsertDashboard(RCS.Azure.Data.Common.UpsertDashboardRequest)">
+            <summary>
+            Updates or inserts a dashboard.
+            </summary>
+            <param name="request">A serialized <c>UpsertDashboardRequest</c> provided in the request body.</param>
+            <response code="200">The dashboard after processing.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.Controllers.ErrorController">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ErrorController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ErrorController.Error">
+            <ignore/>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.Controllers.JobController">
+            <summary>
+            Web API controller for endpoint /job
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.MultiOxtImpl(Carbon.Examples.WebService.Common.MultiOxtRequest)">
+            <summary>
+            This method generates multiple OXTs sequentially in a single call. It's only used in unit tests at
+            the moment because it will probably cause web service call from a client to timeout.
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.MultiOxtStartImpl(Carbon.Examples.WebService.Common.MultiOxtRequest)">
+            <summary>
+            This starts the asynchronous generation of mutiple OXTs. The processing runs on a dedicated
+            Thread and the client can call MultiOxtQuery to track progress, using the Guid Id returned
+            here as the key to the processing. Rememeber that this web session only lasts for the duration
+            of this method it cannot be referenced from the async thread. The caller can request single-thread
+            sequential processing in the traditional way, or parallel processing on multiple cores. The actual
+            number cores used will be limited to the number available.
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.MultiOxtQueryImpl(System.Guid)">
+            <summary>
+            Queries the progress of multi OXT processing running on a dedicated thread, using the Guid Id
+            that was returned by MultiOxtStart.
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.MultiOxtSequentialProc(System.Object)">
+            <summary>
+            This method runs on a worker thread that is spun-up by a MultiOxtStart endpoint call.
+            An engine instance is created for the Session Id to use for the duration of the OXT
+            loop processing, so multiple threads may run for the same session (although the client
+            UI doesn't permit this at the moment).
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.MultiOxtParallelProc(System.Object)">
+            <summary>
+            EXPERIMENTAL -- Runs on a Thread and generates multiple OXT reports in parallel using
+            a Carbon engine instance for each report. Note that the parallel processing count is
+            limited to the number of cores available.
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
+            <summary>
+            Constructs a service controller for endpoint /job. Lifetime is controlled by the service hosting.
+            </summary>
+            <param name="logfac">Logger factory reference provided by dependency injection.</param>
+            <param name="config">Configuration reference provided by dependency injection.</param>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.OpenCloudJob(Carbon.Examples.WebService.Common.OpenCloudJobRequest)">
+            <summary>
+            Opens a cloud job and selects it for the crosstab engine.
+            </summary>
+            <param name="request">A serialized <c>OpenCloudJobRequest</c> provided in the request body.</param>
+            <response code="200">An optional aggregation of information about the opened job.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.CloseJob">
+            <summary>
+            Closes the currently open job.
+            </summary>
+            <response code="200">True if the job was closed. False if no job was open.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.ReadFileAsLines(Carbon.Examples.WebService.Common.ReadFileRequest)">
+            <summary>
+            Reads the text lines from a file.
+            </summary>
+            <param name="request">A serialized <c>ReadFileRequest</c> provided in the request body.</param>
+            <response code="200">Text lines of a file under the job home directory. Null is returned if the file is not found.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.ListSimpleToc(System.Boolean)">
+            <summary>
+            List the structure and contents of a job's simple Table of Contents.
+            </summary>
+            <param name="load">User name of the TOC section to return.</param>
+            <response code="200">An array of root nodes representing the hierarchical structure and contents of the simple Table of Contents of the currently open job.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.ListFullToc(System.Boolean)">
+            <summary>
+            List the structure and contents of a job's full Table of Contents.
+            </summary>
+            <param name="load">True to reload the TOC.</param>
+            <response code="200">An array of root nodes representing the hierarchical structure and contents of the full Table of Contents of the currently open job.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.ListExecUserToc(System.Boolean)">
+            <summary>
+            List the structure and contents of a job's Exec User Table of Contents.
+            </summary>
+            <param name="load">True to reload the TOC.</param>
+            <response code="200">An array of root nodes representing the hierarchical structure and contents of the Exec User Table of Contents of the currently open job.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.GetProps">
+            <summary>
+            Get the display proeprties of the currently open job.
+            </summary>
+            <response code="200">A <c>XDisplayProperties</c> class instance containing job properties.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.SetProps(RCS.Carbon.Shared.XDisplayProperties)">
+            <summary>
+            Sets the display properties of the currently open job.
+            </summary>
+            <param name="request">A serialized <c>XDisplayProperties</c> provided in the request body.</param>
+            <response code="200">TODO</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.GenTab(Carbon.Examples.WebService.Common.GenTabRequest)">
+            <summary>
+            Generates a crosstab report in different formats.
+            </summary>
+            <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
+            <response code="200">Lines of a crosstab report.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.LoadReport(Carbon.Examples.WebService.Common.LoadReportRequest)">
+            <summary>
+            Loads a report and sets it as the currently loaded and active report for the session.
+            </summary>
+            <param name="request">A serialized <c>LoadReportRequest</c> provided in the request body.</param>
+            <response code="200">The reponse code is currently always zero (TODO what errors can happen?).</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.UnloadReport">
+            <summary>
+            Unloads any previously loaded report, usually indicating that a new unsaved report is active.
+            </summary>
+            <response code="200">Always returns true.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.GenerateXlsx">
+            <summary>
+            Generates XLSX for the currently loaded report.
+            </summary>
+            <response code="200">The response gives the url and attributes of the generated XLSX workbook.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.MultiOxt(Carbon.Examples.WebService.Common.MultiOxtRequest)">
+            <summary>
+            Generates OXT outputs for multiple reports.
+            </summary>
+            <param name="request">A serialized <c>MultiOxtRequest</c> provided in the request body.</param>
+            <response code="200">TODO</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.MultiOxtStart(Carbon.Examples.WebService.Common.MultiOxtRequest)">
+            <summary>
+            Starts backgorund generation of OXT outputs for multiple reports.
+            </summary>
+            <param name="request">A serialized <c>MultiOxtRequest</c> provided in the request body.</param>
+            <response code="200">A unique identifier of the background process.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.MultiOxtQuery(System.Guid)">
+            <summary>
+            Gets the status of background generation of multiple reports.
+            </summary>
+            <param name="id">Id of the background processing to query.</param>
+            <response code="200">TODO</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.MultiOxtCancel(System.Guid)">
+            <summary>
+            Cancels a background generation of multiple reports.
+            </summary>
+            <param name="id">Id of the background processing to cancel.</param>
+            <response code="200">True if the background process was found and cancelled.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.DeleteInUserToc(Carbon.Examples.WebService.Common.DeleteInUserTocRequest)">
+            <summary>
+            Deletes a report or folder in the user's TOC.
+            </summary>
+            <param name="request">A serialized <c>DeleteInUserTocRequest</c> provided in the request body.</param>
+            <response code="200">A status code and optional error message.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.QuickUpdateReport(Carbon.Examples.WebService.Common.QuickUpdateRequest)">
+            <summary>
+            PENDING.
+            </summary>
+            <param name="request">A serialized <c>QuickUpdateRequest</c> provided in the request body.</param>
+            <response code="200">Details of the generated report.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.SaveReport(Carbon.Examples.WebService.Common.SaveReportRequest)">
+            <summary>
+            Saves the current crosstab report as a job relative path and name.
+            </summary>
+            <param name="request">A serialized <c>SaveReportRequest</c> provided in the request body.</param>
+            <response code="200">TODO</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.ListVartrees">
+            <summary>
+            List variable tree names in the currently open job.
+            </summary>
+            <response code="200">A non-null array of variable tree names in the currently open job.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.SetVartreeName(System.String)">
+            <summary>
+            Sets the variable (and axis) tree names in the currently open job.
+            </summary>
+            <param name="name">The name of the variable and axis trees to set.</param>
+            <response code="200">True if the name was changed.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.VariableTreeAsNodes">
+            <summary>
+            Gets the currently set variable tree name as a hierarchy of nodes.
+            </summary>
+            <response code="200">Root nodes representing the shape and contents of the active variable tree.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.AxisTreeAsNodes">
+            <summary>
+            Gets the currently set axis tree name as a hierarchy of nodes.
+            </summary>
+            <response code="200">Root nodes representing the shape and contents of the active axis tree.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.FunctionTreeAsNodes">
+            <summary>
+            Gets the function tree as a hierarchy of nodes.
+            </summary>
+            <response code="200">Root nodes representing the shape and contents of the function tree.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.ListAxisTreeChildren(System.String)">
+            <summary>
+            List axis tree child nodes.
+            </summary>
+            <param name="name">The name of the axis tree to retrieve.</param>
+            <response code="200">A non-null array of nodes for the specified axis name.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.VarAsNodes(System.String)">
+            <summary>
+            Gets child nodes for a variable name.
+            </summary>
+            <param name="name">The name of the variable to retrieve.</param>
+            <response code="200">An array of GenNode containing children of a variable name.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.FunctionAction(Carbon.Examples.WebService.Common.FunctionActionRequest)">
+            <summary>
+            Creates, edits or deletes functions.
+            </summary>
+            <param name="request">A serialized <c>FunctionActionRequest</c> provided in the request body.</param>
+            <response code="200">An updated set of function nodes.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.GetNewSpec">
+            <summary>
+            Gets a new spec.
+            </summary>
+            <response code="200">Specification information.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.GetEditSpec">
+            <summary>
+            Gets the edit spec.
+            </summary>
+            <response code="200">Specification information.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.RunSpec(Carbon.Examples.WebService.Common.RunSpecRequest)">
+            <summary>
+            Runs a table spec.
+            </summary>
+            <param name="request">A serialized <c>RunSpecRequest</c> provided in the request body.</param>
+            <response code="200">TODO.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.Nest(Carbon.Examples.WebService.Common.NestRequest)">
+            <summary>
+            Nest variables.
+            </summary>
+            <param name="request">A serialized <c>NestRequest</c> provided in the request body.</param>
+            <response code="200">TODO.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.Controllers.PythonController">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.PythonController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.PythonController.PandasDataframe">
+            <summary>
+            Generates a crosstab report for Python clients using the pandas library.
+            </summary>
+            <response code="200">A string of Json in a format suitable for processing by the pandas library.</response>
+            <remarks>
+            Note that this endpoint cannot be tested via the Swagger interface. The JSON in the request must be written into the body of the request 
+            for the POST method call. Python clients can pass the JSON body via the <c>requests.post</c> method call. .NET clients can use Framework 
+            provided web client classes to issue POST requests with JSON bodies.
+            </remarks>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.PythonController.PandasGenTab(Carbon.Examples.WebService.Common.GenTabPythonRequest)">
+            <summary>
+            Generates a crosstab report using variables stored in a Ruby job.
+            </summary>
+            <param name="request"></param>
+            <response code="200">A string of Json in a format suitable for processing by the pandas library.</response>
+            <response code="400">Incorrect parameters in the request.</response>
+            <remarks>
+            <para>
+            This endpoint is intended for running intermitted ad-hoc reports against data that is stored in an existing
+            cloud job. Each call is independent and inefficient because the full API call cycle of Login &#x2192; OpenJob
+            &#x2192; GenTab &#x2192; CloseJob &#x2192; Logoff is performed internally for each call. This endpoint is not
+            designed to be called many times in rapid succession. A new set of endpoints can be created if required for
+            Python clients who need to generate many successive reports.
+            </para>
+            <para>
+            If the request <c>id</c> and <c>password</c> credentials are null then the free account is used, which
+            is acceptable for demonstrations and evaluation by unlicensed customers.
+            </para>
+            <para>
+            The <c>FormatType</c> parameter is an integer that can be 1, 2 or 3. Each format produces JSON with a slightly
+            different shape. Format 1 is the default if the value is out of range.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.Controllers.ReportController">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.ReportGenTabText(RCS.Carbon.Shared.XOutputFormat,Carbon.Examples.WebService.Common.GenTabRequest)">
+            <summary>
+            Generates a crosstab report as plain text in different formats.
+            </summary>
+            <param name="format">Must be set to one of the enumeration values: TSV, CSV, SSV, XML, HTML, OXT, OXTNums, MultiCube.
+            Only these report formats can be represented as plain text and returned by this endpoint.</param>
+            <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
+            <response code="200">The string body of a crosstab report as plain text.</response>
+            <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
+            <remarks>The response content-type is always text/plain.</remarks>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.ReportGenTabXml(Carbon.Examples.WebService.Common.GenTabRequest)">
+            <summary>
+            Generates a crosstab report as an XML fragment.
+            </summary>
+            <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
+            <response code="200">The string body of a crosstab report as an XML fragment.</response>
+            <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
+            <remarks>The response content-type is always text/xml. This endpoint is experimental and the optimal shape of the
+            returned XML has not been determined yet.</remarks>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.ReportGenTabExcelBlob(Carbon.Examples.WebService.Common.GenTabRequest)">
+            <summary>
+            Generates a crosstab report in an Excel workbook, stores it in a publicly accessible Azure Blob and returns the Uri of the Blob.
+            </summary>
+            <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
+            <response code="200">A serialized <c>XlsxResponse</c> containing the Uri and attributes of the generated Excel workbook Blob.</response>
+            <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.ReportGenTabPandas(System.Int32,Carbon.Examples.WebService.Common.GenTabRequest)">
+            <summary>
+            Generates a crosstab report as JSON compatible with a Python pandas DataFrame.
+            </summary>
+            <param name="shape">JSON response shape number 1, 2 or 3.</param>
+            <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
+            <response code="200">The string body of a crosstab report as a JSON document.</response>
+            <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
+            <remarks>
+            The <paramref name="shape" /> number values 1, 2 and 3 cause the response JSON to be in slightly
+            different document shapes. All of the JSON document shapes contain the same data values and can
+            be loaded directly into a pandas DataFrame. The caller can select the shape that is most suitable
+            for their needs.
+            </remarks>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.Controllers.ServiceController">
+            <summary>
+            Web API controller for endpoint /service
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
+            <summary>
+            Constructs a service controller for endpoint /service. Lifetime is controlled by the service hosting.
+            </summary>
+            <param name="logfac">Logger factory reference provided by dependency injection.</param>
+            <param name="config">Configuration reference provided by dependency injection.</param>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.MockError(System.Int32)">
+            <summary>
+            Always throws an exception with a message containing the <paramref name="number"/>.
+            </summary>
+            <param name="number">An arbitrary number to pass into the mock Exception.</param>
+            <response code="200">No value will ever be returned. An Exception is always thrown (there is a one in 4 billion chance of no throw).</response>
+            <remarks>
+            This test method verifies that an unhandled service-side exception is converted into a <c>CarbonServiceException</c> expected on the 
+            client-side.
+            </remarks>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.GetServiceInfo">
+            <summary>
+            Gets information about the hosting environment and version of the service.
+            </summary>
+            <response code="200">An instance of a <c>ServiceInfo</c> class.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.GetCacheInfo(System.Int32)">
+            <summary>
+            Gets cache information.
+            </summary>
+            <param name="maxnames">maxmum number of cached file names to return.</param>
+            <response code="200">Information about cached files.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.DeleteCacheFiles(System.String)">
+            <summary>
+            Deletes all or selected cache files.
+            </summary>
+            <param name="glob">Glob pattern of files to delete. Specifify '*' to delete all files.</param>
+            <response code="200">Count of files deleted.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.StartLog">
+            <summary>
+            Starts internal logging.
+            </summary>
+            <response code="200">Always returns true.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.EndLog">
+            <summary>
+            Ends internal logging.
+            </summary>
+            <response code="200">Always returns true.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.ClearLog">
+            <summary>
+            Clears internal logging.
+            </summary>
+            <response code="200">Always returns true.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.ListLog">
+            <summary>
+            Lists internal logging lines.
+            </summary>
+            <response code="200">An array of string logging lines.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.ReadTiming1(Carbon.Examples.WebService.Common.ReadTimingRequest1)">
+            <summary>
+            Blob read timing tests (type 1).
+            </summary>
+            <param name="request">A serialized <c>ReadTimingRequest1</c> provided in the request body.</param>
+            <response code="200">Lines of the results.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.ReadTiming2(Carbon.Examples.WebService.Common.ReadTimingRequest2)">
+            <summary>
+            Blob read timing tests (type 2).
+            </summary>
+            <param name="request">A serialized <c>ReadTimingRequest2</c> provided in the request body.</param>
+            <response code="200">Lines of the results.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceController.LogTest">
+            <summary>
+            Test the Azure logging.
+            </summary>
+            <response code="200">Always returns true.</response>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.Controllers.SessionController">
+            <summary>
+            Web API controller for endpoint /session
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
+            <summary>
+            Constructs a service controller for endpoint /session. Lifetime is controlled by the service hosting.
+            </summary>
+            <param name="logfac">Logger factory reference provided by dependency injection.</param>
+            <param name="config">Configuration reference provided by dependency injection.</param>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.StartSessionFree(Carbon.Examples.WebService.Common.AuthenticateFreeRequest)">
+            <summary>
+            Starts a web service session using the restricted free licensing account.
+            </summary>
+            <param name="request">A serialized <c>AuthenticateFreeRequest</c> provided in the request body.</param>
+            <response code="200">Summary information about the licensing account associated with the session.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.LoginId(Carbon.Examples.WebService.Common.AuthenticateIdRequest)">
+            <summary>
+            Authenticates account Name and Password credentials. Does not start a session.
+            </summary>
+            <param name="request">A serialized <c>AuthenticateIdRequest</c> provided in the request body.</param>
+            <response code="200">Summary information about the licensing account associated with the session.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.AuthenticateName(Carbon.Examples.WebService.Common.AuthenticateNameRequest)">
+            <summary>
+            Authenticates account Name and Password credentials. Does not start a session.
+            </summary>
+            <param name="request">A serialized <c>AuthenticateNameRequest</c> provided in the request body.</param>
+            <response code="200">Summary information about the licensing account associated with the session.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.EndSession(System.String)">
+            <summary>
+            End a web service session. Licences are not returned.
+            </summary>
+            <param name="sessionId">Parameter taken from the request headers.</param>
+            <response code="200">True if the session was ended, False if it was not found.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+            <remarks>
+            Any active session Id is removed and subsequence web service calls will not include a session Id in the headers, effectively indicating to 
+            the service that the calls are coming from an anonymous (not authenticated) caller.
+            </remarks>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.LogoffSession(System.String)">
+            <summary>
+            End a web service session and issue a licensing logoff.
+            </summary>
+            <param name="sessionId">Parameter taken from the request headers.</param>
+            <response code="200">Count of logins remaining.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+            <remarks>
+            Any active session Id is removed and subsequence web service calls will not include a session Id in the headers, effectively indicating to 
+            the service that the calls are coming from an anonymous (not authenticated) caller.
+            </remarks>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.ReturnSession(System.String)">
+            <summary>
+            End a web service session and issue a licensing return.
+            </summary>
+            <param name="sessionId">Parameter taken from the request headers.</param>
+            <response code="200">Count of logins remaining.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+            <remarks>
+            Any active session Id is removed and subsequence web service calls will not include a session Id in the headers, effectively indicating to 
+            the service that the calls are coming from an anonymous (not authenticated) caller.
+            </remarks>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.ListSessions">
+            <summary>
+            Lists web service sessions. Intended for use in monitoring tools.
+            </summary>
+            <response code="200">An array of <c>SessionStatus</c> objects.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.ChangePassword(Carbon.Examples.WebService.Common.ChangePasswordRequest)">
+            <summary>
+            Changes a licensing account password.
+            </summary>
+            <param name="request">A serialized <c>ChangePasswordRequest</c> provided in the request body.</param>
+            <response code="200">A result code and optional error message.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.UpdateAccount(Carbon.Examples.WebService.Common.UpdateAccountRequest)">
+            <summary>
+            Updates selected account details.
+            </summary>
+            <param name="request">A serialized <c>UpdateAccountRequest</c> provided in the request body.</param>
+            <response code="200">A result code and optional error message.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.SessionCleanup">
+            <summary>
+            There is a 1-in-5 chance that a session cleanup will happen.
+            </summary>
+        </member>
+        <member name="F:Carbon.Examples.WebService.WebApi.Controllers.SessionController.SessionIdLength">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.SessionController.MakeSessionId">
+            <summary>
+            Generates a random Session Id which can take about 10^15 values assuming that the
+            Guid hash codes are equidistributed, which is likely because it is suspected that 
+            they are crypto-strong. A session Id contains about 50 bits of entropy.
+            </summary>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase">
+            <ignore/>
+        </member>
+        <member name="P:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.Logger">
+            <summary>
+            All derived controllers can use this logger service.
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
+            <ignore/>
+        </member>
+        <member name="P:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.SessionId">
+            <summary>
+            Get the Session Id out of the current request headers. The caller of this property knows that a session
+            must be started, so a failure to get the value is considered a request failure.
+            </summary>
+        </member>
+        <member name="P:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.Secs">
+            <summary>
+            Elapsed time since the standard filter attribute detected action starting.
+            </summary>
+        </member>
+        <member name="P:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.Sid">
+            <summary>
+            An abbreviated Session ID slug to help logging.
+            </summary>
+        </member>
+        <member name="P:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.RequestSequence">
+            <summary>
+            Attempts to get the request sequence out of the context items.
+            </summary>
+        </member>
+        <member name="P:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.AzProc">
+            <summary>
+            Lazy reference to a single instance of an RCS Azure data processor.
+            Don't forget to look for the config values in development user secrets.
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.MakeXlsxAndUpload(Carbon.Examples.WebService.WebApi.Controllers.StateWrap,System.String)">
+            <summary>
+            TODO
+            </summary>
+            <param name="wrap">TODO</param>
+            <param name="reason">TODO</param>
+            <returns>TODO</returns>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.GeneralActionFilterAttribute">
+            <ignore/>
+        </member>
+        <member name="F:Carbon.Examples.WebService.WebApi.GeneralActionFilterAttribute.RequestSequenceItemKey">
+            <ignore/>
+        </member>
+        <member name="F:Carbon.Examples.WebService.WebApi.GeneralActionFilterAttribute.RequestStartItemKey">
+            <ignore/>
+        </member>
+        <member name="F:Carbon.Examples.WebService.WebApi.GeneralActionFilterAttribute.EmptySid">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.GeneralActionFilterAttribute.#ctor(Microsoft.Extensions.Logging.ILoggerFactory)">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.GeneralActionFilterAttribute.OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext)">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.GeneralActionFilterAttribute.OnResultExecuting(Microsoft.AspNetCore.Mvc.Filters.ResultExecutingContext)">
+            <ignore/>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.ServiceUtility">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.ServiceUtility.NiceObj(System.Object,System.Int32)">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.ServiceUtility.NiceStr(System.String,System.Int32)">
+            <ignore/>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.SessionItem">
+            <summary>
+            Holds information about a single web service session.
+            </summary>
+        </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.SessionManager">
+            <summary>
+            <para>
+            A static app-wide wrapper class over a dictionary that maintains the state of web service sessions.
+            The Carbon engine state for a session is stored as a set of text files with the session id in the
+            name prefix. Carbon's state is an opaque array of strings.
+            </para>
+            <para>
+            Because web services are stateless, the session Id is a key to loading the Carbon engine state at
+            the start of each request.
+            </para>
+            <para>
+            Session state is cached for a configurable number seconds (default is 60). This will help clients
+            who make bursts of requests, which is very likely for typical usage scenarios.
+            </para>
+            </summary>
+        </member>
+        <member name="P:Carbon.Examples.WebService.WebApi.SessionManager.CacheSlidingSeconds">
+            <summary>
+            The cache sliding seconds for sessions.
+            </summary>
+        </member>
+        <member name="F:Carbon.Examples.WebService.WebApi.SessionManager.StateExtensions">
+            <summary>
+            We know at this point what sort of files are being serialized, so we put nice
+            extensions on them to help browsing and debugging. In reality they could all
+            be .foo files if no one every looked at them.
+            </summary>
+        </member>
+        <member name="T:RCS.RubyCloud.WebService.MoxtState">
+            <summary>
+            A class to encapsulate the state of a single Multi-OXT processing run.
+            </summary>
+        </member>
+    </members>
+</doc>

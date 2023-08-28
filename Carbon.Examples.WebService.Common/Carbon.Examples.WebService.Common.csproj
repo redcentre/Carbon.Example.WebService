@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>3.0.30</Version>
+    <InformationalVersion>2023-08-28 09:21 GMT+10</InformationalVersion>
+    <ApplicationIcon>Carbon.Examples.WebService.Common.ico</ApplicationIcon>
+    <PackageIcon>Carbon.Examples.WebService.Common.png</PackageIcon>
+    <PackageId>RCS.Carbon.Examples.WebService.Common</PackageId>
+    <Authors>Orthogonal Programming</Authors>
+    <Company>Red Centre Software</Company>
+    <Product>Crosstab Engine</Product>
+    <Description>Crosstab engine Azure library</Description>
+    <Copyright>Copyright © 2020-2023 Red Centre Software</Copyright>
+    <PackageTags>redcentre;Red Centre Software;cross tabulation;crosstab</PackageTags>
+    <PackageReleaseNotes>Under Development by Red Centre Software https://www.redcentresoftware.com/</PackageReleaseNotes>
+    <PackageOutputPath>S:\Nuget\redcentre</PackageOutputPath>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>redcentre</PackageTags>
+    <Nullable>enable</Nullable>
+    <LangVersion>8.0</LangVersion>
+    <Configurations>Debug;Release;Release Orthogonal;Release Test</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Carbon.Examples.WebService.Common.ico" />
+    <EmbeddedResource Include="Carbon.Examples.WebService.Common.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RCS.Azure.Data.Common" Version="3.0.0" />
+    <PackageReference Include="RCS.Carbon.Shared" Version="8.5.35" />
+    <PackageReference Include="System.Text.Json" Version="6.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ServiceCodegen.ttinclude">
+      <Generator></Generator>
+    </None>
+    <None Update="CarbonServiceClient.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CarbonServiceClient.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="Carbon.Examples.WebService.Common.png" Pack="true" PackagePath="\" />
+    <None Update="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="CarbonServiceClient.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CarbonServiceClient.Generated.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

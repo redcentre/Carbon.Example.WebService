@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<doc>
+  <members name="Auth403">
+    <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
+  </members>
+</doc>

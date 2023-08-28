@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Version>3.0.30</Version>
+    <InformationalVersion>2023-08-28 09:21 GMT+10</InformationalVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Authors>Red Centre Software</Authors>
+    <Company>Red Centre Software</Company>
+    <Product>Crosstab Engine</Product>
+    <Description>Logging library for the Carbon web service</Description>
+    <Copyright>Copyright © 2020-2023 Red Centre Software</Copyright>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.1" />
+    <PackageReference Include="Serilog.Sinks.AzureTableStorage" Version="9.0.0" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+  </ItemGroup>
+
+</Project>
