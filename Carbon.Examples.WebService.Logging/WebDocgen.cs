@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Azure.Data.Tables;
 using Serilog.Events;
 using Serilog.Sinks.AzureTableStorage;
@@ -43,12 +44,19 @@ internal class WebDocgen : IDocumentFactory
 		//	}
 		//}
 
-		T? GetVal<T>(IReadOnlyDictionary<string, LogEventPropertyValue> props, AzureTableStorageSinkOptions options, string key)
+		T? GetScalarVal<T>(IReadOnlyDictionary<string, LogEventPropertyValue> props, AzureTableStorageSinkOptions options, string key)
 		{
 			if (!props.TryGetValue(key, out var lepv)) return default;
 			if (lepv == null) return default;
 			var scalar = (ScalarValue)lepv;
 			return (T?)scalar.Value;
+		}
+		string? GetStructVal(IReadOnlyDictionary<string, LogEventPropertyValue> props, AzureTableStorageSinkOptions options, string key)
+		{
+			if (!props.TryGetValue(key, out var lepv)) return default;
+			if (lepv == null) return default;
+			var sv = (StructureValue)lepv;
+			return sv?.ToString();
 		}
 		T? AddVal<T>(T? value, string key, string? columnName = null)
 		{
@@ -57,7 +65,7 @@ internal class WebDocgen : IDocumentFactory
 		}
 		T? GetAdd<T>(IReadOnlyDictionary<string, LogEventPropertyValue> props, AzureTableStorageSinkOptions options, string key, string? columnName = null)
 		{
-			return AddVal<T>(GetVal<T>(logEvent.Properties, options, key), key, columnName);
+			return AddVal<T>(GetScalarVal<T>(logEvent.Properties, options, key), key, columnName);
 		}
 		GetAdd<int>(logEvent.Properties, options, "RequestSequence", "Sequence");
 		GetAdd<string>(logEvent.Properties, options, "Method");
@@ -66,7 +74,13 @@ internal class WebDocgen : IDocumentFactory
 		GetAdd<int>(logEvent.Properties, options, "ThreadId");
 		GetAdd<int>(logEvent.Properties, options, "ProcessId");
 		GetAdd<string>(logEvent.Properties, options, "Sid");
-		string? source = GetVal<string>(logEvent.Properties, options, "SourceContext");
+		string? evid = GetStructVal(logEvent.Properties, options, "EventId");
+		var m = Regex.Match(evid ?? string.Empty, @"\bId:\s*(\d+)");
+		if (m.Success)
+		{
+			row["EventId"] = int.Parse(m.Groups[1].Value);
+		}
+		string? source = GetScalarVal<string>(logEvent.Properties, options, "SourceContext");
 		AddVal(source, "SourceContext", "Source");
 		GetAdd<double?>(logEvent.Properties, options, "Seconds");
 		row["Level"] = (int)logEvent.Level;
