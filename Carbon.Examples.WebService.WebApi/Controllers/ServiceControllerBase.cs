@@ -94,7 +94,7 @@ public abstract class ServiceControllerBase : ControllerBase
 	/// <summary>
 	/// An abbreviated Session ID slug to help logging.
 	/// </summary>
-	protected string Sid => SessionId?[..3] ?? GeneralActionFilterAttribute.EmptySid;
+	protected string? Sid => SessionId?[..3];
 
 	/// <summary>
 	/// Attempts to get the request sequence out of the context items.

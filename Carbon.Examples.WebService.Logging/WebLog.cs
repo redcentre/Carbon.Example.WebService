@@ -12,13 +12,17 @@ public static class WebLog
 		string appconnect = configuration["CarbonApi:ApplicationStorageConnect"]!;
 		string logtable = configuration["CarbonApi:LogTableName"] ?? "ServiceLog";
 		string? logpk = configuration["CarbonApi:LogPartitionKey"];
+		if (string.IsNullOrEmpty(logpk))
+		{
+			logpk = Environment.MachineName;
+		}
 		Log.Logger = new LoggerConfiguration()
 			.ReadFrom.Configuration(configuration)
 			.WriteTo.AzureTableStorage(
 				appconnect,
 				storageTableName: logtable,
-				keyGenerator: new WebKeyGenerator(logpk),
-				propertyColumns: new string[] { "ThreadId" })
+				documentFactory: new WebDocgen(logpk)
+			)
 			.CreateLogger();
 		//Serilog.Debugging.SelfLog.Enable(m => System.Diagnostics.Trace.WriteLine(m));
 	}

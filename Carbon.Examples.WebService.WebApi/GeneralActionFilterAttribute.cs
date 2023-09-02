@@ -21,8 +21,6 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 	public const string RequestSequenceItemKey = "count";
 	/// <ignore/>
 	public const string RequestStartItemKey = "started";
-	/// <ignore/>
-	public const string EmptySid = "---";
 
 	static int requestSequence = 1000;
 	const string HeaderElapsed = "x-service-elapsed";
@@ -90,49 +88,51 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 			{
 				started = dt;
 				secs = DateTime.Now.Subtract(started).TotalSeconds;
+				secs = Math.Round(secs, 3);
 				context.HttpContext.Response.Headers.Add(HeaderElapsed, secs.ToString("F3"));
 			}
 		}
 		string? sessionId = GetSesssId(context.HttpContext.Request);
-		string sid = sessionId?[..3] ?? EmptySid;
-		int code = 0;
+		string? sid = sessionId?[..3];
+		int errcode = 0;
+		string? errmsg = null;
 		int status = context.HttpContext.Response.StatusCode;   // Default
-		string contentType = "-";
-		string? showtext;
-		if (context.Result is ObjectResult or)
+		if (status >= 400)
 		{
-			status = or.StatusCode ?? status;
-			object? orval = or.Value;
-			if (orval is ErrorResponse er)
+			if (context.Result is ObjectResult or)
 			{
-				code = er.Code;
-				showtext = er.Message;
+				status = or.StatusCode ?? status;
+				object? orval = or.Value;
+				if (orval is ErrorResponse er)
+				{
+					errcode = er.Code;
+					errmsg = er.Message;
+				}
+				else
+				{
+					errmsg = ServiceUtility.NiceObj(orval);
+				}
+			}
+		}
+		string? message = context.HttpContext.Items.TryGetValue("Message", out var m) ? m.ToString() : null;
+		string? errorPath = context.HttpContext.Items.TryGetValue("ErrorPath", out m) ? m.ToString() : null;
+		string? errorType = context.HttpContext.Items.TryGetValue("ErrorType", out m) ? m.ToString() : null;
+		string? errorMessage = context.HttpContext.Items.TryGetValue("ErrorMessage", out m) ? m.ToString() : null;
+		string? errorStack = context.HttpContext.Items.TryGetValue("ErrorStack", out m) ? m.ToString() : null;
+		if (browsable != false)
+		{
+			if (status >= 500)
+			{
+				logger!.LogError("{RequestSequence} {Method} {Path} {Sid} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", requestSequence, context.HttpContext.Request.Method, context.HttpContext.Request.Path, sid, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
+			}
+			else if (status >= 400)
+			{
+				logger!.LogWarning("{RequestSequence} {Method} {Path} {Sid} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", requestSequence, context.HttpContext.Request.Method, context.HttpContext.Request.Path, sid, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
 			}
 			else
 			{
-				showtext = ServiceUtility.NiceObj(orval);
+				logger!.LogInformation("{RequestSequence} {Method} {Path} {Sid} {Status} {Seconds} {Message}", requestSequence, context.HttpContext.Request.Method, context.HttpContext.Request.Path, sid, status, secs, message);
 			}
-		}
-		else if (context.Result is ContentResult cr)
-		{
-			status = cr.StatusCode ?? status;
-			contentType = cr.ContentType ?? contentType;
-			showtext = $"Content({cr.Content?.Length})";
-		}
-		else if (context.Result is JsonResult jr)
-		{
-			status = jr.StatusCode ?? status;
-			contentType = jr.ContentType ?? contentType;
-			showtext = ServiceUtility.NiceObj(jr.Value);
-		}
-		else
-		{
-			//System.Diagnostics.Trace.WriteLine($"#### context.Result is {context.Result?.GetType().Name}");
-			showtext = ServiceUtility.NiceObj(context.Result);
-		}
-		if (browsable != false)
-		{
-			logger!.LogDebug("{RequestSequence} {Sid} {Status} {ContentType} [{Seconds}] {Code} {SampleResponse}", requestSequence, sid, status, contentType, secs.ToString("F2"), code, showtext);
 		}
 #if TRAFFIC
             using (var writer = MakeWriter())

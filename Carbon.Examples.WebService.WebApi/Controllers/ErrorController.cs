@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Carbon.Examples.WebService.Common;
+﻿using Carbon.Examples.WebService.Common;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,15 +27,17 @@ public class ErrorController : ServiceControllerBase
 		IExceptionHandlerFeature? handler = HttpContext.Features.Get<IExceptionHandlerFeature>();
 		if (handler != null)
 		{
-			int count = (int)HttpContext.Items["count"]!;
-			Trace.WriteLine($"{count} {HttpContext.Response.StatusCode} {handler.Error}");
 			// It is expected that most unhandled errors will arrive here.
 			// Respond with the typical status 500 and a possibly useful message.
-			Logger.LogError(900, handler.Error, "{RequestSequence} Global error handler", RequestSequence);
+			HttpContext.Items["ErrorType"] = handler.Error.GetType().Name;
+			HttpContext.Items["ErrorMessage"] = handler.Error.Message;
+			HttpContext.Items["ErrorStack"] = handler.Error.StackTrace;
+			HttpContext.Items["ErrorPath"] = handler.Path;
 			return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(1, $"{handler.Error.Message}"));
 		}
-		const string BadMessage = "{RequestSequence} The error handler could not find an error feature to provide error details";
-		Logger.LogError(901, null, BadMessage, RequestSequence);
-		return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(2, $"Unidentified Error: {BadMessage}"));
+		const string BadMessage = "The error handler could not find an error feature to provide error details";
+		//Logger.LogError(901, null, BadMessage);
+		HttpContext.Items["ErrorMessage"] = BadMessage;
+		return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(2, BadMessage));
 	}
 }

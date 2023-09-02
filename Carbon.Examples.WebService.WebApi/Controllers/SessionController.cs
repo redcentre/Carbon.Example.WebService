@@ -23,7 +23,7 @@ partial class SessionController
 		var accinfo = LicToInfo(licence, sessionId);
 		string[] state = engine.SaveState();
 		SessionManager.SaveState(sessionId, state);
-		Logger.LogInformation(103, "{RequestSequence} {Sid} Start Free Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, GeneralActionFilterAttribute.EmptySid, sessionId, licence.Id, licence.Name);
+		Logger.LogInformation(103, "{RequestSequence} Start Free Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
 		return Ok(accinfo);
 	}
 
@@ -38,7 +38,7 @@ partial class SessionController
 			var accinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
-			Logger.LogInformation(100, "{RequestSequence} {Sid} Login Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, GeneralActionFilterAttribute.EmptySid, sessionId, licence.Id, licence.Name);
+			Logger.LogInformation(100, "{RequestSequence} Login Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
 			return Ok(accinfo);
 		}
 		catch (CarbonException ex)
@@ -58,7 +58,7 @@ partial class SessionController
 			var accinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
-			Logger.LogInformation(100, "{RequestSequence} {Sid} Login Session {SessionName} Name {LicenceName}", RequestSequence, GeneralActionFilterAttribute.EmptySid, sessionId, licence.Name);
+			Logger.LogInformation(100, "{RequestSequence} Login Session {SessionName} Name {LicenceName}", RequestSequence, sessionId, licence.Name);
 			return Ok(accinfo);
 		}
 		catch (CarbonException ex)

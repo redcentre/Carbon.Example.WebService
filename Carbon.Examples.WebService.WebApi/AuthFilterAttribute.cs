@@ -48,7 +48,7 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 				SessionItem? si = SessionManager.FindSession(key);
 				if (si == null)
 				{
-					logger.LogWarning(700, "No session '{SessionId}' exists for {Method} {Path}", key, req.Method, req.Path);
+					logger.LogWarning(700, "No session {SessionId} exists for {Method} {Path}", key, req.Method, req.Path);
 					context.Result = MakeAuthFail(3, $"No session '{key}' exist for {req.Method} {req.Path}");
 					return;
 				}
@@ -68,7 +68,7 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 			}
 			else
 			{
-				logger.LogWarning(700, "Header '{Key}' is required for {Method} {Path}", CarbonServiceClient.SessionIdHeaderKey, req.Method, req.Path);
+				logger.LogWarning(700, "Header {Key} is required for {Method} {Path}", CarbonServiceClient.SessionIdHeaderKey, req.Method, req.Path);
 				context.Result = MakeAuthFail(2, $"Header key '{CarbonServiceClient.SessionIdHeaderKey}' is required for {req.Method} {req.Path}");
 				return;
 			}

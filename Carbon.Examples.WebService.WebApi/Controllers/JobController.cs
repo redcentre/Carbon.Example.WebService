@@ -54,7 +54,7 @@ partial class JobController
 		response.TreesDescOnly = wrap.Engine.Job.TreesDescOnly;
 		response.Cases = wrap.Engine.Job.JobINI.Cases;
 		response.TryAzureTemp = wrap.Engine.Job.JobINI.TryAzureTemp;
-		Logger.LogInformation(240, "{RequestSequence} {Sid} Open job '{CustomerName}' Job '{JobName}' {DProps} {VtCount} {AxCount} {TocNewCount}", RequestSequence, Sid, request.CustomerName, request.JobName, dprops, vtnames?.Length, axnames?.Length, tocnodes?.Length);
+		Logger.LogInformation(240, "{RequestSequence} {Sid} Open {CustomerName} Job {JobName} {DProps} {VtCount} {AxCount} {TocNewCount}", RequestSequence, Sid, request.CustomerName, request.JobName, dprops, vtnames?.Length, axnames?.Length, tocnodes?.Length);
 		return await Task.FromResult(response);
 	}
 
