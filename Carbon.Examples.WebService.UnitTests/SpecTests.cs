@@ -16,8 +16,16 @@ namespace Carbon.Examples.WebService.UnitTests
 			using var client = MakeClient();
 			await client.LoginId(TestAccountId, TestAccountPassword);
 			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, JobName1, null, tocType: JobTocType.ExecUser);
+			Sep1("Validate ctor spec");
+			var ts = new TableSpec();
+			Dumpobj(ts);
+			GenericResponse gn = await client.ValidateSpec(ts);
+			Dumpobj(gn);
+			Sep1("Validate new spec");
 			var spec = await client.GetNewSpec();
 			Dumpobj(spec);
+			gn = await client.ValidateSpec(spec.Spec);
+			Dumpobj(gn);
 			bool closed = await client.CloseJob();
 			Trace($"Closed → {closed}");
 		}

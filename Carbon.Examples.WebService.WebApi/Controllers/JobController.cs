@@ -355,6 +355,20 @@ partial class JobController
 		return await Task.FromResult(sa);
 	}
 
+	async Task<ActionResult<GenericResponse>> ValidateSpecImpl(TableSpec spec)
+	{
+		var watch = new Stopwatch();
+		watch.Start();
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		Logger.LogDebug(0, "ValidateSpecImpl {Spec}", spec);
+		bool success = wrap.Engine.Validate(spec);
+		if (success)
+		{
+			return await Task.FromResult(new GenericResponse(0, "Valid"));
+		}
+		return await Task.FromResult(new GenericResponse(1, wrap.Engine.Job.Message));
+	}
+
 	async Task<ActionResult<XlsxResponse>> RunSpecImpl(RunSpecRequest request)
 	{
 		var watch = new Stopwatch();

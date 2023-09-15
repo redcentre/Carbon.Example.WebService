@@ -341,6 +341,14 @@
             <response code="200">Specification information.</response>
             <response code="403">The request failed because no authenticated session has been established with the web service.</response>
         </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.ValidateSpec(RCS.Carbon.Shared.TableSpec)">
+            <summary>
+            Validates a table spec.
+            </summary>
+            <param name="request">A serialized <c>TableSpec</c> provided in the request body.</param>
+            <response code="200">Validates a table specification.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
         <member name="M:Carbon.Examples.WebService.WebApi.Controllers.JobController.RunSpec(Carbon.Examples.WebService.Common.RunSpecRequest)">
             <summary>
             Runs a table spec.
