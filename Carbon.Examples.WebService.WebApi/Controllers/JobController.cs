@@ -360,13 +360,17 @@ partial class JobController
 		var watch = new Stopwatch();
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
-		Logger.LogDebug(0, "ValidateSpecImpl {Spec}", spec);
-		bool success = wrap.Engine.Validate(spec);
-		if (success)
+		try
 		{
+			wrap.Engine.Validate(spec);
+			Logger.LogDebug(0, "ValidateSpecImpl {Spec} -> success", spec);
 			return await Task.FromResult(new GenericResponse(0, "Valid"));
 		}
-		return await Task.FromResult(new GenericResponse(1, wrap.Engine.Job.Message));
+		catch (CarbonException ex)
+		{
+			Logger.LogDebug(0, "ValidateSpecImpl {Spec} -> {Message}", spec, ex.Message);
+			return await Task.FromResult(new GenericResponse(1, ex.Message));
+		}
 	}
 
 	async Task<ActionResult<XlsxResponse>> RunSpecImpl(RunSpecRequest request)
