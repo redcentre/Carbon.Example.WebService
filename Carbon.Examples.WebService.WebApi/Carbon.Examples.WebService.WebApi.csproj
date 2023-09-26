@@ -18,7 +18,7 @@
     <IsPackable>false</IsPackable>
     <DocumentationFile>Carbon.Examples.WebService.WebApi.xml</DocumentationFile>
     <UserSecretsId>a05e8c94-92ae-4346-a204-d10b0c4516ce</UserSecretsId>
-    <Configurations>Debug;Release;Release Orthogonal;Release Test</Configurations>
+    <Configurations>Debug;Release;Release Test;BPR Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -41,7 +41,7 @@
     <DefineConstants>$(DefineConstants);NO_TRAFFIC</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release Orthogonal'">
+  <PropertyGroup Condition="'$(Configuration)'=='BPR Release'">
     <DefineConstants>$(DefineConstants);NO_TRAFFIC;USE_EXAMPLE</DefineConstants>
     <Optimize>True</Optimize>
   </PropertyGroup>

@@ -20,7 +20,7 @@
     <PackageTags>redcentre</PackageTags>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
-    <Configurations>Debug;Release;Release Orthogonal;Release Test</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
