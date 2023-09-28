@@ -22,7 +22,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Orthogonal.Common.Basic" Version="3.1.8" />
+    <PackageReference Include="Orthogonal.Common.Basic" Version="3.1.9" />
     <PackageReference Include="RCS.Azure.Data.Common" Version="3.0.0" />
   </ItemGroup>
 
