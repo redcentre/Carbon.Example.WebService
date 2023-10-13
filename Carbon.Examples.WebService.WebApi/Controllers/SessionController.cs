@@ -71,7 +71,6 @@ partial class SessionController
 	{
 		bool success = SessionManager.EndSession(sessionId);
 		long total = SessionManager.DeleteState(sessionId);
-		double kb = total / 1024.0;
 		Logger.LogInformation(104, "{RequestSequence} {Sid} End Session {SessionId} {Total}", RequestSequence, Sid, sessionId, total);
 		SessionCleanup();
 		return await Task.FromResult(success);
