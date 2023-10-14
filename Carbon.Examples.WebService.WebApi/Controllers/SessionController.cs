@@ -20,11 +20,11 @@ partial class SessionController
 		LicenceInfo licence = await engine.GetFreeLicence(request.Email, request.SkipCache);
 		string sessionId = MakeSessionId();
 		SessionManager.StartSession(sessionId, licence);
-		var accinfo = LicToInfo(licence, sessionId);
+		var sessinfo = LicToInfo(licence, sessionId);
 		string[] state = engine.SaveState();
 		SessionManager.SaveState(sessionId, state);
 		Logger.LogInformation(103, "{RequestSequence} Start Free Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
-		return Ok(accinfo);
+		return Ok(sessinfo);
 	}
 
 	async Task<ActionResult<SessionInfo>> LoginIdImpl(AuthenticateIdRequest request)
@@ -35,11 +35,11 @@ partial class SessionController
 			LicenceInfo licence = await engine.LoginId(request.Id, request.Password, request.SkipCache);
 			string sessionId = MakeSessionId();
 			SessionManager.StartSession(sessionId, licence);
-			var accinfo = LicToInfo(licence, sessionId);
+			var accisessinfofo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
 			Logger.LogInformation(100, "{RequestSequence} Login Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
-			return Ok(accinfo);
+			return Ok(accisessinfofo);
 		}
 		catch (CarbonException ex)
 		{
@@ -55,11 +55,11 @@ partial class SessionController
 			LicenceInfo licence = await engine.GetLicenceName(request.Name, request.Password);
 			string sessionId = MakeSessionId();
 			SessionManager.StartSession(sessionId, licence);
-			var accinfo = LicToInfo(licence, sessionId);
+			var sessinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
 			Logger.LogInformation(100, "{RequestSequence} Login Session {SessionName} Name {LicenceName}", RequestSequence, sessionId, licence.Name);
-			return Ok(accinfo);
+			return Ok(sessinfo);
 		}
 		catch (CarbonException ex)
 		{

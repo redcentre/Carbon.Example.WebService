@@ -93,7 +93,6 @@ builder.Services.AddControllers()
 #if USE_EXAMPLE
 
 // ┌───────────────────────────────────────────────────────────────┐
-// │  THIS APPLIES TO INTERNAL DEVELOPMENT SCENARIOS ONLY          │
 // │  There are currently two licensing provider implementations.  │
 // │  The config says which class name is to be used, and it's     │
 // │  created here to be a DI service.                             │
@@ -103,8 +102,9 @@ ILicensingProvider? licprov = null;
 string licname = builder.Configuration["CarbonApi:LicensingProviderName"];
 if (licname == nameof(ExampleLicensingProvider))
 {
+	string lickey = builder.Configuration["CarbonApi:LicenceKey"];
 	string adoconnect = builder.Configuration["CarbonApi:AdoConnect"];
-	licprov = new ExampleLicensingProvider(adoconnect);
+	licprov = new ExampleLicensingProvider(lickey, adoconnect);
 }
 else if (licname == nameof(RedCentreLicensingProvider))
 {
