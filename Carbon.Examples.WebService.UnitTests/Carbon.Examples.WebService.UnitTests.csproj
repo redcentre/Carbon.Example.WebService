@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>1.1.2</Version>
-    <InformationalVersion>2022-11-29 13:10 GMT+11</InformationalVersion>
     <Authors>Orthogonal Programming</Authors>
     <Company>Red Centre Software</Company>
     <Product>Crosstab Engine</Product>

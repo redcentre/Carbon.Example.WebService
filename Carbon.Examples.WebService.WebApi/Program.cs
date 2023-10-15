@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-#if USE_EXAMPLE
+#if USE_CONFIG
 using RCS.Carbon.Licensing.Example;
 #endif
 using RCS.Carbon.Licensing.RedCentre;
@@ -90,7 +90,7 @@ builder.Services.AddControllers()
 // Testing when the GenNode would not serialize. Not needed.
 //.AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-#if USE_EXAMPLE
+#if USE_CONFIG
 
 // ┌───────────────────────────────────────────────────────────────┐
 // │  There are currently two licensing provider implementations.  │

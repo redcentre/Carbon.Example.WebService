@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Version>3.6.8</Version>
-    <InformationalVersion>2023-10-15 17:40 GMT+11</InformationalVersion>
+    <InformationalVersion>2023-10-14 16:02 GMT+11</InformationalVersion>
     <ApplicationIcon>Carbon.Examples.WebService.Common.ico</ApplicationIcon>
     <PackageIcon>Carbon.Examples.WebService.Common.png</PackageIcon>
     <PackageId>RCS.Carbon.Examples.WebService.Common</PackageId>
