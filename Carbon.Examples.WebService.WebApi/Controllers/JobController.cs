@@ -32,8 +32,10 @@ partial class JobController
 			return BadRequest(new ErrorResponse(201, $"Open cloud Customer '{request.CustomerName}' Job '{request.JobName}' Vartree '{request.VartreeName}' failed - {ex.Message}"));
 		}
 		SessionManager.SetCustomerJob(SessionId, request.CustomerName, request.JobName, request.VartreeName);
+		// Some of the following information could be returned by a Carbon OpenJob call, which would reduce the traffic
+		// of getting it now in chatty calls. As an experiment the vartree names are returned from the open.
 		var dprops = request.GetDisplayProps ? wrap.Engine.GetProps() : null;
-		string[]? vtnames = request.GetVartreeNames ? wrap.Engine.ListVartreeNames().ToArray() : null;
+		string[]? vtnames = request.GetVartreeNames ? wrap.Engine.Job.ListVartreeNames().ToArray() : null;
 		string[]? axnames = request.GetAxisTreeNames ? wrap.Engine.Job.GetAxisNames().ToArray() : null;
 		GenNode[]? drillFilters = request.GetDrills ? wrap.Engine.DrillFiltersAsNodes() : null;
 		GenNode[]? tocnodes = null;
@@ -48,13 +50,15 @@ partial class JobController
 				tocnodes = wrap.Engine.ExecUserTOCGenNodes();
 			}
 		}
-		var response = new OpenCloudJobResponse(dprops, vtnames, axnames, tocnodes, drillFilters);
-		response.ShowCaseFilter = wrap.Engine.Job.JobINI.ShowCaseFilter;
-		response.ShowAxisLocks = wrap.Engine.Job.ShowAxisLocks;
-		response.TreesDescOnly = wrap.Engine.Job.TreesDescOnly;
-		response.Cases = wrap.Engine.Job.JobINI.Cases;
-		response.TryAzureTemp = wrap.Engine.Job.JobINI.TryAzureTemp;
-		Logger.LogInformation(240, "{RequestSequence} {Sid} Open {CustomerName} Job {JobName} {DProps} {VtCount} {AxCount} {TocNewCount}", RequestSequence, Sid, request.CustomerName, request.JobName, dprops, vtnames?.Length, axnames?.Length, tocnodes?.Length);
+		var response = new OpenCloudJobResponse(dprops, vtnames, axnames, tocnodes, drillFilters)
+		{
+			ShowCaseFilter = wrap.Engine.Job.JobINI.ShowCaseFilter,
+			ShowAxisLocks = wrap.Engine.Job.ShowAxisLocks,
+			TreesDescOnly = wrap.Engine.Job.TreesDescOnly,
+			Cases = wrap.Engine.Job.JobINI.Cases,
+			TryAzureTemp = wrap.Engine.Job.JobINI.TryAzureTemp
+		};
+		Logger.LogInformation(240, "{RequestSequence} {Sid} Open {CustomerName} Job {JobName} {DProps} {VtCount} {AxCount} {TocNewCount}", RequestSequence, Sid, request.CustomerName, request.JobName, dprops, response.VartreeNames?.Length, axnames?.Length, tocnodes?.Length);
 		return await Task.FromResult(response);
 	}
 

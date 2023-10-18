@@ -29,7 +29,7 @@ namespace Carbon.Examples.WebService.UnitTests
 		public async Task T030_LoginId_Out()
 		{
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+			SessionInfo sinfo = await client.AuthenticateName("GregK", "Cats4Sleeping");
 			Trace($"Login → {sinfo}");
 			DumpSessinfo(sinfo);
 			int count = await client.ReturnSession();
