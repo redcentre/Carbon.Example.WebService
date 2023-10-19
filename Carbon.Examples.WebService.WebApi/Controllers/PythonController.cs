@@ -135,7 +135,7 @@ public class PythonController : ServiceControllerBase
 		tab.PandasRawData prd = engine.GenTabAsPandas(topData, sideData, dprops);
 		var dict = prd.ToShape1();
 		string respjson = JsonSerializer.Serialize(dict, new JsonSerializerOptions() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
-		Logger.LogInformation(247, "{RequestSequence} Pandas {Length}", RequestSequence, respjson.Length);
+		Logger.LogInformation(410, "{RequestSequence} Pandas {Length}", RequestSequence, respjson.Length);
 		// NOTE: It took two hours of suffering to discover that the following
 		// line is the correct way of return a plain string of JSON in the body.
 		return new ContentResult() { Content = respjson, ContentType = "application/json", StatusCode = 200 };
@@ -238,7 +238,7 @@ public class PythonController : ServiceControllerBase
 			dict = raw.ToShape3();
 		}
 		string respjson = JsonSerializer.Serialize(dict, new JsonSerializerOptions() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
-		Logger.LogInformation(248, "{RequestSequence} PandasGenTab{Format} {Length}", RequestSequence, request.FormatType, respjson.Length);
+		Logger.LogInformation(420, "{RequestSequence} PandasGenTab{Format} {Length}", RequestSequence, request.FormatType, respjson.Length);
 		engine.CloseJob();
 		if (request.Id != null)
 		{

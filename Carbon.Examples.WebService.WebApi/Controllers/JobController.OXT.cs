@@ -24,7 +24,7 @@ partial class JobController
 	/// </summary>
 	void MultiOxtSequentialProc(object? o)
 	{
-		Log.Info("MultiOxtProc START");
+		Logger.LogInformation(300, "MultiOxtProc START");
 		var state = (MoxtState)o!;
 		var watch = new Stopwatch();
 		using var wrap = new StateWrap(state.SessionId, LicProv, true);
@@ -41,7 +41,7 @@ partial class JobController
 				// because the current OXT generation may take some time to complete and let
 				// the loop come around again. There is currenly no way to 'interrupt' Carbon
 				// crosstab processing.
-				Log.Warn($"Multi OXT loop {state.Id} cancelled");
+				Logger.LogWarning(302, "Multi OXT loop {StateId} cancelled", state.Id);
 				state.Items = list.ToArray();
 				state.ProgressMessage = "Cancelled";
 				watch.Stop();
@@ -50,7 +50,7 @@ partial class JobController
 			try
 			{
 				state.ProgressMessage = $"Running report {tup.Ix + 1}/{state.Request.ReportNames.Length}";
-				Log.Info(state.ProgressMessage);
+				Logger.LogInformation(304, "{Message}", state.ProgressMessage);
 				watch.Restart();
 				string fixname = FixMultiName(tup.Name);
 				string oxt = wrap.Engine.DrillDashboardTableAsOXT(tup.Name, fullfilter);
@@ -58,7 +58,7 @@ partial class JobController
 
 				double repsecs = watch.Elapsed.TotalSeconds;
 				double totalsecs = DateTime.Now.Subtract(start).TotalSeconds;
-				Logger.LogDebug(888, "Loop {Ix}/{Count} {RepSecs,5:F1}/{TotalSecs:F1} {FixName}", tup.Ix + 1, repcount, repsecs, totalsecs, fixname);
+				Logger.LogDebug(306, "Loop {Ix}/{Count} {RepSecs,5:F1}/{TotalSecs:F1} {FixName}", tup.Ix + 1, repcount, repsecs, totalsecs, fixname);
 				int? titlesRowCount = GetMetaInt(lines, "Titles RowCount");
 				bool? dispColLetters = GetMetaBool(lines, "Display ColumnLetters");
 				bool? dispRowLetters = GetMetaBool(lines, "Display RowLetters");
@@ -86,7 +86,7 @@ partial class JobController
 			}
 			catch (Exception ex)
 			{
-				Log.Error(ex.Message);
+				Logger.LogError(308, "{Message}", ex.Message);
 				var bex = ex.GetBaseException();
 				list.Add(new RubyMultiOxtItem()
 				{
@@ -98,14 +98,14 @@ partial class JobController
 			}
 		}
 		watch.Stop();
-		Log.Info($"MultiOxtProc END =============== [{DateTime.Now.Subtract(multiOxtStartTime).TotalSeconds:F2}] ===============");
+		Logger.LogInformation(309, "MultiOxtProc END =============== [{Elapsed:F2}] ===============", DateTime.Now.Subtract(multiOxtStartTime).TotalSeconds);
 		// Setting the Itemds array here is the magic moment where this background thread
 		// is saying that it has finished the OXT generation loop and the results are available.
 		// Polling through the query endpoint will detect that the Items are available and the
 		// query response will contain the items.
 		state.Items = list.ToArray();
 		var secs = DateTime.UtcNow.Subtract(state.Created).TotalSeconds;
-		Logger.LogDebug(330, "Complete #{repcount}) {state.Items.Length} [{Secs:F2}]", repcount, state.Items.Length, secs);
+		Logger.LogDebug(310, "Complete #{repcount}) {state.Items.Length} [{Secs:F2}]", repcount, state.Items.Length, secs);
 		state.ProgressMessage = $"Completed {repcount} reports";
 	}
 
@@ -116,7 +116,7 @@ partial class JobController
 	/// </summary>
 	void MultiOxtParallelProc(object? o)
 	{
-		Log.Info("MultiOxtParallelProc START");
+		Logger.LogInformation(320, "MultiOxtParallelProc START");
 		var state = (MoxtState)o!;
 		var watch = new Stopwatch();
 		watch.Start();
@@ -131,16 +131,20 @@ partial class JobController
 		var po = new ParallelOptions { MaxDegreeOfParallelism = state.ParallelCount };
 		Parallel.For(0, repcount, po, ix =>
 		{
-			if (state.CancelSource.IsCancellationRequested) return;
+			if (state.CancelSource.IsCancellationRequested)
+			{
+				Logger.LogWarning(311, "Loop cancel requested - return");
+				return;
+			}
 			string name = state.Request.ReportNames[ix];
-			Logger.LogDebug(889, "Start parallel {Ix} {Name}", ix, name);
+			Logger.LogDebug(322, "Start parallel {Ix} {Name}", ix, name);
 			double offsecs1 = watch.Elapsed.TotalSeconds;
 			lock (ixlist)
 			{
 				ixlist.Add(ix);
 				state.ProgressMessage = string.Format("{0} ({1}/{2})", string.Join(" ", ixlist), donecount, repcount);
 			}
-			using (var wrap = new StateWrap(state.SessionId, LicProv, true))
+			using (var wrap = new StateWrap(state.SessionId, LicProv, false))
 			{
 				try
 				{
@@ -173,7 +177,7 @@ partial class JobController
 				}
 				catch (Exception ex)
 				{
-					Logger.LogError(ex, "Parallel OXT[{Ix}] {Name}", ix, name);
+					Logger.LogError(324, ex, "Parallel OXT[{Ix}] {Name}", ix, name);
 					var bex = ex.GetBaseException();
 					holditems[ix] = new RubyMultiOxtItem()
 					{
@@ -192,14 +196,14 @@ partial class JobController
 			}
 			double offsecs2 = watch.Elapsed.TotalSeconds;
 			double secs = offsecs2 - offsecs1;
-			Logger.LogDebug(889, "End parallel {Ix} [{Secs:F2}] {Offsecs1:F0} {Offsecs2:F0}", ix, secs, offsecs1, offsecs2);
+			Logger.LogDebug(326, "End parallel {Ix} [{Secs:F2}] {Offsecs1:F0} {Offsecs2:F0}", ix, secs, offsecs1, offsecs2);
 		});
 
 		state.Items = holditems;
 		double secs = watch.Elapsed.TotalSeconds;
 		watch.Stop();
 		state.ProgressMessage = $"Completed {repcount} reports [{secs:F2}]";
-		Log.Info($"MultiOxtParallelProc END [{secs:F2}]");
+		Logger.LogInformation(328, "MultiOxtParallelProc END [{Seconds:F2}]", secs);
 	}
 
 	static string ComposeFilter(MultiOxtRequest request)

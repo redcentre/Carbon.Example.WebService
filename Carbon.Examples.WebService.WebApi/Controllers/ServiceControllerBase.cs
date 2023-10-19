@@ -127,7 +127,7 @@ public abstract class ServiceControllerBase : ControllerBase
 			Config["CarbonApi:ArtefactsContainerName"]
 		);
 		var m = Regex.Match(azp.ApplicationStorageConnect, @"AccountName=(\w+).+AccountKey=([^;]+)");
-		Logger.LogDebug(700, "Created {Name} {AccName} {AccKey}… {ArtefactCon}", azp.GetType().Name, m.Groups[1].Value, m.Groups[2].Value.Substring(0, 8), azp.ArtefactsContainerName);
+		Logger.LogDebug(600, "Created {Name} {AccName} {AccKey}… {ArtefactCon}", azp.GetType().Name, m.Groups[1].Value, m.Groups[2].Value.Substring(0, 8), azp.ArtefactsContainerName);
 		return azp;
 	});
 
@@ -143,14 +143,14 @@ public abstract class ServiceControllerBase : ControllerBase
 		watch.Start();
 		byte[] blob = XTableOutputManager.AsSingleXLSXBuffer(wrap.Engine.Job.DisplayTable);
 		double xlsxsecs = watch.Elapsed.TotalSeconds;
-		Logger.LogDebug(0, "Make XLSX {BlobLength} [{XlsxSecs:F2}] - {Reason}", blob.Length, xlsxsecs, reason);
+		Logger.LogDebug(610, "Make XLSX {BlobLength} [{XlsxSecs:F2}] - {Reason}", blob.Length, xlsxsecs, reason);
 		watch.Restart();
 		var sess = SessionManager.FindSession(SessionId, true);
 		string repname = sess.OpenReportName ?? "UnsavedReport";
 		string upname = Path.ChangeExtension(repname, ".xlsx");
 		var azblob = await AzProc.UploadBufferForReport(sess.UserId, sess.OpenCustomerName, sess.OpenJobName, upname, blob);
 		double upsecs = watch.Elapsed.TotalSeconds;
-		Logger.LogDebug(0, "Upload {BlobUri} [{upsecs:F2}]", azblob.Uri, upsecs);
+		Logger.LogDebug(612, "Upload {BlobUri} [{upsecs:F2}]", azblob.Uri, upsecs);
 		return new XlsxResponse()
 		{
 			ReportName = sess.OpenReportName!,

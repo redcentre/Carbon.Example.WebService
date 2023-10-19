@@ -58,7 +58,7 @@ partial class SessionController
 			var sessinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
-			Logger.LogInformation(100, "{RequestSequence} Login Session {SessionName} Name {LicenceName}", RequestSequence, sessionId, licence.Name);
+			Logger.LogInformation(102, "{RequestSequence} Login Session {SessionName} Name {LicenceName}", RequestSequence, sessionId, licence.Name);
 			return Ok(sessinfo);
 		}
 		catch (CarbonException ex)
@@ -71,7 +71,7 @@ partial class SessionController
 	{
 		bool success = SessionManager.EndSession(sessionId);
 		long total = SessionManager.DeleteState(sessionId);
-		Logger.LogInformation(104, "{RequestSequence} {Sid} End Session {SessionId} {Total}", RequestSequence, Sid, sessionId, total);
+		Logger.LogInformation(110, "{RequestSequence} {Sid} End Session {SessionId} {Total}", RequestSequence, Sid, sessionId, total);
 		SessionCleanup();
 		return await Task.FromResult(success);
 	}
@@ -90,13 +90,13 @@ partial class SessionController
 			bool success = SessionManager.EndSession(sessionId);
 			long total = SessionManager.DeleteState(sessionId);
 			string showuserid = si.UserId ?? "NULL";
-			Logger.LogInformation(102, "{RequestSequence} {Sid} Logoff Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", RequestSequence, Sid, sessionId, count, showuserid, success, total);
+			Logger.LogInformation(112, "{RequestSequence} {Sid} Logoff Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", RequestSequence, Sid, sessionId, count, showuserid, success, total);
 			SessionCleanup();
 			return Ok(count);
 		}
 		else
 		{
-			Logger.LogWarning(103, "{RequestSequence} {Sid} Logoff Session {SessionId} not found", RequestSequence, Sid, sessionId);
+			Logger.LogWarning(113, "{RequestSequence} {Sid} Logoff Session {SessionId} not found", RequestSequence, Sid, sessionId);
 			return Ok(-1);
 		}
 	}
@@ -115,13 +115,13 @@ partial class SessionController
 			bool success = SessionManager.EndSession(sessionId);
 			long total = SessionManager.DeleteState(sessionId);
 			string showuserid = si.UserId ?? "NULL";
-			Logger.LogInformation(102, "{RequestSequence} {Sid} Return Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", RequestSequence, Sid, sessionId, count, showuserid, success, total);
+			Logger.LogInformation(114, "{RequestSequence} {Sid} Return Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", RequestSequence, Sid, sessionId, count, showuserid, success, total);
 			SessionCleanup();
 			return Ok(count);
 		}
 		else
 		{
-			Logger.LogWarning(103, "{RequestSequence} {Sid} Return Session {SessionId} not found", RequestSequence, Sid, sessionId);
+			Logger.LogWarning(115, "{RequestSequence} {Sid} Return Session {SessionId} not found", RequestSequence, Sid, sessionId);
 			return Ok(-1);
 		}
 	}
@@ -136,11 +136,11 @@ partial class SessionController
 		int count = SessionManager.Cleanup(days);
 		if (count == 0)
 		{
-			Logger.LogInformation("No sessions older than {Days} to cleanup", days);
+			Logger.LogInformation(140, "No sessions older than {Days} to cleanup", days);
 		}
 		else
 		{
-			Logger.LogInformation("Cleaned {Count} sessions older than {Days}", count, days);
+			Logger.LogInformation(141, "Cleaned {Count} sessions older than {Days}", count, days);
 		}
 		return count;
 	}

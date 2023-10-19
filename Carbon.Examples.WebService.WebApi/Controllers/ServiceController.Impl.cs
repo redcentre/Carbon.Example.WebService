@@ -156,12 +156,12 @@ partial class ServiceController
 
 	async Task<ActionResult<bool>> LogTestImpl()
 	{
-		Logger.LogTrace("This is a Trace message");
-		Logger.LogDebug("This is a Debug message");
-		Logger.LogInformation("This is an Information message");
-		Logger.LogWarning("This is a Warning message");
-		Logger.LogError("This is an Error message");
-		Logger.LogCritical("This is a Critical message");
+		Logger.LogTrace(900, "This is a Trace message");
+		Logger.LogDebug(901, "This is a Debug message");
+		Logger.LogInformation(902, "This is an Information message");
+		Logger.LogWarning(903, "This is a Warning message");
+		Logger.LogError(904, "This is an Error message");
+		Logger.LogCritical(905, "This is a Critical message");
 		return await Task.FromResult(true);
 	}
 }
