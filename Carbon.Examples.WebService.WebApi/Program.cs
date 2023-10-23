@@ -102,9 +102,9 @@ ILicensingProvider? licprov = null;
 string licname = builder.Configuration["CarbonApi:LicensingProviderName"];
 if (licname == nameof(ExampleLicensingProvider))
 {
-	string lickey = builder.Configuration["CarbonApi:LicenceKey"];
+	string prodkey = builder.Configuration["CarbonApi:ProductKey"];
 	string adoconnect = builder.Configuration["CarbonApi:AdoConnect"];
-	licprov = new ExampleLicensingProvider(lickey, adoconnect);
+	licprov = new ExampleLicensingProvider(prodkey, adoconnect);
 }
 else if (licname == nameof(RedCentreLicensingProvider))
 {
