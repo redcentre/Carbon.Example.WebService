@@ -158,6 +158,7 @@ app.MapControllers();
 
 RCS.Carbon.Shared.Log.CarbonLog += (s, e) =>
 {
+	System.Diagnostics.Trace.WriteLine($"{s} {e.Level} {e.Message} {e.Error?.Message}");
 	// We have to crack the Carbon logging into app logging.
 	switch (e.Level)
 	{

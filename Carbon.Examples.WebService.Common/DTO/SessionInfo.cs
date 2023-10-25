@@ -9,6 +9,8 @@
 		public string[]? Roles { get; set; }
 		public string[]? VartreeNames { get; set; }
 		public SessionCust[]? SessionCusts { get; set; }
+		public int ProcessorCount { get; set; }
+		public string OS { get; set; }
 		public override string ToString() => $"{GetType().Name}({SessionId},{Id},{Name},R{Roles?.Length}, V{VartreeNames?.Length},C{SessionCusts?.Length})";
 	}
 

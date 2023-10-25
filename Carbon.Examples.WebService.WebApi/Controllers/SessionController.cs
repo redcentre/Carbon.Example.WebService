@@ -222,7 +222,9 @@ partial class SessionController
 				Url = j.Url,
 				Sequence = j.Sequence
 			}).ToArray()
-		}).ToArray()
+		}).ToArray(),
+		ProcessorCount = Environment.ProcessorCount,
+		OS = Environment.OSVersion.ToString()
 	};
 
 	/// <ignore/>
