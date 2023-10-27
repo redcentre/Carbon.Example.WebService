@@ -386,12 +386,7 @@ partial class JobController
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		Logger.LogDebug(274, "RunSpecImpl {Spec}", request.Spec);
-		string s = wrap.Engine.GenTab(request.Name, request.Spec);
-		if (wrap.Engine.Job.Message?.Length > 0)
-		{
-			Logger.LogDebug(275, "RunSpecImpl null report -> {Message}", wrap.Engine.Job.Message);
-			throw new Exception(wrap.Engine.Job.Message);
-		}
+		wrap.Engine.GenTab(request.Name, request.Spec);
 		return await MakeXlsxAndUpload(wrap, "RunSpec");
 	}
 
