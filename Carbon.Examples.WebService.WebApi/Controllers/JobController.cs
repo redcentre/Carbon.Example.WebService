@@ -381,6 +381,7 @@ partial class JobController
 
 	async Task<ActionResult<XlsxResponse>> RunSpecImpl(RunSpecRequest request)
 	{
+		Trace.WriteLine(JsonSerializer.Serialize(request.Spec));
 		var watch = new Stopwatch();
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
