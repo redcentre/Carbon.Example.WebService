@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>3.6.27</Version>
-    <InformationalVersion>2023-12-09 09:18 GMT+11</InformationalVersion>
+    <Version>3.6.28</Version>
+    <InformationalVersion>2023-12-09 14:25 GMT+11</InformationalVersion>
     <ApplicationIcon>Carbon.Examples.WebService.WebApi.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
@@ -65,9 +65,9 @@
 
   <ItemGroup>
     <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.0" />
-    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="1.2.22" />
-    <PackageReference Include="RCS.Carbon.Shared" Version="8.7.2" />
-    <PackageReference Include="RCS.Carbon.Tables" Version="8.7.2" />
+    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="1.2.23" />
+    <PackageReference Include="RCS.Carbon.Shared" Version="8.7.3" />
+    <PackageReference Include="RCS.Carbon.Tables" Version="8.7.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
   </ItemGroup>
