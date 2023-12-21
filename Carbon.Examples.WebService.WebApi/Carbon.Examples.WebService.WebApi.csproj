@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>$(DefineConstants);NO_TRAFFIC;USE_CONFIG</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_TRAFFIC;EXAMPLE_PROVIDER</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -42,7 +42,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='BPR Release'">
-    <DefineConstants>$(DefineConstants);NO_TRAFFIC;USE_CONFIG</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_TRAFFIC;EXAMPLE_PROVIDER</DefineConstants>
     <Optimize>True</Optimize>
   </PropertyGroup>
 

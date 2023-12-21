@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>K:\dev_rcs\Azure Storage Accounts\systemrcs\software-releases\Carbon-Service-3-7-0-BP</_PublishTargetUrl>
+    <History>True|2023-12-21T23:41:32.0612728Z;True|2023-12-22T10:31:10.3378815+11:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>
