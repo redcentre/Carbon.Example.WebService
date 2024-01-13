@@ -93,37 +93,32 @@ builder.Services.AddControllers()
 #if EXAMPLE_PROVIDER
 
 // ┌───────────────────────────────────────────────────────────────┐
-// │  There are currently two licensing provider implementations.  │
-// │  The config says which class name is to be used, and it's     │
-// │  created here to be a DI service.                             │
+// │  We are using the example licensing provider which is a       │
+// │  wrapper over a SQL Database of licensing data.               │
 // └───────────────────────────────────────────────────────────────┘
+string prodkey = builder.Configuration["CarbonApi:ProductKey"];
+string adoconnect = builder.Configuration["CarbonApi:AdoConnect"];
+var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
 
-ILicensingProvider? licprov = null;
-string licname = builder.Configuration["CarbonApi:LicensingProviderName"];
-if (licname == nameof(ExampleLicensingProvider))
-{
-	string prodkey = builder.Configuration["CarbonApi:ProductKey"];
-	string adoconnect = builder.Configuration["CarbonApi:AdoConnect"];
-	licprov = new ExampleLicensingProvider(prodkey, adoconnect);
-}
-else if (licname == nameof(RedCentreLicensingProvider))
-{
-	string licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
-	int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
-	licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
-}
-else
-{
-	throw new Exception($"Licensing provider name '{licname}' is not registered");
-}
+// ===== THIS IS FOR INTERNAL TESTING ONLY =====
+//string licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
+//int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
+//licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
 
 #else
+
+// ┌───────────────────────────────────────────────────────────────┐
+// │  When not using the example licensing provider we are using   │
+// │  Red Centre Software provider which is a thin wrapper around  │
+// │  calls to the RCS custom licensing web service.               │
+// └───────────────────────────────────────────────────────────────┘
 
 string licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
 int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
 
 #endif
+
 builder.Services.AddSingleton<ILicensingProvider>(licprov);
 
 var app = builder.Build();
