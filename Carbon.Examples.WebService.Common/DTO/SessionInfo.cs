@@ -36,6 +36,8 @@
 		public string? DisplayName { get; set; }
 		public string? Description { get; set; }
 		public string[]? VartreeNames { get; set; }
+		public string[]? RealCloudVartreeNames { get; set; }
+		public bool? IsAccessible { get; set; }
 		public string? Info { get; set; }
 		public string? Logo { get; set; }
 		public string? Url { get; set; }

@@ -216,6 +216,8 @@ partial class SessionController
 				Name = j.Name,
 				DisplayName = j.DisplayName,
 				VartreeNames = j.VartreeNames ?? Array.Empty<string>(),
+				RealCloudVartreeNames = j.RealCloudVartreeNames ?? Array.Empty<string>(),
+				IsAccessible = j.IsAccessible,
 				Description = j.Description,
 				Info = j.Info,
 				Logo = j.Logo,

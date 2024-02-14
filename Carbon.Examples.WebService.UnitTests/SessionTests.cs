@@ -43,6 +43,7 @@ namespace Carbon.Examples.WebService.UnitTests
 			using var client = MakeClient();
 			SessionInfo sinfo = await client.AuthenticateName(TestAccountName, TestAccountPassword);
 			Trace($"Login → {sinfo}");
+			Dumpobj(sinfo);
 			int count = await client.LogoffSession();
 			Trace($"Logoff count → {count}");
 		}

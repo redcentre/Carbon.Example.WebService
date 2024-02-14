@@ -51,7 +51,8 @@ partial class ServiceController
 			HostAccount = Environment.UserName,
 			ProcessorCount = Environment.ProcessorCount,
 			TempFolder = Path.GetTempPath(),
-			LicensingProvider = lic.Name
+			LicensingProvider = lic.Name,
+			LicensingUri = Config["CarbonApi:LicensingBaseAddress"]
 		};
 		return await Task.FromResult(info);
 	}

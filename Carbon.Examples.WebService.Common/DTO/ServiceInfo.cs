@@ -23,6 +23,7 @@ namespace Carbon.Examples.WebService.Common
 		public string? CarbonBuild { get; set; }
 		public string? TempFolder { get; set; }
 		public string? LicensingProvider { get; set; }
+		public string? LicensingUri { get; set; }
 		public override string ToString() => $"{GetType().Name}({Version},{Build},{CarbonVersion},{CarbonBuild},{HostMachine},{LicensingProvider})";
 	}
 }
