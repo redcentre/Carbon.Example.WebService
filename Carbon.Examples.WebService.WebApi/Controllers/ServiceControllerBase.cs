@@ -131,12 +131,9 @@ public abstract class ServiceControllerBase : ControllerBase
 		return azp;
 	});
 
-	/// <summary>
-	/// TODO
-	/// </summary>
-	/// <param name="wrap">TODO</param>
-	/// <param name="reason">TODO</param>
-	/// <returns>TODO</returns>
+	// Important factored-out code that converts a job's display table into an XLSX workbook
+	// and uploads it so the url can be used to display it in client apps.
+
 	protected async Task<XlsxResponse> MakeXlsxAndUpload(StateWrap wrap, string reason)
 	{
 		var watch = new Stopwatch();

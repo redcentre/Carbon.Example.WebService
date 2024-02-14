@@ -52,7 +52,7 @@ partial class ServiceController
 			ProcessorCount = Environment.ProcessorCount,
 			TempFolder = Path.GetTempPath(),
 			LicensingProvider = lic.Name,
-			LicensingUri = Config["CarbonApi:LicensingBaseAddress"]
+			LicensingSummary = lic.ConfigSummary
 		};
 		return await Task.FromResult(info);
 	}

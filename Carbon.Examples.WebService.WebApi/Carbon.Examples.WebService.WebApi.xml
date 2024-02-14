@@ -689,14 +689,6 @@
             Don't forget to look for the config values in development user secrets.
             </summary>
         </member>
-        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.MakeXlsxAndUpload(Carbon.Examples.WebService.WebApi.Controllers.StateWrap,System.String)">
-            <summary>
-            TODO
-            </summary>
-            <param name="wrap">TODO</param>
-            <param name="reason">TODO</param>
-            <returns>TODO</returns>
-        </member>
         <member name="T:Carbon.Examples.WebService.WebApi.GeneralActionFilterAttribute">
             <ignore/>
         </member>

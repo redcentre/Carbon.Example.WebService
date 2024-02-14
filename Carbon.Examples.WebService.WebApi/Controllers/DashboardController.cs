@@ -5,11 +5,6 @@ using RCS.Azure.Data.Common;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 
-// COMPLEXITY WARNING -- A user session has access to one or more customers (storage accounts)
-// as defined in their licensing record and their details are in the response from a login
-// request. The customer-storagekey pairs are held in the session so that a request to process
-// work in a specific customer can proceed by finding the key.
-
 partial class DashboardController
 {
 	async Task<AzDashboard[]> ListDashboardsImpl(string customerName, string jobName)

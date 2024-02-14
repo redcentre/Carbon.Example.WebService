@@ -87,8 +87,6 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddControllers()
 	.AddXmlSerializerFormatters();
-// Testing when the GenNode would not serialize. Not needed.
-//.AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 #if EXAMPLE_PROVIDER
 
@@ -113,7 +111,11 @@ var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
 // │  calls to the RCS custom licensing web service.               │
 // └───────────────────────────────────────────────────────────────┘
 
+#if RCSTEST
+string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";    // TODO: replace the licaddress with a different config key for testing "CarbonApi:LicensingTestBaseAddress"
+#else
 string licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
+#endif
 int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
 
