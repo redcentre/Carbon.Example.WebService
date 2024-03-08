@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>3.7.13</Version>
-    <InformationalVersion>2024-02-15 09:00 GMT+11</InformationalVersion>
+    <Version>3.8.0</Version>
+    <InformationalVersion>2024-03-08 16:53 GMT+11</InformationalVersion>
     <ApplicationIcon>Carbon.Examples.WebService.Common.ico</ApplicationIcon>
     <PackageIcon>Carbon.Examples.WebService.Common.png</PackageIcon>
     <PackageId>RCS.Carbon.Examples.WebService.Common</PackageId>
@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="RCS.Azure.Data.Common" Version="3.0.0" />
-    <PackageReference Include="RCS.Carbon.Shared" Version="8.7.22" />
+    <PackageReference Include="RCS.Carbon.Shared" Version="8.8.3" />
     <PackageReference Include="System.Text.Json" Version="6.0.7" />
   </ItemGroup>
 
