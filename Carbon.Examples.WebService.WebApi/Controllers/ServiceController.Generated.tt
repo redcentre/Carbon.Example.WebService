@@ -2,7 +2,6 @@
 <#@ output extension=".cs" #>
 <#@ Assembly Name="System.Core.dll" #>
 <#@ Assembly Name="System.Xml.dll" #>
-<#@ Assembly Name="System.Core.dll" #>
 <#@ Assembly Name="System.Xml.Linq.dll" #>
 <#@ import namespace="System" #>
 <#@ import namespace="System.Linq" #>
