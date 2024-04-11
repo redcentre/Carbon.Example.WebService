@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>3.8.18</Version>
-    <InformationalVersion>2024-04-10 14:16 GMT+10</InformationalVersion>
+    <Version>3.8.19</Version>
+    <InformationalVersion>2024-04-11 10:58 GMT+10</InformationalVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <Authors>Red Centre Software</Authors>
@@ -20,7 +20,7 @@
     <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
-    <PackageReference Include="Serilog.Sinks.AzureTableStorage" Version="9.4.1" />
+    <PackageReference Include="Serilog.Sinks.AzureTableStorage" Version="9.5.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
     <PackageReference Include="Serilog.Sinks.Trace" Version="3.0.0" />
   </ItemGroup>
