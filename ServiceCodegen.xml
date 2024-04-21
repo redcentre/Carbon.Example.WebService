@@ -408,13 +408,22 @@
     <return type="SpecAggregate" description="Specification information."/>
   </method>
 
-  <method name="ValidateSpec" method="Post" endpoint="job/spec/validate" auth="*">
+  <method name="ValidateSpec" method="Post" endpoint="job/spec/validate/spec" auth="*">
     <summary>Validates a table spec.</summary>
     <parameters>
       <parameter type="TableSpec" name="spec" description="Specification information."/>
     </parameters>
     <web postType="TableSpec" direct="true"/>
-    <return type="GenericResponse" description="Validates a table specification."/>
+    <return type="GenericResponse" description="A generic simple response with validation results."/>
+  </method>
+
+  <method name="ValidateExp" method="Post" endpoint="job/spec/validate/exp" auth="*">
+    <summary>Validates an expression.</summary>
+    <parameters>
+      <parameter type="ValidateExpRequest" name="request" description="Expression to validate."/>
+    </parameters>
+    <web postType="ValidateExpRequest" direct="true"/>
+    <return type="GenericResponse" description="A generic simple response with validation results."/>
   </method>
 
   <method name="RunSpec" method="Post" endpoint="job/spec" auth="*">

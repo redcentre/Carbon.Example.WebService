@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>3.8.24</Version>
-    <InformationalVersion>2024-04-13 14:28 GMT+10</InformationalVersion>
+    <Version>3.8.25</Version>
+    <InformationalVersion>2024-04-19 10:10 GMT+10</InformationalVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <Authors>Red Centre Software</Authors>

@@ -365,7 +365,7 @@ partial class JobController
 	{
 		var watch = new Stopwatch();
 		watch.Start();
-		using var wrap = new StateWrap(SessionId, LicProv, true);
+		using var wrap = new StateWrap(SessionId, LicProv, false);
 		try
 		{
 			wrap.Engine.Validate(spec);
@@ -375,6 +375,22 @@ partial class JobController
 		catch (CarbonException ex)
 		{
 			Logger.LogDebug(271, "ValidateSpecImpl {Spec} -> {Message}", spec, ex.Message);
+			return await Task.FromResult(new GenericResponse(1, ex.Message));
+		}
+	}
+
+	async Task<ActionResult<GenericResponse>> ValidateExpImpl(ValidateExpRequest request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, false);
+		try
+		{
+			wrap.Engine.ValidateExp(request.Expression);
+			Logger.LogDebug(277, "ValidateExp {Expression} -> success", request.Expression);
+			return await Task.FromResult(new GenericResponse(0, "Valid"));
+		}
+		catch (CarbonException ex)
+		{
+			Logger.LogDebug(278, "ValidateSpecImpl {Expression} -> {Message}", request.Expression, ex.Message);
 			return await Task.FromResult(new GenericResponse(1, ex.Message));
 		}
 	}
