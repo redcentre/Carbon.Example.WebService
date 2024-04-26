@@ -1,0 +1,10 @@
+﻿<Project>
+  <PropertyGroup>
+    <Version>3.8.28</Version>
+    <Authors>Orthogonal Programming</Authors>
+    <Company>Red Centre Software</Company>
+    <Product>Carbon</Product>
+    <Copyright>Copyright © 2020-2024 Red Centre Software</Copyright>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+  </PropertyGroup>
+</Project>

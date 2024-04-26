@@ -2,17 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>3.8.27</Version>
-    <InformationalVersion>2024-04-25 12:09 GMT+10</InformationalVersion>
     <ApplicationIcon>Carbon.Examples.WebService.WebApi.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Authors>Red Centre Software</Authors>
-    <Company>Red Centre Software</Company>
-    <Product>Crosstab Engine</Product>
     <Description>Web API host service for the Carbon libraries</Description>
-    <Copyright>Copyright © 2020-2024 Red Centre Software</Copyright>
-    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
@@ -65,8 +58,8 @@
 
   <ItemGroup>
     <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.0" />
-    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="2.1.27" />
-    <PackageReference Include="RCS.Carbon.Tables" Version="8.9.12" />
+    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="2.1.28" />
+    <PackageReference Include="RCS.Carbon.Tables" Version="8.9.13" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
   </ItemGroup>
