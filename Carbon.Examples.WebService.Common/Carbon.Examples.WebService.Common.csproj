@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="RCS.Azure.Data.Common" Version="3.0.0" />
-    <PackageReference Include="RCS.Carbon.Shared" Version="8.9.18" />
+    <PackageReference Include="RCS.Carbon.Shared" Version="8.9.19" />
     <PackageReference Include="System.Text.Json" Version="6.0.7" />
   </ItemGroup>
 
