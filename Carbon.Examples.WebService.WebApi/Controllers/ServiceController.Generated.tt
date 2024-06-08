@@ -136,17 +136,6 @@ void EmitClass(string rbase, PMethod[] methods)
 <#
 		}
 		string webargs = string.Join(", ", m.Params.Where(p => p.IsRoute == true).Select(p => string.Format("[FromRoute] {0} {1}", p.Type, p.Name)));;
-		string implargs = m.MakeParams2();
-		if (m.WebPostType != null)
-		{
-			webargs = "[FromBody] " + m.WebPostType + " request";
-			implargs = "request";
-		}
-		if (m.WebFromHeader != null)
-		{
-			webargs = "[FromHeader(Name = " + m.WebFromHeaderName  + ")] string " + m.WebFromHeader;
-			implargs = m.WebFromHeader;
-		}
 		string methpoint = m.Endpoint.Substring(m.Endpoint.IndexOf('/') + 1);
 #>
 		[global::System.CodeDom.Compiler.GeneratedCode("<#=TTName#>", "<#=TTVer#>")]
@@ -190,7 +179,7 @@ void EmitClass(string rbase, PMethod[] methods)
 <#
 		}
 #>
-		public async Task<ActionResult<<#=m.ReturnType#>>> <#=m.Name#>(<#=webargs#>) => await <#=m.Name#>Impl(<#=implargs#>);
+		public async Task<ActionResult<<#=m.ReturnType#>>> <#=m.Name#>(<#=m.MakeWebArgs()#>) => await <#=m.Name#>Impl(<#=m.MakeWebImplArgs()#>);
 
 <#
 	}

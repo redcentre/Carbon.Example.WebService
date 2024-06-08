@@ -240,7 +240,7 @@
   <method name="SetProps" method="Post" endpoint="job/props" auth="*">
     <summary>Sets the display properties of the currently open job.</summary>
     <parameters>
-      <parameter type="XDisplayProperties" name="props" description="A [c]XDisplayProperties[/c] class instance containing the new job properties."/>
+      <parameter type="XDisplayProperties" name="request" description="A [c]XDisplayProperties[/c] class instance containing the new job properties."/>
     </parameters>
     <web postType="XDisplayProperties" direct="true"/>
     <return type="XlsxResponse" description="TODO"/>
@@ -411,7 +411,7 @@
   <method name="ValidateSpec" method="Post" endpoint="job/spec/validate/spec" auth="*">
     <summary>Validates a table spec.</summary>
     <parameters>
-      <parameter type="TableSpec" name="spec" description="Specification information."/>
+      <parameter type="TableSpec" name="request" description="Specification information."/>
     </parameters>
     <web postType="TableSpec" direct="true"/>
     <return type="GenericResponse" description="A generic simple response with validation results."/>
@@ -429,7 +429,7 @@
   <method name="RunSpec" method="Post" endpoint="job/spec" auth="*">
     <summary>Runs a table spec.</summary>
     <parameters>
-      <parameter type="RunSpecRequest" name="spec" description="Specification information."/>
+      <parameter type="RunSpecRequest" name="request" description="Specification information."/>
     </parameters>
     <web postType="RunSpecRequest" direct="true"/>
     <return type="XlsxResponse" description="TODO."/>
@@ -484,6 +484,47 @@
     </parameters>
     <web postType="UpsertDashboardRequest" direct="true"/>
     <return type="AzDashboard" description="The dashboard after processing."/>
+  </method>
+
+  <!-- TEXT ANALYSIS (TA) -->
+
+  <method name="ListTaDefs" method="Get" endpoint="ta/list/{cust}/{job}" auth="*">
+    <summary>Lists TA Definitions for a customer and job.</summary>
+    <parameters>
+      <parameter route="true" type="string" name="cust" description="Customer name."/>
+      <parameter route="true" type="string" name="job" description="Job name."/>
+    </parameters>
+    <return type="TADef[]" description="An array of [c]TADef[/c] objects."/>
+  </method>
+
+  <method name="UpsertTaDef" method="Post" endpoint="ta/upsert/{cust}/{job}" auth="*">
+    <summary>Updates or inserts a TA definition.</summary>
+    <parameters>
+      <parameter route="true" type="string" name="cust" description="Customer name."/>
+      <parameter route="true" type="string" name="job" description="Job name."/>
+      <parameter type="TADef" name="request" description="Specifies the TA definition to update or insert."/>
+    </parameters>
+    <web postType="TADef" direct="true"/>
+    <return type="TADef" description="The TA after processing."/>
+  </method>
+
+  <method name="DeleteTaDef" method="Delete" endpoint="ta/{cust}/{job}/{name}" auth="*">
+    <summary>Deletes a TA definition.</summary>
+    <parameters>
+      <parameter route="true" type="string" name="cust" description="Customer name."/>
+      <parameter route="true" type="string" name="job" description="Job name."/>
+      <parameter route="true" type="string" name="name" description="TA definition name."/>
+    </parameters>
+    <return type="bool" description="True if the definition was found and deleted."/>
+  </method>
+
+  <method name="ExportTaDef" method="Post" endpoint="ta/export" auth="*">
+    <summary>Exports TSAPI data for a TA definition.</summary>
+    <parameters>
+      <parameter type="TADef" name="request" description="Specifies the TA definition to controll export."/>
+    </parameters>
+    <web postType="TADef" direct="true"/>
+    <return type="TSAPIData" description="EXport metadata and responses."/>
   </method>
 
 </methods>

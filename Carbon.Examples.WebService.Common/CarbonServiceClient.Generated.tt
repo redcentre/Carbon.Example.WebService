@@ -138,13 +138,13 @@ void EmitGroup(string groupname, PMethod[] methods)
 			if (m.WebPostType != null && m.WebPostDirect != true)	// FRAGILE
 			{
 #>
-			var data = new <#=m.WebPostType#>(<#=m.MakeParams2()#>);
+			var request = new <#=m.WebPostType#>(<#=m.MakeParams2()#>);
 <#
 			}
 			if (m.Session == "start")
 			{
 #>
-			Session = await InnerPost<<#=m.ReturnType#>>($"<#=m.Endpoint#>", data);
+			Session = await InnerPost<<#=m.ReturnType#>>($"<#=m.Endpoint#>", request);
 			EnsureIdHeader();
 			return Session;
 <#
@@ -159,9 +159,9 @@ void EmitGroup(string groupname, PMethod[] methods)
 				}
 				else
 				{
-					string arg = m.WebPostDirect == true ? m.Params[0].Name : "data";	// FRAGILE
+					string arg = m.WebPostDirect == true ? m.Params[0].Name : "request";	// FRAGILE
 #>
-			return await InnerPost<<#=m.ReturnType#>>($"<#=m.Endpoint#>", <#=arg#>);
+			return await InnerPost<<#=m.ReturnType#>>($"<#=m.Endpoint#>", request);
 <#
 				}
 			}

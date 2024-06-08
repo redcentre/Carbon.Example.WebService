@@ -101,6 +101,12 @@ public abstract class ServiceControllerBase : ControllerBase
 	/// </summary>
 	protected int? RequestSequence => GetContextItemInt(GeneralActionFilterAttribute.RequestSequenceItemKey);
 
+	protected string GetKey(string customerName)
+	{
+		SessionItem item = SessionManager.FindSession(SessionId, true)!;
+		return item.FindStorageKey(customerName, true)!;
+	}
+
 	string? GetContextItemString(string key)
 	{
 		if (!HttpContext.Items.TryGetValue(key, out object? value)) return null;

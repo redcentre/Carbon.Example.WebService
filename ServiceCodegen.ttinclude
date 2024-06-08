@@ -131,6 +131,34 @@ sealed class PMethod
 	{
 		return string.Join(", ", Params.Select(p => p.Name));
 	}
+	public string MakeWebArgs()
+	{
+		var list = new List<string>();
+		list.AddRange(Params.Where(p => p.IsRoute == true).Select(p => string.Format("[FromRoute] {0} {1}", p.Type, p.Name)));
+		if (WebPostType != null)
+		{
+			list.Add("[FromBody] " + WebPostType + " request");
+		}
+		if (WebFromHeader != null)
+		{
+			list.Add("[FromHeader(Name = " + WebFromHeaderName + ")] string " + WebFromHeader);
+		}
+		return string.Join(", ", list);
+	}
+	public string MakeWebImplArgs()
+	{
+		var list = new List<string>();
+		list.AddRange(Params.Where(p => p.IsRoute == true).Select(p => p.Name));
+		if (WebPostType != null)
+		{
+			list.Add("request");
+		}
+		if (WebFromHeader != null)
+		{
+			list.Add(WebFromHeader);
+		}
+		return string.Join(", ", list);
+	}
 	public PParam[] RefTypeParams => Params.Where(p => !SkipNullCheckTypes.Contains(p.Type)).ToArray();
 	public string RouteBase => Endpoint?.Split('/').First();
 }

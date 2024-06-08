@@ -659,6 +659,53 @@
             they are crypto-strong. A session Id contains about 50 bits of entropy.
             </summary>
         </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.Controllers.TaController">
+            <summary>
+            Web API controller for endpoint /ta
+            </summary>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.TaController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
+            <summary>
+            Constructs a service controller for endpoint /ta. Lifetime is controlled by the service hosting.
+            </summary>
+            <param name="logfac">Logger factory reference provided by dependency injection.</param>
+            <param name="config">Configuration reference provided by dependency injection.</param>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.TaController.ListTaDefs(System.String,System.String)">
+            <summary>
+            Lists TA Definitions for a customer and job.
+            </summary>
+            <param name="cust">Customer name.</param>
+            <param name="job">Job name.</param>
+            <response code="200">An array of <c>TADef</c> objects.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.TaController.UpsertTaDef(System.String,System.String,RCS.Azure.Data.Common.TADef)">
+            <summary>
+            Updates or inserts a TA definition.
+            </summary>
+            <param name="request">A serialized <c>TADef</c> provided in the request body.</param>
+            <response code="200">The TA after processing.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.TaController.DeleteTaDef(System.String,System.String,System.String)">
+            <summary>
+            Deletes a TA definition.
+            </summary>
+            <param name="cust">Customer name.</param>
+            <param name="job">Job name.</param>
+            <param name="name">TA definition name.</param>
+            <response code="200">True if the definition was found and deleted.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.TaController.ExportTaDef(RCS.Azure.Data.Common.TADef)">
+            <summary>
+            Exports TSAPI data for a TA definition.
+            </summary>
+            <param name="request">A serialized <c>TADef</c> provided in the request body.</param>
+            <response code="200">EXport metadata and responses.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
         <member name="T:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase">
             <ignore/>
         </member>

@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>$(DefineConstants);NO_TRAFFIC</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_TRAFFIC;EXAMPLE_PROVIDER</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -57,14 +57,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.0" />
-    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="2.1.34" />
-    <PackageReference Include="RCS.Carbon.Tables" Version="8.9.19" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Azure.Data\RCS.Azure.Data.Common\RCS.Azure.Data.Common.csproj" />
+    <ProjectReference Include="..\..\..\Azure.Data\RCS.Azure.Data.Processor\RCS.Azure.Data.Processor.csproj" />
+    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Export\RCS.Carbon.Export.csproj" />
+    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Tables\RCS.Carbon.Tables.csproj" />
+    <ProjectReference Include="..\..\Carbon.Examples.Licensing.Provider\RCS.Carbon.Licensing.Example\RCS.Carbon.Licensing.Example.csproj" />
     <ProjectReference Include="..\Carbon.Examples.WebService.Common\Carbon.Examples.WebService.Common.csproj" />
     <ProjectReference Include="..\Carbon.Examples.WebService.Logging\Carbon.Examples.WebService.Logging.csproj" />
   </ItemGroup>

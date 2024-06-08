@@ -29,11 +29,5 @@ partial class DashboardController
 		return await AzProc.UpsertDashboardAsync(GetKey(request.CustomerName), request, VDirName);
 	}
 
-	string GetKey(string customerName)
-	{
-		SessionItem item = SessionManager.FindSession(SessionId, true)!;
-		return item.FindStorageKey(customerName, true)!;
-	}
-
 	string VDirName => Config["CarbonApi:DashboardsVDirName"]!;
 }
