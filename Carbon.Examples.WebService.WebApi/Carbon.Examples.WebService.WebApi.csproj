@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>Carbon.Examples.WebService.WebApi.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
@@ -65,6 +65,8 @@
     <ProjectReference Include="..\..\..\Azure.Data\RCS.Azure.Data.Common\RCS.Azure.Data.Common.csproj" />
     <ProjectReference Include="..\..\..\Azure.Data\RCS.Azure.Data.Processor\RCS.Azure.Data.Processor.csproj" />
     <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Export\RCS.Carbon.Export.csproj" />
+    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Licensing.Shared\RCS.Carbon.Licensing.Shared.csproj" />
+    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Shared\RCS.Carbon.Shared.csproj" />
     <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Tables\RCS.Carbon.Tables.csproj" />
     <ProjectReference Include="..\..\Carbon.Examples.Licensing.Provider\RCS.Carbon.Licensing.Example\RCS.Carbon.Licensing.Example.csproj" />
     <ProjectReference Include="..\Carbon.Examples.WebService.Common\Carbon.Examples.WebService.Common.csproj" />

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Description>Unit tests for the Carbon example web service</Description>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Shared\RCS.Carbon.Shared.csproj" />
     <ProjectReference Include="..\Carbon.Examples.WebService.Common\Carbon.Examples.WebService.Common.csproj" />
   </ItemGroup>
 
