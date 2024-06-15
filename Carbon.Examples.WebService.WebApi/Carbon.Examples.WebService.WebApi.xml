@@ -680,7 +680,7 @@
             <response code="200">An array of <c>TADef</c> objects.</response>
             <response code="403">The request failed because no authenticated session has been established with the web service.</response>
         </member>
-        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.TaController.UpsertTaDef(System.String,System.String,RCS.Azure.Data.Common.TADef)">
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.TaController.UpsertTaDef(System.String,System.String,System.String,RCS.Azure.Data.Common.TADef)">
             <summary>
             Updates or inserts a TA definition.
             </summary>
@@ -704,6 +704,14 @@
             </summary>
             <param name="request">A serialized <c>TADef</c> provided in the request body.</param>
             <response code="200">EXport metadata and responses.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.TaController.AnalyseTaDef(RCS.Azure.Data.Common.TADef)">
+            <summary>
+            Run LLM analysis for a TA definition.
+            </summary>
+            <param name="request">A serialized <c>TADef</c> provided in the request body.</param>
+            <response code="200">Results of text analysis.</response>
             <response code="403">The request failed because no authenticated session has been established with the web service.</response>
         </member>
         <member name="T:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase">

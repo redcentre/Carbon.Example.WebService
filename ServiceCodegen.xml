@@ -497,12 +497,13 @@
     <return type="TADef[]" description="An array of [c]TADef[/c] objects."/>
   </method>
 
-  <method name="UpsertTaDef" method="Post" endpoint="ta/upsert/{cust}/{job}" auth="*">
+  <method name="UpsertTaDef" method="Post" endpoint="ta/upsert/{cust}/{job}/{user}" auth="*">
     <summary>Updates or inserts a TA definition.</summary>
     <parameters>
       <parameter route="true" type="string" name="cust" description="Customer name."/>
       <parameter route="true" type="string" name="job" description="Job name."/>
       <parameter type="TADef" name="request" description="Specifies the TA definition to update or insert."/>
+      <parameter route="true" type="string" name="user" description="User name."/>
     </parameters>
     <web postType="TADef" direct="true"/>
     <return type="TADef" description="The TA after processing."/>
@@ -521,10 +522,19 @@
   <method name="ExportTaDef" method="Post" endpoint="ta/export" auth="*">
     <summary>Exports TSAPI data for a TA definition.</summary>
     <parameters>
-      <parameter type="TADef" name="request" description="Specifies the TA definition to controll export."/>
+      <parameter type="TADef" name="request" description="Specifies the TA definition to control export."/>
     </parameters>
     <web postType="TADef" direct="true"/>
     <return type="TSAPIData" description="EXport metadata and responses."/>
+  </method>
+
+  <method name="AnalyseTaDef" method="Post" endpoint="ta/analyse" auth="*">
+    <summary>Run LLM analysis for a TA definition.</summary>
+    <parameters>
+      <parameter type="TADef" name="request" description="Specifies the TA definition to control analysis."/>
+    </parameters>
+    <web postType="TADef" direct="true"/>
+    <return type="TADef" description="Results of text analysis."/>
   </method>
 
 </methods>

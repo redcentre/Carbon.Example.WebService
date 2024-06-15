@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carbon.Examples.WebService.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carbon.Examples.WebService.Common", "Carbon.Examples.WebService.Common\Carbon.Examples.WebService.Common.csproj", "{1527D35E-C30B-4C96-BF96-BEC82870A750}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RCS.Carbon.Shared", "..\..\Carbon\Solution\RCS.Carbon.Shared\RCS.Carbon.Shared.csproj", "{83EAEF21-E072-4F03-B3DB-F332AE21AF07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RCS.Carbon.Shared", "..\..\Carbon\Carbon\RCS.Carbon.Shared\RCS.Carbon.Shared.csproj", "{83EAEF21-E072-4F03-B3DB-F332AE21AF07}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reference Projects", "Reference Projects", "{D2BD4A48-31CA-452F-BD2B-84E60B149C96}"
 EndProject
