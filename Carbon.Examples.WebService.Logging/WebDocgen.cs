@@ -49,6 +49,7 @@ internal class WebDocgen : IDocumentFactory
 			if (!props.TryGetValue(key, out var lepv)) return default;
 			if (lepv == null) return default;
 			var scalar = (ScalarValue)lepv;
+			if (scalar.Value == null) return default;
 			return (T?)scalar.Value;
 		}
 		string? GetStructVal(IReadOnlyDictionary<string, LogEventPropertyValue> props, AzureTableStorageSinkOptions options, string key)

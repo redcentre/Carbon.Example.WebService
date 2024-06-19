@@ -8,7 +8,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RCS.Azure.Data.Common;
 using RCS.Carbon.Export;
@@ -19,23 +18,41 @@ namespace Carbon.Examples.WebService.WebApi.Controllers;
 
 partial class TaController
 {
-	async Task<TADef[]> ListTaDefsImpl(string cust, string job)
+	async Task<TADef[]> ListTaDefsImpl()
 	{
-		Logger.LogInformation(670, "List TADef {CustomerName} {JobName}", cust, job);
-		return await AzProc.ListTaDefsAsync(GetKey(cust), job);
+		SessionItem si = SessionManager.FindSession(SessionId, true)!;
+		var deflist = await AzProc.ListTaDefsAsync(si.OpenStorageKey!, si.OpenJobName!);
+		Logger.LogInformation(670, "List TADef {CustomerName} {JobName} -> {Count}", si.OpenCustomerName, si.OpenJobName, deflist.Length);
+		return deflist;
 	}
 
-	async Task<TADef> UpsertTaDefImpl(string cust, string job, string userName, TADef def)
+	async Task<TADef> UpsertTaDefImpl(TADef def)
 	{
-		Logger.LogInformation(671, "Upsert TADef {CustomerName} {JobName} {Def} {User}", cust, job, def, userName);
-		return await AzProc.UpsertTaDef(GetKey(cust), job, def, userName);
+		SessionItem si = SessionManager.FindSession(SessionId, true)!;
+		var olddef = await AzProc.GetDefAsync(si.OpenStorageKey!, si.OpenJobName!, def.Uid);
+		if (olddef == null)
+		{
+			def.CreatedUtc = DateTime.UtcNow;
+			def.CreatedUserName = si.UserName;
+			def.Name ??= "Untitled";
+		}
+		var updef = await AzProc.UpsertTaDef(si.OpenStorageKey!, si.OpenJobName!, def);
+		Logger.LogInformation(671, "Upsert TADef {CustomerName} {JobName} {Def}", si.OpenCustomerName, si.OpenJobName, def);
+		return updef;
 	}
 
-	async Task<bool> DeleteTaDefImpl(string customerName, string jobName, string taName)
+	async Task<bool> DeleteTaDefImpl(Guid uid)
 	{
-		return await AzProc.DeleteTaDef(GetKey(customerName), jobName, taName);
+		SessionItem si = SessionManager.FindSession(SessionId, true)!;
+		return await AzProc.DeleteTaDef(si.OpenStorageKey!, si.OpenJobName!, uid);
 	}
 
+	/// <summary>
+	/// An export just just runs the export process early so the user can preview the
+	/// data that will be available via the same call to the LLM later. The user can
+	/// tweak the export parameters to their satisfaction before the LLM analysis.
+	/// No stats are updated.
+	/// </summary>
 	async Task<TSAPIData> ExportTaDefImpl(TADef def)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
@@ -95,29 +112,42 @@ partial class TaController
 		return expdata;
 	}
 
+	/// <summary>
+	/// The export parameters are sent to the LLM service so it can make a reverse call to
+	/// get the export data to be analysed.
+	/// </summary>
 	async Task<TADef> AnalyseTaDefImpl(TADef def)
 	{
+		SessionItem si = SessionManager.FindSession(SessionId, true)!;
 		var client = new HttpClient();
-		client.DefaultRequestHeaders.Add("Authorization", "Bearer hl-iVzjP0HLN4CtsHJrk4aP3wpeyF4UGg0cw3vBUWLtiJw=");
+		string llmToken = Config["LLM:BearerToken"]!;
+		string llmModel = Config["LLM:PostModel"]!;
+		string llmRole = Config["LLM:PostRole"]!;
+		string llmUri = Config["LLM:Uri"]!;
+		client.DefaultRequestHeaders.Add("Authorization", $"Bearer {llmToken}");
 		var postdata = new
 		{
-			model = "doesnt-matter",
-			messages = new [] { new { role = "user", content = def.Question } }
+			model = llmModel,
+			messages = new [] { new { role = llmRole, content = def.Question } }
 		};
 		string postjson = JsonSerializer.Serialize(postdata);
 		var postContent = new StringContent(postjson, Encoding.UTF8, MediaTypeNames.Application.Json);
 		string varjoin = string.Join(",", def.VariableNames);
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(60000);
+		cts.CancelAfter(def.TimeoutSeconds * 1000);
 		foreach (var header in client.DefaultRequestHeaders)
 		{
 			Trace.WriteLine($"{header.Key} = {string.Join(",", header.Value)}");
 		}
-		Trace.WriteLine(postjson);
-		Trace.WriteLine($"varnames={string.Join(",", def.VariableNames)}");
-		Trace.WriteLine($"filters={def.Filter}");
-		string uri = $"https://bayesprice.helix.ml/v1/chat/completions?varnames={Uri.EscapeDataString(varjoin)}&filters={Uri.EscapeDataString(def.Filter)}";
-		Trace.WriteLine(uri);
+		//Trace.WriteLine(postjson);
+		//Trace.WriteLine($"varnames={string.Join(",", def.VariableNames)}");
+		//Trace.WriteLine($"filters={def.Filter}");
+		++def.AnalyseCount;
+		def.AnalyseUtc = DateTime.UtcNow;
+		def.AnalyseUserName = si.UserName;
+		await AzProc.UpsertTaDef(si.OpenStorageKey!, si.OpenJobName!, def);
+		string uri = string.Format(llmUri, Uri.EscapeDataString(varjoin), Uri.EscapeDataString(def.Filter));
+		//Trace.WriteLine(uri);
 		var resp = await client.PostAsync(uri, postContent, cts.Token);
 		string json = await resp.Content.ReadAsStringAsync();
 		if (resp.StatusCode != System.Net.HttpStatusCode.OK)
@@ -130,8 +160,10 @@ partial class TaController
 		JsonElement choice0 = choices.EnumerateArray().First();
 		if (!choice0.TryGetProperty("message", out JsonElement message)) throw new ApplicationException("message element not found");
 		if (!message.TryGetProperty("content", out JsonElement content)) throw new ApplicationException("content element not found");
-		def.Answer = content.GetString() ?? "Empty response";
-		Trace.WriteLine(def.Answer);
+		string md = content.GetString() ?? "No response";
+		def.AnswerHtml = Markdig.Markdown.ToHtml(md);
+		await AzProc.UpsertTaDef(si.OpenStorageKey!, si.OpenJobName!, def);
+		Trace.WriteLine(def.AnswerHtml);
 		return def;
 	}
 }

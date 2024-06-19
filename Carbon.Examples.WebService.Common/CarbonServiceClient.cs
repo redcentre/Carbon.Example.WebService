@@ -226,8 +226,6 @@ namespace Carbon.Examples.WebService.Common
 				if (response.StatusCode != System.Net.HttpStatusCode.OK)
 				{
 					AnalyzeBadResponse(response, respjson);
-					//var error = JsonSerializer.Deserialize<ErrorResponse>(respjson, JOpts)!;
-					//throw new CarbonServiceException(error.Code, error.Message);
 				}
 				return JsonSerializer.Deserialize<T>(respjson, JOpts)!;
 			}

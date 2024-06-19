@@ -488,33 +488,24 @@
 
   <!-- TEXT ANALYSIS (TA) -->
 
-  <method name="ListTaDefs" method="Get" endpoint="ta/list/{cust}/{job}" auth="*">
+  <method name="ListTaDefs" method="Get" endpoint="ta/list" auth="*">
     <summary>Lists TA Definitions for a customer and job.</summary>
-    <parameters>
-      <parameter route="true" type="string" name="cust" description="Customer name."/>
-      <parameter route="true" type="string" name="job" description="Job name."/>
-    </parameters>
     <return type="TADef[]" description="An array of [c]TADef[/c] objects."/>
   </method>
 
-  <method name="UpsertTaDef" method="Post" endpoint="ta/upsert/{cust}/{job}/{user}" auth="*">
+  <method name="UpsertTaDef" method="Post" endpoint="ta/upsert" auth="*">
     <summary>Updates or inserts a TA definition.</summary>
     <parameters>
-      <parameter route="true" type="string" name="cust" description="Customer name."/>
-      <parameter route="true" type="string" name="job" description="Job name."/>
       <parameter type="TADef" name="request" description="Specifies the TA definition to update or insert."/>
-      <parameter route="true" type="string" name="user" description="User name."/>
     </parameters>
     <web postType="TADef" direct="true"/>
     <return type="TADef" description="The TA after processing."/>
   </method>
 
-  <method name="DeleteTaDef" method="Delete" endpoint="ta/{cust}/{job}/{name}" auth="*">
+  <method name="DeleteTaDef" method="Delete" endpoint="ta/{uid}" auth="*">
     <summary>Deletes a TA definition.</summary>
     <parameters>
-      <parameter route="true" type="string" name="cust" description="Customer name."/>
-      <parameter route="true" type="string" name="job" description="Job name."/>
-      <parameter route="true" type="string" name="name" description="TA definition name."/>
+      <parameter route="true" type="Guid" name="uid" description="Ta unique id."/>
     </parameters>
     <return type="bool" description="True if the definition was found and deleted."/>
   </method>
@@ -525,7 +516,7 @@
       <parameter type="TADef" name="request" description="Specifies the TA definition to control export."/>
     </parameters>
     <web postType="TADef" direct="true"/>
-    <return type="TSAPIData" description="EXport metadata and responses."/>
+    <return type="TSAPIData" description="Export metadata and responses."/>
   </method>
 
   <method name="AnalyseTaDef" method="Post" endpoint="ta/analyse" auth="*">
