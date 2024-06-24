@@ -13,6 +13,7 @@ using RCS.Azure.Data.Common;
 using RCS.Carbon.Export;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Variables;
+using TSAPI.Public.Queries;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 
@@ -59,7 +60,11 @@ partial class TaController
 		var export = new ExportEngine();
 		export.AttachJob(wrap.Engine);
 		string varjoin = string.Join(",", def.VariableNames);
-		TSAPIData tsdata = await Task.Run(() => export.ExportTSAPIVarFilter(varjoin, def.Filter));
+		var query = new InterviewsQuery()
+		{
+			Variables = def.VariableNames.ToList()
+		};
+		TSAPIData tsdata = await Task.Run(() => export.ExportTSAPI(query, def.Filter));
 		if (tsdata.MetaData == null ||
 			tsdata.MetaData.Variables == null ||
 			tsdata.MetaData.Variables.Count == 0 ||

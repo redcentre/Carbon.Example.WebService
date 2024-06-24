@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>$(DefineConstants);NO_TRAFFIC;EXAMPLE_PROVIDER</DefineConstants>
+    <DefineConstants>$(DefineConstants);NO_TRAFFIC;NO_EXAMPLE_PROVIDER</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
