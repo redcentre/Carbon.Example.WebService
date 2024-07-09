@@ -7,20 +7,14 @@ namespace Carbon.Examples.WebService.Logging;
 
 public static class WebLog
 {
-	public static void Startup(IConfiguration configuration)
+	public static void Startup(IConfiguration configuration, string storageConnect, string logTableName)
 	{
-		string appconnect = configuration["CarbonApi:ApplicationStorageConnect"]!;
-		string logtable = configuration["CarbonApi:LogTableName"] ?? "ServiceLog";
-		string? logpk = configuration["CarbonApi:LogPartitionKey"];
-		if (string.IsNullOrEmpty(logpk))
-		{
-			logpk = Environment.MachineName;
-		}
+		string? logpk = Environment.MachineName;
 		Log.Logger = new LoggerConfiguration()
 			.ReadFrom.Configuration(configuration)
 			.WriteTo.AzureTableStorage(
-				appconnect,
-				storageTableName: logtable,
+				storageConnect,
+				storageTableName: logTableName,
 				documentFactory: new WebDocgen(logpk)
 			)
 			.CreateLogger();
@@ -33,7 +27,7 @@ public static class WebLog
 	}
 
 	[MessageTemplateFormatMethod("messageTemplate")]
-	public static void Verbose(string messageTemplate, params object?[] propertyValues) => Log.Verbose(messageTemplate, propertyValues);
+	public static void Trace(string messageTemplate, params object?[] propertyValues) => Log.Logger.Verbose(messageTemplate, propertyValues);
 
 	[MessageTemplateFormatMethod("messageTemplate")]
 	public static void Debug(string messageTemplate, params object?[] propertyValues) => Log.Debug(messageTemplate, propertyValues);

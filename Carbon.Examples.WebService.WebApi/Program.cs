@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-#if EXAMPLE_PROVIDER
+#if SQL_PRODUCTION || SQL_TESTING
 using RCS.Carbon.Licensing.Example;
 #endif
 using RCS.Carbon.Licensing.RedCentre;
@@ -30,7 +30,22 @@ builder.Services.AddCors(options =>
 	});
 });
 builder.Host.UseSerilog();
-WebLog.Startup(builder.Configuration);
+string storageConnect = builder.Configuration["CarbonApi:ApplicationStorageConnect"]!;
+#if (SQL_PRODUCTION || RCS_PRODUCTION)
+string? logTableName = builder.Configuration["CarbonApi:LogTableName"];
+if (string.IsNullOrEmpty(logTableName))
+{
+	logTableName  ="ServiceLog3";
+}
+#else
+string? logTableName = builder.Configuration["CarbonApi:LogTestTableName"];
+if (string.IsNullOrEmpty(logTableName))
+{
+	logTableName  ="ServiceLog3Test";
+}
+#endif
+
+WebLog.Startup(builder.Configuration, storageConnect, logTableName);
 WebLog.Info($"Start {an.Name} {an.Version}");
 
 builder.Services.AddControllers(opt =>
@@ -88,7 +103,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddControllers()
 	.AddXmlSerializerFormatters();
 
-#if EXAMPLE_PROVIDER
+#if (SQL_PRODUCTION || SQL_TESTING)
 
 // ┌───────────────────────────────────────────────────────────────┐
 // │  We are using the example licensing provider which is a       │
@@ -99,7 +114,7 @@ string adoconnect = builder.Configuration["CarbonApi:AdoConnect"];
 var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
 
 // ===== THIS IS FOR INTERNAL TESTING ONLY =====
-//string licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
+//string licaddress = "https://rcsapps.azurewebsites.net/licensing8test/";
 //int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 //licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
 
@@ -111,10 +126,23 @@ var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
 // │  calls to the RCS custom licensing web service.               │
 // └───────────────────────────────────────────────────────────────┘
 
-#if RCSTEST
-string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";    // TODO: replace the licaddress with a different config key for testing "CarbonApi:LicensingTestBaseAddress"
+#if DEBUG || RELEASE
+string licaddress = "http://localhost:52123/";
+//string licaddress = ""https://localhost:7238/";
+#elif RCS_TESTING
+string? licaddress = builder.Configuration["CarbonApi:LicensingTestBaseAddress"];
+if (string.IsNullOrEmpty(licaddress))
+{
+	licaddress = "https://rcsapps.azurewebsites.net/licensing8test/";
+
+}
 #else
 string licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
+if (string.IsNullOrEmpty(licaddress))
+{
+	licaddress = "https://rcsapps.azurewebsites.net/licensing8/";
+
+}
 #endif
 int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
@@ -140,8 +168,7 @@ app.UseSwaggerUI();
 if (app.Environment.IsDevelopment())
 {
 	//app.UseDeveloperExceptionPage();
-	// Use the following to see live error handling when debugging
-	app.UseExceptionHandler("/error");
+	app.UseExceptionHandler("/error");  // <------ Use the following to see live error handling when debugging
 }
 else
 {
@@ -160,7 +187,7 @@ RCS.Carbon.Shared.Log.CarbonLog += (s, e) =>
 	switch (e.Level)
 	{
 		case RCS.Carbon.Shared.LogLevel.Trace:
-			WebLog.Verbose(e.Message);
+			WebLog.Trace(e.Message);
 			break;
 		case RCS.Carbon.Shared.LogLevel.Debug:
 			WebLog.Debug(e.Message);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -47,22 +48,11 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 		string sid = sessionId?[..3] ?? "---";
 		if (browsable != false)
 		{
-			logger!.LogDebug("{RequestSequence} {Sid} {Method} {Path}", requestSequence, sid, req.Method, req.Path);
+			using (logger!.BeginScope(new Dictionary<string, object?> { { "RequestSequence", requestSequence }, { "Sid", sid } }))
+			{
+				logger!.LogDebug(750, "{Method} {Path}", req.Method, req.Path);
+			}
 		}
-#if TRAFFIC
-            object? argreq = context.ActionArguments.TryGetValue("request", out var o) ? o : null;
-            using (var writer = MakeWriter())
-            {
-                writer.WriteLine(new string('=', 120));
-                writer.WriteLine($"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff} {requestSequence} {sid} {req.Method} {req.Path}");
-                if (argreq != null)
-                {
-                    writer.WriteLine($"{argreq.GetType().Name}");
-                    string json = JsonSerializer.Serialize(argreq, JsonOpts);
-                    writer.WriteLine(json);
-                }
-            }
-#endif
 		string method = req.Method;
 		string url = req.Path.ToString();
 		SessionManager.UpdateActivity(sessionId ?? "-", $"{method} {url}");
@@ -89,7 +79,7 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 				started = dt;
 				secs = DateTime.Now.Subtract(started).TotalSeconds;
 				secs = Math.Round(secs, 3);
-				context.HttpContext.Response.Headers.Add(HeaderElapsed, secs.ToString("F3"));
+				context.HttpContext.Response.Headers[HeaderElapsed] = secs.ToString("F3");
 			}
 		}
 		string? sessionId = GetSesssId(context.HttpContext.Request);
@@ -121,32 +111,22 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 		string? errorStack = context.HttpContext.Items.TryGetValue("ErrorStack", out m) ? m.ToString() : null;
 		if (browsable != false)
 		{
-			if (status >= 500)
+			using (logger!.BeginScope(new Dictionary<string, object?> { { "RequestSequence", requestSequence }, { "Sid", sid } }))
 			{
-				logger!.LogError("{RequestSequence} {Method} {Path} {Sid} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", requestSequence, context.HttpContext.Request.Method, context.HttpContext.Request.Path, sid, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
-			}
-			else if (status >= 400)
-			{
-				logger!.LogWarning("{RequestSequence} {Method} {Path} {Sid} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", requestSequence, context.HttpContext.Request.Method, context.HttpContext.Request.Path, sid, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
-			}
-			else
-			{
-				logger!.LogInformation("{RequestSequence} {Method} {Path} {Sid} {Status} {Seconds} {Message}", requestSequence, context.HttpContext.Request.Method, context.HttpContext.Request.Path, sid, status, secs, message);
+				if (status >= 500)
+				{
+					logger!.LogError(752, "{Method} {Path} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
+				}
+				else if (status >= 400)
+				{
+					logger!.LogWarning(754, "{Method} {Path} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
+				}
+				else
+				{
+					logger!.LogInformation(756, "{Method} {Path} {Status} {Seconds} {Message}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message);
+				}
 			}
 		}
-#if TRAFFIC
-            using (var writer = MakeWriter())
-            {
-                writer.WriteLine(new string('-', 120));
-                writer.WriteLine($"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff} {requestSequence} {sid} {context.HttpContext.Response.StatusCode} {secs:F2} {code}");
-                if (showobj != null)
-                {
-                    writer.WriteLine($"{showobj.GetType().Name}");
-                    string json = JsonSerializer.Serialize(showobj, JsonOpts);
-                    writer.WriteLine(json);
-                }
-            }
-#endif
 		base.OnResultExecuting(context);
 	}
 

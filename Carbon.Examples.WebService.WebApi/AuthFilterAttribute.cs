@@ -57,7 +57,7 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 				{
 					string needsJoin = string.Join(",", requiredRoles);
 					string hasJoin = string.Join(",", si.Roles);
-					logger.LogWarning(700, "Not authorised for {Method} {Path}. Needs [{NeedsJoin}] has [{HasJoin}].", req.Method, req.Path, needsJoin, hasJoin);
+					logger.LogWarning(701, "Not authorised for {Method} {Path}. Needs [{NeedsJoin}] has [{HasJoin}].", req.Method, req.Path, needsJoin, hasJoin);
 					context.Result = MakeAuthFail(3, $"Not authorised for {req.Method} {req.Path}. Needs [{needsJoin}] has [{hasJoin}].");
 					return;
 				}
@@ -68,7 +68,7 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 			}
 			else
 			{
-				logger.LogWarning(700, "Header {Key} is required for {Method} {Path}", CarbonServiceClient.SessionIdHeaderKey, req.Method, req.Path);
+				logger.LogWarning(702, "Header {Key} is required for {Method} {Path}", CarbonServiceClient.SessionIdHeaderKey, req.Method, req.Path);
 				context.Result = MakeAuthFail(2, $"Header key '{CarbonServiceClient.SessionIdHeaderKey}' is required for {req.Method} {req.Path}");
 				return;
 			}

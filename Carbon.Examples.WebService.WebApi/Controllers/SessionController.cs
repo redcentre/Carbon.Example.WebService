@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Carbon.Examples.WebService.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using RCS.Carbon.Licensing.Shared;
 using RCS.Carbon.Shared;
 using tab = RCS.Carbon.Tables;
@@ -23,7 +22,7 @@ partial class SessionController
 		var sessinfo = LicToInfo(licence, sessionId);
 		string[] state = engine.SaveState();
 		SessionManager.SaveState(sessionId, state);
-		Logger.LogInformation(103, "{RequestSequence} Start Free Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
+		LogInfo(103, "{RequestSequence} Start Free Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
 		return Ok(sessinfo);
 	}
 
@@ -38,7 +37,7 @@ partial class SessionController
 			var accisessinfofo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
-			Logger.LogInformation(100, "{RequestSequence} Login Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
+			LogInfo(100, "{RequestSequence} Login Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
 			return Ok(accisessinfofo);
 		}
 		catch (CarbonException ex)
@@ -58,7 +57,7 @@ partial class SessionController
 			var sessinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
-			Logger.LogInformation(102, "{RequestSequence} Login Session {SessionName} Name {LicenceName}", RequestSequence, sessionId, licence.Name);
+			LogInfo(102, "{RequestSequence} Login Session {SessionName} Name {LicenceName}", RequestSequence, sessionId, licence.Name);
 			return Ok(sessinfo);
 		}
 		catch (CarbonException ex)
@@ -71,7 +70,7 @@ partial class SessionController
 	{
 		bool success = SessionManager.EndSession(sessionId);
 		long total = SessionManager.DeleteState(sessionId);
-		Logger.LogInformation(110, "{RequestSequence} {Sid} End Session {SessionId} {Total}", RequestSequence, Sid, sessionId, total);
+		LogInfo(110, "End Session {SessionId} {Total}", RequestSequence, Sid, sessionId, total);
 		SessionCleanup();
 		return await Task.FromResult(success);
 	}
@@ -90,13 +89,13 @@ partial class SessionController
 			bool success = SessionManager.EndSession(sessionId);
 			long total = SessionManager.DeleteState(sessionId);
 			string showuserid = si.UserId ?? "NULL";
-			Logger.LogInformation(112, "{RequestSequence} {Sid} Logoff Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", RequestSequence, Sid, sessionId, count, showuserid, success, total);
+			LogInfo(112, "Logoff Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", RequestSequence, Sid, sessionId, count, showuserid, success, total);
 			SessionCleanup();
 			return Ok(count);
 		}
 		else
 		{
-			Logger.LogWarning(113, "{RequestSequence} {Sid} Logoff Session {SessionId} not found", RequestSequence, Sid, sessionId);
+			LogWarn(113, "Logoff Session {SessionId} not found", RequestSequence, Sid, sessionId);
 			return Ok(-1);
 		}
 	}
@@ -115,13 +114,13 @@ partial class SessionController
 			bool success = SessionManager.EndSession(sessionId);
 			long total = SessionManager.DeleteState(sessionId);
 			string showuserid = si.UserId ?? "NULL";
-			Logger.LogInformation(114, "{RequestSequence} {Sid} Return Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", RequestSequence, Sid, sessionId, count, showuserid, success, total);
+			LogInfo(114, "Return Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", RequestSequence, Sid, sessionId, count, showuserid, success, total);
 			SessionCleanup();
 			return Ok(count);
 		}
 		else
 		{
-			Logger.LogWarning(115, "{RequestSequence} {Sid} Return Session {SessionId} not found", RequestSequence, Sid, sessionId);
+			LogWarn(115, "Return Session {SessionId} not found", RequestSequence, Sid, sessionId);
 			return Ok(-1);
 		}
 	}
@@ -136,11 +135,11 @@ partial class SessionController
 		int count = SessionManager.Cleanup(days);
 		if (count == 0)
 		{
-			Logger.LogInformation(140, "No sessions older than {Days} to cleanup", days);
+			LogInfo(140, "No sessions older than {Days} to cleanup", days);
 		}
 		else
 		{
-			Logger.LogInformation(141, "Cleaned {Count} sessions older than {Days}", count, days);
+			LogInfo(141, "Cleaned {Count} sessions older than {Days}", count, days);
 		}
 		return count;
 	}

@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <Version>3.8.44</Version>
+    <Version>8.0.1</Version>
     <Authors>Orthogonal Programming</Authors>
     <Company>Red Centre Software</Company>
     <Product>Carbon</Product>

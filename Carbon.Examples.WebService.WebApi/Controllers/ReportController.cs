@@ -61,7 +61,7 @@ public partial class ReportController : ServiceControllerBase
 		request.DProps.Output.Format = format;
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		string report = wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
-		Logger.LogInformation(510, "GenTab({Format},{Top},{Side},{Filter},{Weight})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight);
+		LogInfo(510, "GenTab({Format},{Top},{Side},{Filter},{Weight})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight);
 		var result = new ContentResult() { Content = report, ContentType = MediaTypeNames.Text.Plain, StatusCode = StatusCodes.Status200OK };
 		return await Task.FromResult(result);
 	}

@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Carbon.Examples.WebService.Common;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using RCS.Carbon.Shared;
 using RCS.RubyCloud.WebService;
 
@@ -58,7 +57,7 @@ partial class JobController
 			Cases = wrap.Engine.Job.JobINI.Cases,
 			TryAzureTemp = wrap.Engine.Job.JobINI.TryAzureTemp
 		};
-		Logger.LogInformation(200, "{RequestSequence} {Sid} Open {CustomerName} Job {JobName} {DProps} {VtCount} {AxCount} {TocNewCount}", RequestSequence, Sid, request.CustomerName, request.JobName, dprops, response.VartreeNames?.Length, axnames?.Length, tocnodes?.Length);
+		LogInfo(200, "Open {CustomerName} Job {JobName} {DProps} {VtCount} {AxCount} {TocNewCount}", request.CustomerName, request.JobName, dprops, response.VartreeNames?.Length, axnames?.Length, tocnodes?.Length);
 		return await Task.FromResult(response);
 	}
 
@@ -74,7 +73,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		string[] lines = wrap.Engine.ReadFileLines(request.Name).ToArray();
-		Logger.LogInformation(210, "{RequestSequence} {Sid} Set props", RequestSequence, Sid);
+		LogInfo(210, "Set props");
 		return await Task.FromResult(lines);
 	}
 
@@ -86,7 +85,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.SimpleTOCGenNodes();
-		Logger.LogInformation(212, "{RequestSequence} {Sid} List simple TOC Nodes {Load} -> {Count}", RequestSequence, Sid, load, gnodes.Length);
+		LogInfo(212, "List simple TOC Nodes {Load} -> {Count}", RequestSequence, Sid, load, gnodes.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -94,7 +93,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.FullTOCGenNodes();
-		Logger.LogInformation(214, "{RequestSequence} {Sid} List full TOC Nodes {Load} -> {Count}", RequestSequence, Sid, load, gnodes.Length);
+		LogInfo(214, "List full TOC Nodes {Load} -> {Count}", RequestSequence, Sid, load, gnodes.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -102,7 +101,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.ExecUserTOCGenNodes();
-		Logger.LogInformation(216, "{RequestSequence} {Sid} List ExecUser TOC Nodes {Load} -> {Count}", RequestSequence, Sid, load, gnodes.Length);
+		LogInfo(216, "List ExecUser TOC Nodes {Load} -> {Count}", RequestSequence, Sid, load, gnodes.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -139,7 +138,7 @@ partial class JobController
 			}
 			lines = CommonUtil.ReadStringLines(report).ToArray();
 		}
-		Logger.LogInformation(230, "{RequestSequence} {Sid} GenTab({Format},{Top},{Side},{Filter},{Weight}) -> #{Length})", RequestSequence, Sid, request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight, lines?.Length);
+		LogInfo(230, "GenTab({Format},{Top},{Side},{Filter},{Weight}) -> #{Length})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight, lines?.Length);
 		return await Task.FromResult(lines);
 	}
 
@@ -148,7 +147,11 @@ partial class JobController
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		SessionManager.SetReportName(SessionId, request.Name);
 		wrap.Engine.TableLoadCBT(request.Name);
-		Logger.LogDebug(232, "LoadReportImpl {Name}", request.Name);
+		//using (Logger.BeginScope(new Dictionary<string, object?> { { "RequestSequence", RequestSequence }, { "Sid", Sid } }))
+		//{
+		//	LogInfo(232, "LoadReport {Name}", request.Name);
+		//}
+		LogDebug(232, "LoadReportImpl {Name} TEST", request.Name);
 		return await Task.FromResult(new GenericResponse(0, $"Loaded {request.Name}"));
 	}
 
@@ -198,14 +201,14 @@ partial class JobController
 	async Task<ActionResult<Guid>> MultiOxtStartImpl(MultiOxtRequest request)
 	{
 		multiOxtStartTime = DateTime.Now;
-		Logger.LogInformation(240, "MultiOxtStartImpl Enter");
+		LogInfo(240, "MultiOxtStartImpl Enter");
 		var state = MakeState(request);
 		state.SessionId = SessionId;
 		state.ParallelCount = request.ParallelCount;
 		ParameterizedThreadStart proc = request.ParallelCount > 1 ? MultiOxtParallelProc : MultiOxtSequentialProc;
 		var t = new Thread(proc);
 		t.Start(state);
-		Logger.LogInformation(242, "MultiOxtStartImpl Exit {StateId} tid={ManagedThreadId}", state.Id, t.ManagedThreadId);
+		LogInfo(242, "MultiOxtStartImpl Exit {StateId} tid={ManagedThreadId}", state.Id, t.ManagedThreadId);
 		return await Task.FromResult(state.Id);
 	}
 
@@ -231,7 +234,7 @@ partial class JobController
 				// is finished and we can remove the state. The caller must recognise that
 				// the Items are present and realise that the reports are finished.
 				RemoveState(moxt.Id);
-				Logger.LogDebug(250, "Multi OXT Id {Id} complete and removed (count down to {MoxtCount})", id, MoxtList.Count);
+				LogDebug(250, "Multi OXT Id {Id} complete and removed (count down to {MoxtCount})", id, MoxtList.Count);
 			}
 			else
 			{
@@ -256,7 +259,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		bool success = wrap.Engine.SaveTableUserTOC(request.Name, request.Sub, true);
-		Logger.LogInformation(260, "{RequestSequence} {Sid} SaveReport {Name}+{Sub}", RequestSequence, Sid, request.Name, request.Sub);
+		LogInfo(260, "SaveReport {Name}+{Sub}", RequestSequence, Sid, request.Name, request.Sub);
 		return await Task.FromResult(new GenericResponse(0, request.Name));
 	}
 
@@ -266,7 +269,7 @@ partial class JobController
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		bool result = wrap.Engine.QuickEdit(request.ShowFreq, request.ShowColPct, request.ShowRowPct, request.ShowSig, request.Filter);
-		Logger.LogInformation(262, "{RequestSequence} {Sid} QuickEdit {Freq} {Col} {Row} {Sig} {Filter}", RequestSequence, Sid, request.ShowFreq, request.ShowColPct, request.ShowColPct, request.ShowSig, request.Filter);
+		LogInfo(262, "QuickEdit {Freq} {Col} {Row} {Sig} {Filter}", RequestSequence, Sid, request.ShowFreq, request.ShowColPct, request.ShowColPct, request.ShowSig, request.Filter);
 		return await MakeXlsxAndUpload(wrap, "Quick");
 	}
 
@@ -289,7 +292,7 @@ partial class JobController
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		wrap.Engine.SetProps(request);
-		Logger.LogInformation(264, "{RequestSequence} {Sid} Set props", RequestSequence, Sid);
+		LogInfo(264, "Set props", RequestSequence, Sid);
 		return await MakeXlsxAndUpload(wrap, "SetProps");
 	}
 
@@ -308,7 +311,7 @@ partial class JobController
 		}
 		catch (CarbonException ex)
 		{
-			Logger.LogTrace(266, $"Axistree -> {ex.Message} (ignored)");
+			LogTrace(266, $"Axistree -> {ex.Message} (ignored)");
 		}
 		try
 		{
@@ -316,7 +319,7 @@ partial class JobController
 		}
 		catch (CarbonException ex)
 		{
-			Logger.LogTrace(267, $"Functree -> {ex.Message} (ignored)");
+			LogTrace(267, $"Functree -> {ex.Message} (ignored)");
 		}
 		var sa = new SpecAggregate()
 		{
@@ -341,7 +344,7 @@ partial class JobController
 		}
 		catch (CarbonException ex)
 		{
-			Logger.LogTrace(268, $"Axistree -> {ex.Message} (ignored)");
+			LogTrace(268, $"Axistree -> {ex.Message} (ignored)");
 		}
 		try
 		{
@@ -349,7 +352,7 @@ partial class JobController
 		}
 		catch (CarbonException ex)
 		{
-			Logger.LogTrace(269, $"Functree -> {ex.Message} (ignored)");
+			LogTrace(269, $"Functree -> {ex.Message} (ignored)");
 		}
 		var sa = new SpecAggregate()
 		{
@@ -369,12 +372,12 @@ partial class JobController
 		try
 		{
 			wrap.Engine.Validate(spec);
-			Logger.LogDebug(270, "ValidateSpecImpl {Spec} -> success", spec);
+			LogDebug(270, "ValidateSpecImpl {Spec} -> success", spec);
 			return await Task.FromResult(new GenericResponse(0, "Valid"));
 		}
 		catch (CarbonException ex)
 		{
-			Logger.LogDebug(271, "ValidateSpecImpl {Spec} -> {Message}", spec, ex.Message);
+			LogDebug(271, "ValidateSpecImpl {Spec} -> {Message}", spec, ex.Message);
 			return await Task.FromResult(new GenericResponse(1, ex.Message));
 		}
 	}
@@ -385,12 +388,12 @@ partial class JobController
 		try
 		{
 			wrap.Engine.ValidateExp(request.Expression);
-			Logger.LogDebug(277, "ValidateExp {Expression} -> success", request.Expression);
+			LogDebug(277, "ValidateExp {Expression} -> success", request.Expression);
 			return await Task.FromResult(new GenericResponse(0, "Valid"));
 		}
 		catch (CarbonException ex)
 		{
-			Logger.LogDebug(278, "ValidateSpecImpl {Expression} -> {Message}", request.Expression, ex.Message);
+			LogDebug(278, "ValidateSpecImpl {Expression} -> {Message}", request.Expression, ex.Message);
 			return await Task.FromResult(new GenericResponse(1, ex.Message));
 		}
 	}
@@ -401,7 +404,7 @@ partial class JobController
 		var watch = new Stopwatch();
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
-		Logger.LogDebug(274, "RunSpecImpl {Spec}", request.Spec);
+		LogDebug(274, "RunSpecImpl {Spec}", request.Spec);
 		wrap.Engine.GenTab(request.Name, request.Spec);
 		return await MakeXlsxAndUpload(wrap, "RunSpec");
 	}
@@ -410,7 +413,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		string[] names = wrap.Engine.ListVartreeNames().ToArray();
-		Logger.LogInformation(276, "{RequestSequence} {Sid} List vartrees {Count}", RequestSequence, Sid, names.Length);
+		LogInfo(276, "List vartrees {Count}", RequestSequence, Sid, names.Length);
 		return await Task.FromResult(names);
 	}
 
@@ -425,7 +428,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.VarTreeAsNodes();
-		Logger.LogInformation(280, "{RequestSequence} {Sid} List vartree nodes -> {Count}", RequestSequence, Sid, gnodes?.Length);
+		LogInfo(280, "List vartree nodes -> {Count}", RequestSequence, Sid, gnodes?.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -433,7 +436,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.AxisTreeAsNodes();
-		Logger.LogInformation(281, "{RequestSequence} {Sid} Get axis tree Nodes -> {Count}", RequestSequence, Sid, gnodes?.Length);
+		LogInfo(281, "Get axis tree Nodes -> {Count}", RequestSequence, Sid, gnodes?.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -441,7 +444,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.FunctionListAsNodes();
-		Logger.LogInformation(282, "{RequestSequence} {Sid} Get function tree Nodes -> {Count}", RequestSequence, Sid, gnodes?.Length);
+		LogInfo(282, "Get function tree Nodes -> {Count}", RequestSequence, Sid, gnodes?.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -449,7 +452,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.AxisAsNodes(name);
-		Logger.LogInformation(283, "{RequestSequence} {Sid} List axis '{Name}' child nodes -> {Count}", RequestSequence, Sid, name, gnodes?.Length);
+		LogInfo(283, "List axis '{Name}' child nodes -> {Count}", RequestSequence, Sid, name, gnodes?.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -457,7 +460,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] nodes = wrap.Engine.VarAsNodes(name);
-		Logger.LogInformation(284, "{RequestSequence} {Sid} Get varmeta '{Name}' Nodes -> {Count}", RequestSequence, Sid, name, nodes?.Length);
+		LogInfo(284, "Get varmeta '{Name}' Nodes -> {Count}", RequestSequence, Sid, name, nodes?.Length);
 		return await Task.FromResult(nodes);
 	}
 

@@ -8,7 +8,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using RCS.Azure.Data.Common;
 using RCS.Carbon.Export;
 using RCS.Carbon.Shared;
@@ -23,7 +22,7 @@ partial class TaController
 	{
 		SessionItem si = SessionManager.FindSession(SessionId, true)!;
 		var deflist = await AzProc.ListTaDefsAsync(si.OpenStorageKey!, si.OpenJobName!);
-		Logger.LogInformation(670, "List TADef {CustomerName} {JobName} -> {Count}", si.OpenCustomerName, si.OpenJobName, deflist.Length);
+		LogInfo(670, "List TADef {CustomerName} {JobName} -> {Count}", si.OpenCustomerName, si.OpenJobName, deflist.Length);
 		return deflist;
 	}
 
@@ -38,7 +37,7 @@ partial class TaController
 			def.Name ??= "Untitled";
 		}
 		var updef = await AzProc.UpsertTaDef(si.OpenStorageKey!, si.OpenJobName!, def);
-		Logger.LogInformation(671, "Upsert TADef {CustomerName} {JobName} {Def}", si.OpenCustomerName, si.OpenJobName, def);
+		LogInfo(671, "Upsert TADef {CustomerName} {JobName} {Def}", si.OpenCustomerName, si.OpenJobName, def);
 		return updef;
 	}
 
@@ -133,7 +132,7 @@ partial class TaController
 		var postdata = new
 		{
 			model = llmModel,
-			messages = new [] { new { role = llmRole, content = def.Question } }
+			messages = new[] { new { role = llmRole, content = def.Question } }
 		};
 		string postjson = JsonSerializer.Serialize(postdata);
 		var postContent = new StringContent(postjson, Encoding.UTF8, MediaTypeNames.Application.Json);

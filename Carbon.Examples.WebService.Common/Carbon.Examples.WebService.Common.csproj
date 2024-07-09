@@ -14,7 +14,7 @@
     <PackageTags>redcentre</PackageTags>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Testing;SQL Production</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -26,7 +26,7 @@ public abstract class ServiceControllerBase : ControllerBase
 	/// <summary>
 	/// All derived controllers can use this logger service.
 	/// </summary>
-	protected static ILogger Logger { get; private set; }
+	static ILogger Logger;
 
 	protected IConfiguration Config { get; private set; }
 
@@ -38,6 +38,34 @@ public abstract class ServiceControllerBase : ControllerBase
 		Logger ??= logfac.CreateLogger("WEBC");
 		Config = config;
 		LicProv = licprov;
+	}
+
+	protected void LogTrace(EventId eventId, string message, params object?[] args) => LogCommon(eventId, Microsoft.Extensions.Logging.LogLevel.Trace, null, message, args);
+
+	protected void LogDebug(EventId eventId, string message, params object?[] args) => LogCommon(eventId, Microsoft.Extensions.Logging.LogLevel.Debug, null, message, args);
+
+	protected void LogInfo(EventId eventId, string message, params object?[] args) => LogCommon(eventId, Microsoft.Extensions.Logging.LogLevel.Information, null, message, args);
+
+	protected void LogWarn(EventId eventId, string message, params object?[] args) => LogCommon(eventId, Microsoft.Extensions.Logging.LogLevel.Warning, null, message, args);
+
+	protected void LogError(EventId eventId, Exception? error, string message, params object?[] args) => LogCommon(eventId, Microsoft.Extensions.Logging.LogLevel.Error, error, message, args);
+
+	void LogCommon(EventId eventId, Microsoft.Extensions.Logging.LogLevel level, Exception? error, string message, params object?[] args)
+	{
+		string? sid = null;
+		if (HttpContext.Request.Headers.TryGetValue(CarbonServiceClient.SessionIdHeaderKey, out StringValues values))
+		{
+			// Unchecked manually get the sid if it's there, and truncate it to 3 character slug (like below).
+			sid = values.FirstOrDefault();
+			if (sid?.Length > 3)
+			{
+				sid = sid[..3];
+			}
+		}
+		using (Logger.BeginScope(new Dictionary<string, object?> { { "RequestSequence", RequestSequence }, { "Sid", sid } }))
+		{
+			Logger.Log(level, eventId, error, message, args);
+		}
 	}
 
 	/// <summary>
@@ -133,7 +161,7 @@ public abstract class ServiceControllerBase : ControllerBase
 			Config["CarbonApi:ArtefactsContainerName"]
 		);
 		var m = Regex.Match(azp.ApplicationStorageConnect, @"AccountName=(\w+).+AccountKey=([^;]+)");
-		Logger.LogDebug(600, "Created {Name} {AccName} {AccKey}… {ArtefactCon}", azp.GetType().Name, m.Groups[1].Value, m.Groups[2].Value.Substring(0, 8), azp.ArtefactsContainerName);
+		LogDebug(600, "Created {Name} {AccName} {AccKey}… {ArtefactCon}", azp.GetType().Name, m.Groups[1].Value, m.Groups[2].Value.Substring(0, 8), azp.ArtefactsContainerName);
 		return azp;
 	});
 
@@ -146,14 +174,14 @@ public abstract class ServiceControllerBase : ControllerBase
 		watch.Start();
 		byte[] blob = XTableOutputManager.AsSingleXLSXBuffer(wrap.Engine.Job.DisplayTable);
 		double xlsxsecs = watch.Elapsed.TotalSeconds;
-		Logger.LogDebug(610, "Make XLSX {BlobLength} [{XlsxSecs:F2}] - {Reason}", blob.Length, xlsxsecs, reason);
+		LogDebug(610, "Make XLSX {BlobLength} [{XlsxSecs:F2}] - {Reason}", blob.Length, xlsxsecs, reason);
 		watch.Restart();
 		var sess = SessionManager.FindSession(SessionId, true);
 		string repname = sess.OpenReportName ?? "UnsavedReport";
 		string upname = Path.ChangeExtension(repname, ".xlsx");
 		var azblob = await AzProc.UploadBufferForReport(sess.UserId, sess.OpenCustomerName, sess.OpenJobName, upname, blob);
 		double upsecs = watch.Elapsed.TotalSeconds;
-		Logger.LogDebug(612, "Upload {BlobUri} [{upsecs:F2}]", azblob.Uri, upsecs);
+		LogDebug(612, "Upload {BlobUri} [{upsecs:F2}]", azblob.Uri, upsecs);
 		return new XlsxResponse()
 		{
 			ReportName = sess.OpenReportName!,

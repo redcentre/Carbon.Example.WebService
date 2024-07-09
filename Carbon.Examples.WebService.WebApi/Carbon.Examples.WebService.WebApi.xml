@@ -727,7 +727,7 @@
         <member name="T:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase">
             <ignore/>
         </member>
-        <member name="P:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.Logger">
+        <member name="F:Carbon.Examples.WebService.WebApi.Controllers.ServiceControllerBase.Logger">
             <summary>
             All derived controllers can use this logger service.
             </summary>

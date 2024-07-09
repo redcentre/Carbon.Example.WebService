@@ -6,6 +6,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Description>Logging library for the Carbon web service</Description>
     <IsPackable>false</IsPackable>
+    <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Testing;SQL Production</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
