@@ -127,9 +127,13 @@ var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
 // └───────────────────────────────────────────────────────────────┘
 
 #if DEBUG || RELEASE
-string licaddress = "http://localhost:52123/";
+
+//string licaddress = "http://localhost:52123/";
 //string licaddress = ""https://localhost:7238/";
+string licaddress = "https://rcsapps.azurewebsites.net/licensing8test/";
+
 #elif RCS_TESTING
+
 string? licaddress = builder.Configuration["CarbonApi:LicensingTestBaseAddress"];
 if (string.IsNullOrEmpty(licaddress))
 {
