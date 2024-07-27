@@ -130,21 +130,21 @@ var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
 
 //string licaddress = "http://localhost:52123/";
 //string licaddress = ""https://localhost:7238/";
-string licaddress = "https://rcsapps.azurewebsites.net/licensing8test/";
+string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
 
 #elif RCS_TESTING
 
 string? licaddress = builder.Configuration["CarbonApi:LicensingTestBaseAddress"];
 if (string.IsNullOrEmpty(licaddress))
 {
-	licaddress = "https://rcsapps.azurewebsites.net/licensing8test/";
+	licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
 
 }
 #else
 string licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
 if (string.IsNullOrEmpty(licaddress))
 {
-	licaddress = "https://rcsapps.azurewebsites.net/licensing8/";
+	licaddress = "https://rcsapps.azurewebsites.net/licensing2/";
 
 }
 #endif
