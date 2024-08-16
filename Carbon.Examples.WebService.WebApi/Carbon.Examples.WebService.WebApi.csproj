@@ -71,10 +71,10 @@
   <ItemGroup>
     <PackageReference Include="Markdig" Version="0.37.0" />
     <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.3" />
-    <PackageReference Include="RCS.Carbon.Export" Version="9.0.1" />
-    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="3.0.2" />
-    <PackageReference Include="RCS.Carbon.Tables" Version="9.0.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="RCS.Carbon.Export" Version="9.0.2" />
+    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="3.0.3" />
+    <PackageReference Include="RCS.Carbon.Tables" Version="9.0.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
   </ItemGroup>
 
