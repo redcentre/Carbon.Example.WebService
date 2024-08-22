@@ -14,6 +14,18 @@ using RCS.Carbon.Tables;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 
+public enum TextOutputFormat
+{
+	TSV = 1,
+	CSV = 2,
+	SSV = 3,
+	XML = 6,
+	HTML = 7,
+	OXT = 8,
+	OXTNums = 9,
+	MultiCube = 11
+}
+
 /// <ignore/>
 [ApiController]
 [Route("report")]
@@ -29,8 +41,7 @@ public partial class ReportController : ServiceControllerBase
 	/// <summary>
 	/// Generates a crosstab report as plain text in different formats.
 	/// </summary>
-	/// <param name="format">Must be set to one of the enumeration values: TSV, CSV, SSV, XML, HTML, OXT, OXTNums, MultiCube.
-	/// Only these report formats can be represented as plain text and returned by this endpoint.</param>
+	/// <param name="format">The text format for the generated report.</param>
 	/// <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
 	/// <response code="200">The string body of a crosstab report as plain text.</response>
 	/// <include file='DocInclude.xml' path='doc/members[@name="Auth403"]/*'/>
@@ -41,24 +52,9 @@ public partial class ReportController : ServiceControllerBase
 	[Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 	[ProducesResponseType(typeof(string), StatusCodes.Status200OK, MediaTypeNames.Text.Plain)]
 	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
-	public async Task<ActionResult<string>> ReportGenTabText([FromRoute] XOutputFormat format, [FromBody] GenTabRequest request)
+	public async Task<ActionResult<string>> ReportGenTabText([FromRoute] TextOutputFormat format, [FromBody] GenTabRequest request)
 	{
-		XOutputFormat[] formats = new XOutputFormat[]
-		{
-			XOutputFormat.TSV,
-			XOutputFormat.CSV,
-			XOutputFormat.SSV,
-			XOutputFormat.XML,
-			XOutputFormat.HTML,
-			XOutputFormat.OXT,
-			XOutputFormat.OXTNums,
-			XOutputFormat.MultiCube
-		};
-		if (!formats.Contains(format))
-		{
-			return BadRequest(new ErrorResponse(600, $"Report gentab format '{request.DProps.Output.Format}' is not acceptable."));
-		}
-		request.DProps.Output.Format = format;
+		request.DProps.Output.Format = (XOutputFormat)(int)format;
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		string report = wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
 		LogInfo(510, "GenTab({Format},{Top},{Side},{Filter},{Weight})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight);

@@ -421,12 +421,11 @@
         <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
             <ignore/>
         </member>
-        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.ReportGenTabText(RCS.Carbon.Shared.XOutputFormat,Carbon.Examples.WebService.Common.GenTabRequest)">
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.ReportGenTabText(Carbon.Examples.WebService.WebApi.Controllers.TextOutputFormat,Carbon.Examples.WebService.Common.GenTabRequest)">
             <summary>
             Generates a crosstab report as plain text in different formats.
             </summary>
-            <param name="format">Must be set to one of the enumeration values: TSV, CSV, SSV, XML, HTML, OXT, OXTNums, MultiCube.
-            Only these report formats can be represented as plain text and returned by this endpoint.</param>
+            <param name="format">The text format for the generated report.</param>
             <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
             <response code="200">The string body of a crosstab report as plain text.</response>
             <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
