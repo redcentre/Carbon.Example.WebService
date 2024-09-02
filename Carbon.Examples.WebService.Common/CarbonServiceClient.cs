@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using RCS.Carbon.Shared;
 
@@ -46,6 +47,7 @@ namespace Carbon.Examples.WebService.Common
 				BaseAddress = new Uri(_baseAddress),
 				Timeout = TimeSpan.FromSeconds(_timeoutSecs)
 			};
+			JOpts.Converters.Add(new JsonStringEnumConverter());
 		}
 
 		public void Dispose()
