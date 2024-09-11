@@ -405,6 +405,7 @@ partial class JobController
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		LogDebug(274, "RunSpecImpl {Spec}", request.Spec);
+		wrap.Engine.Job.DisplayTable.DisplayProps.Output.Format = XOutputFormat.None;
 		wrap.Engine.GenTab(request.Name, request.Spec);
 		return await MakeXlsxAndUpload(wrap, "RunSpec");
 	}
