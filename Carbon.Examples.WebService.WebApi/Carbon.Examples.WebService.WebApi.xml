@@ -417,9 +417,9 @@
         </member>
         <member name="T:Carbon.Examples.WebService.WebApi.Controllers.ReportController">
             <ignore/>
-        </member>
-        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
-            <ignore/>
+            <summary>
+            Web API controller for endpoint /report
+            </summary>
         </member>
         <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.ReportGenTabText(Carbon.Examples.WebService.WebApi.Controllers.TextOutputFormat,Carbon.Examples.WebService.Common.GenTabRequest)">
             <summary>
@@ -430,22 +430,6 @@
             <response code="200">The string body of a crosstab report as plain text.</response>
             <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
             <remarks>The response content-type is always text/plain.</remarks>
-        </member>
-        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.ReportGenTabExcelBlob(Carbon.Examples.WebService.Common.GenTabRequest)">
-            <summary>
-            Generates a crosstab report in an Excel workbook, stores it in a publicly accessible Azure Blob and returns the Uri of the Blob.
-            </summary>
-            <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
-            <response code="200">A serialized <c>XlsxResponse</c> containing the Uri and attributes of the generated Excel workbook Blob.</response>
-            <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
-        </member>
-        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.GenTabHtml(Carbon.Examples.WebService.Common.GenTabHtmlRequest)">
-            <summary>
-            Generates a crosstab report as lines of a HTML document.
-            </summary>
-            <param name="request">A serialized <c>GenTabHtmlRequest</c> in the request body. The Top and Side property values are required. The other 3 filtering expressions may be null.</param>
-            <response code="200">A serialized array of string lines of a HTML document.</response>
-            <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
         </member>
         <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.ReportGenTabPandas(System.Int32,Carbon.Examples.WebService.Common.GenTabRequest)">
             <summary>
@@ -461,6 +445,60 @@
             be loaded directly into a pandas DataFrame. The caller can select the shape that is most suitable
             for their needs.
             </remarks>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Configuration.IConfiguration,RCS.Carbon.Licensing.Shared.ILicensingProvider)">
+            <summary>
+            Constructs a service controller for endpoint /report. Lifetime is controlled by the service hosting.
+            </summary>
+            <param name="logfac">Logger factory reference provided by dependency injection.</param>
+            <param name="config">Configuration reference provided by dependency injection.</param>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.GenTabExcelBlob(Carbon.Examples.WebService.Common.GenTabRequest)">
+            <summary>
+            Generates a crosstab report as an Excel workbook and saves it in a blob.
+            </summary>
+            <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
+            <response code="200">A serialized <c>XlsxResponse</c> containing the Uri and attributes of the generated Excel workbook Blob.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.GenTabHtml(Carbon.Examples.WebService.Common.GenTabHtmlRequest)">
+            <summary>
+            Generates a crosstab report as lines of a HTML document.
+            </summary>
+            <param name="request">A serialized <c>GenTabHtmlRequest</c> provided in the request body.</param>
+            <response code="200">The lines of a crosstab report as a HTML document.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.AxisSyntaxToNodes(System.String)">
+            <summary>
+            Converts a syntax string into a tree of generic nodes.
+            </summary>
+            <param name="request">A serialized <c>string</c> provided in the request body.</param>
+            <response code="200">A tree of generic nodes.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.AxisNodesToSyntax(RCS.Carbon.Shared.GenNode[])">
+            <summary>
+            Converts a tree of generic nodes to a syntax string.
+            </summary>
+            <param name="request">A serialized <c>GenNode[]</c> provided in the request body.</param>
+            <response code="200">A syntax string.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.GetCurrentSyntax">
+            <summary>
+            Gets an array of current report syntax strings.
+            </summary>
+            <response code="200">An array of syntax strings in the order Top, Side, Filter, Weight.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.ReportController.ValidateSyntax(System.String)">
+            <summary>
+            Validates a syntax string.
+            </summary>
+            <param name="request">A serialized <c>string</c> provided in the request body.</param>
+            <response code="200">An error message or null if the syntax is valid.</response>
+            <response code="403">The request failed because no authenticated session has been established with the web service.</response>
         </member>
         <member name="T:Carbon.Examples.WebService.WebApi.Controllers.ServiceController">
             <summary>

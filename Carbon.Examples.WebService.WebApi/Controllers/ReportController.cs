@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Mime;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Carbon.Examples.WebService.Common;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using RCS.Carbon.Licensing.Shared;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
 
@@ -27,16 +25,9 @@ public enum TextOutputFormat
 }
 
 /// <ignore/>
-[ApiController]
-[Route("report")]
-[TypeFilter(typeof(GeneralActionFilterAttribute))]
 public partial class ReportController : ServiceControllerBase
 {
-	/// <ignore/>
-	public ReportController(ILoggerFactory logfac, IConfiguration config, ILicensingProvider licprov)
-		: base(logfac, config, licprov)
-	{
-	}
+	#region Endpoints needing manual coding
 
 	/// <summary>
 	/// Generates a crosstab report as plain text in different formats.
@@ -60,46 +51,6 @@ public partial class ReportController : ServiceControllerBase
 		LogInfo(510, "GenTab({Format},{Top},{Side},{Filter},{Weight})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight);
 		var result = new ContentResult() { Content = report, ContentType = MediaTypeNames.Text.Plain, StatusCode = StatusCodes.Status200OK };
 		return await Task.FromResult(result);
-	}
-
-	/// <summary>
-	/// Generates a crosstab report in an Excel workbook, stores it in a publicly accessible Azure Blob and returns the Uri of the Blob.
-	/// </summary>
-	/// <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
-	/// <response code="200">A serialized <c>XlsxResponse</c> containing the Uri and attributes of the generated Excel workbook Blob.</response>
-	/// <include file='DocInclude.xml' path='doc/members[@name="Auth403"]/*'/>
-	[HttpPost]
-	[Route("gentab/excel/blob")]
-	[AuthFilter]
-	[Produces(MediaTypeNames.Application.Json)]
-	[ProducesResponseType(typeof(XlsxResponse), StatusCodes.Status200OK)]
-	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
-	public async Task<ActionResult<XlsxResponse>> ReportGenTabExcelBlob([FromBody] GenTabRequest request)
-	{
-		using var wrap = new StateWrap(SessionId, LicProv, false);
-		var resp = await MakeXlsxAndUpload(wrap, "ReportGenTabExcelBlob");
-		return await Task.FromResult(resp);
-	}
-
-	/// <summary>
-	/// Generates a crosstab report as lines of a HTML document.
-	/// </summary>
-	/// <param name="request">A serialized <c>GenTabHtmlRequest</c> in the request body. The Top and Side property values are required. The other 3 filtering expressions may be null.</param>
-	/// <response code="200">A serialized array of string lines of a HTML document.</response>
-	/// <include file='DocInclude.xml' path='doc/members[@name="Auth403"]/*'/>
-	[HttpPost]
-	[Route("gentab/html")]
-	[AuthFilter]
-	[Produces(MediaTypeNames.Application.Json)]
-	[ProducesResponseType(typeof(string[]), StatusCodes.Status200OK)]
-	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
-	public async Task<ActionResult<string[]>> GenTabHtml(GenTabHtmlRequest request)
-	{
-		using var wrap = new StateWrap(SessionId, LicProv, true);
-		string report = wrap.Engine.GenTabAsHTML(request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter);
-		var lines = CommonUtil.ReadStringLines(report).ToArray();
-		LogInfo(231, "GenTabHtml({Top},{Side},{Filter},{Weight},{CaseFilter) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, lines.Length);
-		return await Task.FromResult(lines);
 	}
 
 	/// <summary>
@@ -144,5 +95,66 @@ public partial class ReportController : ServiceControllerBase
 			dict = raw.ToShape3();
 		}
 		return await Task.FromResult(Ok(dict));
+	}
+
+	#endregion
+
+	async Task<ActionResult<XlsxResponse>> GenTabExcelBlobImpl([FromBody] GenTabRequest request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, false);
+		var resp = await MakeXlsxAndUpload(wrap, "ReportGenTabExcelBlob");
+		return await Task.FromResult(resp);
+	}
+
+	async Task<ActionResult<string[]>> GenTabHtmlImpl(GenTabHtmlRequest request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		string report = wrap.Engine.GenTabAsHTML(request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter);
+		var lines = CommonUtil.ReadStringLines(report).ToArray();
+		LogInfo(231, "GenTabHtml({Top},{Side},{Filter},{Weight},{CaseFilter) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, lines.Length);
+		return await Task.FromResult(lines);
+	}
+
+	async Task<ActionResult<GenNode[]>> AxisSyntaxToNodesImpl(string syntax)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		var nodes = wrap.Engine.AxisSyntaxToNodes(syntax);
+		return await Task.FromResult(nodes);
+	}
+
+	async Task<ActionResult<string>> AxisNodesToSyntaxImpl(GenNode[] nodes)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		string syntax = wrap.Engine.AxisNodesToSyntax(nodes);
+		return await Task.FromResult(syntax);
+	}
+
+	async Task<ActionResult<string?[]>> GetCurrentSyntaxImpl()
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		string joined = wrap.Engine.CurrentSyntax();
+		var lines = CommonUtil.ReadStringLines(joined).ToArray();
+		static string? Reduce(string s) => string.IsNullOrEmpty(s) ? null : s;
+		// The lines in the format Key=Value are parsed and the values are returned in an array in the following Key index order.
+		string[] Keys = { "Top", "Side", "Filter", "Weight" };
+		var query = lines
+			.Select(x => Regex.Match(x, @"^(\w+)=(.*)"))
+			.Where(m => m.Success)
+			.Select(m => new { Key = m.Groups[1].Value, Val = m.Groups[2].Value, Ix = Array.IndexOf(Keys, m.Groups[1].Value) })
+			.Where(x => x.Ix >= 0);
+		string?[] syns = new string[Keys.Length];
+		foreach (var tup in query)
+		{
+			syns[tup.Ix] = Reduce(tup.Val);
+		}
+		return await Task.FromResult(syns);
+	}
+
+	async Task<ActionResult<string>> ValidateSyntaxImpl(string syntax)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		string message = wrap.Engine.ValidateSyntax(syntax);
+		if (message == "ok") return null;   // <========================= NOTE THAT 'ok' IS HARD_CODED IN TEH CARBON METHOD =========================
+		return await Task.FromResult(message);
 	}
 }

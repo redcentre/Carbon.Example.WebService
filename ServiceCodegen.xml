@@ -444,6 +444,58 @@
     <return type="GenNode[]" description="TODO."/>
   </method>
 
+  <!-- REPORT -->
+
+  <method name="GenTabExcelBlob" method="Post" endpoint="report/gentab/excel/blob" auth="*">
+    <summary>Generates a crosstab report as an Excel workbook and saves it in a blob.</summary>
+    <parameters>
+      <parameter type="GenTabRequest" name="request" description="A serialized [c]GenTabRequest[/c] provided in the request body."/>
+    </parameters>
+    <web postType="GenTabRequest" direct="true"/>
+    <return type="XlsxResponse" description="A serialized [c]XlsxResponse[/c] containing the Uri and attributes of the generated Excel workbook Blob."/>
+  </method>
+
+  <method name="GenTabHtml" method="Post" endpoint="report/gentab/html" auth="*">
+    <summary>Generates a crosstab report as lines of a HTML document.</summary>
+    <parameters>
+      <parameter type="GenTabHtmlRequest" name="request" description="Request parameters."/>
+    </parameters>
+    <web postType="GenTabHtmlRequest" direct="true"/>
+    <return type="string[]" description="The lines of a crosstab report as a HTML document."/>
+  </method>
+
+  <method name="AxisSyntaxToNodes" method="Post" endpoint="report/syntax/tonodes" auth="*">
+    <summary>Converts a syntax string into a tree of generic nodes.</summary>
+    <parameters>
+      <parameter type="string" name="request" description="Syntax string to convert to nodes."/>
+    </parameters>
+    <web postType="string" direct="true"/>
+    <return type="GenNode[]" description="A tree of generic nodes."/>
+  </method>
+
+  <method name="AxisNodesToSyntax" method="Post" endpoint="report/syntax/fromnodes" auth="*">
+    <summary>Converts a tree of generic nodes to a syntax string.</summary>
+    <parameters>
+      <parameter type="GenNode[]" name="request" description="Nodes to convert to a syntax string."/>
+    </parameters>
+    <web postType="GenNode[]" direct="true"/>
+    <return type="string" description="A syntax string."/>
+  </method>
+
+  <method name="GetCurrentSyntax" method="Get" endpoint="report/syntax" auth="*">
+    <summary>Gets an array of current report syntax strings.</summary>
+    <return type="string?[]" description="An array of syntax strings in the order Top, Side, Filter, Weight."/>
+  </method>
+
+  <method name="ValidateSyntax" method="Post" endpoint="report/syntax/validate" auth="*">
+    <summary>Validates a syntax string.</summary>
+    <parameters>
+      <parameter type="string" name="request" description="Syntax string to validate."/>
+    </parameters>
+    <web postType="string" direct="true"/>
+    <return type="string" description="An error message or null if the syntax is valid."/>
+  </method>
+
   <!-- DASHBOARD -->
 
   <method name="ListDashboards" method="Get" endpoint="dashboard/list/{cust}/{job}" auth="*">
