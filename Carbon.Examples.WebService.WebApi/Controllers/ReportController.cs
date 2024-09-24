@@ -63,28 +63,6 @@ public partial class ReportController : ServiceControllerBase
 	}
 
 	/// <summary>
-	/// Generates a crosstab report as an XML fragment.
-	/// </summary>
-	/// <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
-	/// <response code="200">The string body of a crosstab report as an XML fragment.</response>
-	/// <include file='DocInclude.xml' path='doc/members[@name="Auth403"]/*'/>
-	/// <remarks>The response content-type is always text/xml. This endpoint is experimental and the optimal shape of the
-	/// returned XML has not been determined yet.</remarks>
-	[HttpPost]
-	[Route("gentab/xml")]
-	[AuthFilter]
-	[Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Xml)]
-	[ProducesResponseType(typeof(string), StatusCodes.Status200OK, MediaTypeNames.Text.Xml)]
-	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
-	public async Task<ActionResult<string>> ReportGenTabXml([FromBody] GenTabRequest request)
-	{
-		using var wrap = new StateWrap(SessionId, LicProv, false);
-		XDocument doc = wrap.Engine.GenTabAsXML(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
-		var result = new ContentResult() { Content = doc.ToString(), ContentType = MediaTypeNames.Application.Xml, StatusCode = StatusCodes.Status200OK };
-		return await Task.FromResult(result);
-	}
-
-	/// <summary>
 	/// Generates a crosstab report in an Excel workbook, stores it in a publicly accessible Azure Blob and returns the Uri of the Blob.
 	/// </summary>
 	/// <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
@@ -101,6 +79,27 @@ public partial class ReportController : ServiceControllerBase
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		var resp = await MakeXlsxAndUpload(wrap, "ReportGenTabExcelBlob");
 		return await Task.FromResult(resp);
+	}
+
+	/// <summary>
+	/// Generates a crosstab report as lines of a HTML document.
+	/// </summary>
+	/// <param name="request">A serialized <c>GenTabHtmlRequest</c> in the request body. The Top and Side property values are required. The other 3 filtering expressions may be null.</param>
+	/// <response code="200">A serialized array of string lines of a HTML document.</response>
+	/// <include file='DocInclude.xml' path='doc/members[@name="Auth403"]/*'/>
+	[HttpPost]
+	[Route("gentab/html")]
+	[AuthFilter]
+	[Produces(MediaTypeNames.Application.Json)]
+	[ProducesResponseType(typeof(string[]), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+	public async Task<ActionResult<string[]>> GenTabHtml(GenTabHtmlRequest request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		string report = wrap.Engine.GenTabAsHTML(request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter);
+		var lines = CommonUtil.ReadStringLines(report).ToArray();
+		LogInfo(231, "GenTabHtml({Top},{Side},{Filter},{Weight},{CaseFilter) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, lines.Length);
+		return await Task.FromResult(lines);
 	}
 
 	/// <summary>
