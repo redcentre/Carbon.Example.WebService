@@ -10,13 +10,31 @@ These projects began as small test harnesses to verify that Carbon operated corr
 
 The great majority of the codebase is boilerplate code *plumbing* to make a web service function, only a small subset of the code is involved in feeding request data into the Carbon API and sending it back as a response. The `DTO` folder contains all of the .NET classes that form the request and response contract. .NET clients may reference the [RCS.Carbon.Examples.WebService.Common][excommon] NuGet package which contains strongly-typed classes to bind to the web service.
 
-> :star: The projects use [T4 templates][t4] to generate a large amount of repetitive boilerplate code for the web service implementation and the .NET service client class.
+> The projects use [T4 templates][t4] to generate a large amount of repetitive boilerplate code for the web service implementation and the .NET service client class.
 
 Red Centre Software has published a fully working version of the example web service here:
 
-<https://rcsapps.azurewebsites.net/carbon/swagger/>
+<https://rcsapps.azurewebsites.net/carbon/swagger/> &mdash; Latest stable release  
+<https://rcsapps.azurewebsites.net/carbontest/swagger/> &mdash; Testing preview release
 
-Last updated: 27-Apr-2023
+## Database Endpoints
+
+Version 9.0.11 of the service introduces some endpoints which implement a very simple schemaless database for storing keyed string values. The endpoints are:
+
+```
+POST /db/key1/key2 
+GET /db/key1/key2  
+DELETE /db/key1/key2  
+GET /db/list?includeValues=true|false
+```
+
+The Swagger page describes the endpoints in more detail. Each internal row in the database is composed of 3 values: primary string key, secondary string key, string value. The primary and secondary string key values together form a unique compound key and each must be from 1 to 256 characters in length and any characters are acceptable. The string value may contain any characters and be null or up to approximately 1MB in length.
+
+Clients are free to use the simple database endpoints to store application specific data in any way that is useful for them. Using a two-part compound key allows the unique keys to be divided into non-overlapping partitions if that is useful.
+
+Note that the database does not internally store rows with null values. If you put a null value, then any existing row will be deleted, or if there is no existing row then nothing is saved.
+
+Last updated: 25-Sep-2024
 
 [carbover]: https://rcsapps.azurewebsites.net/doc/carbon/articles/overview.htm
 [pyorg]: https://www.python.org/
