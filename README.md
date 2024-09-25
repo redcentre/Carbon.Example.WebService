@@ -32,6 +32,8 @@ The Swagger page describes the endpoints in more detail. Each internal row in th
 
 Clients are free to use the simple database endpoints to store application specific data in any way that is useful for them. Using a two-part compound key allows the unique keys to be divided into non-overlapping partitions if that is useful.
 
+Note that the POST and GET endpoints process the request and response bodies as content-type `text/plain`. This allows the value strings to contain arbitrary data and avoid being interpreted or transformed in any way. Clients may of course use strings of JSON or XML (or ay other special format), but it is their responsibility to serialize and desrialize the strings correctly according to their conventions.
+
 Note that the database does not internally store rows with null values. If you put a null value, then any existing row will be deleted, or if there is no existing row then nothing is saved.
 
 Last updated: 25-Sep-2024
