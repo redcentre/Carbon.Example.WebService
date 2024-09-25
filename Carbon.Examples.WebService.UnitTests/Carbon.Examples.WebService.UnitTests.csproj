@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Carbon.Examples.WebService.Common\Carbon.Examples.WebService.Common.csproj" />
+    <ProjectReference Include="..\Carbon.Examples.WebService.Database\Carbon.Examples.WebService.Database.csproj" />
   </ItemGroup>
 
 </Project>

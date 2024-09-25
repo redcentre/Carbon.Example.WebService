@@ -61,6 +61,47 @@
             <response code="200">The dashboard after processing.</response>
             <response code="403">The request failed because no authenticated session has been established with the web service.</response>
         </member>
+        <member name="T:Carbon.Examples.WebService.WebApi.Controllers.DbController">
+            <ignore/>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.DbController.DbPut(System.String,System.String,System.String)">
+            <summary>
+            Puts a string value in the simple database.
+            </summary>
+            <param name="key1">Database primary key.</param>
+            <param name="key2">Database secondary key.</param>
+            <param name="value">The value to store in the database. The request body is processed as plain text. No parsing or interpretation of the text body value is performed.</param>
+            <response code="204">The value was added or replaced into the database. There is no response body data.</response>
+            <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.DbController.DbRead(System.String,System.String)">
+            <summary>
+            Reads a string from the simple database.
+            </summary>
+            <param name="key1">Database primary key.</param>
+            <param name="key2">Database secondary key.</param>
+            <response code="200">The response body contains the plain string value. The response is always plain text.</response>
+            <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
+            <response code="404">No database row was found with the specified keys.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.DbController.DbGet(System.Boolean)">
+            <summary>
+            Lists keys in the simple database, optionally returning the values
+            </summary>
+            <param name="includeValues">Specifity <c>true</c> to return the values with the keys. The default is <c>false</c>.</param>
+            <response code="200">The response body contains a serialized array of <c>DbRow</c>.</response>
+            <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
+        </member>
+        <member name="M:Carbon.Examples.WebService.WebApi.Controllers.DbController.DbDelete(System.String,System.String)">
+            <summary>
+            Deletes a row from the simple database.
+            </summary>
+            <param name="key1">Database primary key.</param>
+            <param name="key2">Database secondary key.</param>
+            <response code="204">The row was deleted. There is no response body data.</response>
+            <response code="403">A serialized <c>ErrorResponse</c> containing a message that the request failed because no authenticated session has been established with the web service.</response>
+            <response code="404">No database row was found with the specified keys.</response>
+        </member>
         <member name="T:Carbon.Examples.WebService.WebApi.Controllers.ErrorController">
             <ignore/>
         </member>

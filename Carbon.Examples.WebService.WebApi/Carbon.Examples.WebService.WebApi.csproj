@@ -80,6 +80,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Carbon.Examples.WebService.Common\Carbon.Examples.WebService.Common.csproj" />
+    <ProjectReference Include="..\Carbon.Examples.WebService.Database\Carbon.Examples.WebService.Database.csproj" />
     <ProjectReference Include="..\Carbon.Examples.WebService.Logging\Carbon.Examples.WebService.Logging.csproj" />
   </ItemGroup>
 
