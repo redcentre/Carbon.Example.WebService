@@ -1,8 +1,18 @@
 ﻿namespace Carbon.Examples.WebService.Database;
 
-public sealed class DbRow(string key1, string key2, string? value)
+public sealed class DbRow
 {
-	public string Key1 { get; } = key1;
-	public string Key2 { get; } = key2;
-	public string? Value { get; } = value;
+	public DbRow()
+	{
+	}
+
+	public DbRow(string key1, string key2, string? value)
+	{
+		Key1 = key1;
+		Key2 = key2;
+		Value = value;
+	}
+	public string Key1 { get; }
+	public string Key2 { get; }
+	public string? Value { get; }
 }

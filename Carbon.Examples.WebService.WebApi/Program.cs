@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Carbon.Examples.WebService.Common;
@@ -72,11 +73,14 @@ builder.Services.AddSwaggerGen(c =>
 			Email = "support@redcentresoftware.com"
 		}
 	});
-	var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+	var xmlFile = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
 	c.IncludeXmlComments(xmlFile);
-	// The docs for the common library could be added to the swagger here (not at the moment)
-	//xmlFile = Path.Combine(AppContext.BaseDirectory, $"{typeof(HoarderConfiguration).Assembly.GetName().Name}.xml");
-	//c.IncludeXmlComments(xmlFile);
+	var dir = new DirectoryInfo(AppContext.BaseDirectory);
+	foreach (var file in dir.GetFiles("RCS.Carbon.*.xml"))
+	{
+		c.IncludeXmlComments(file.FullName);
+		WebLog.Info($"Include XML file {file.FullName}");
+	}
 	c.AddSecurityDefinition("basic", new OpenApiSecurityScheme
 	{
 		Name = CarbonServiceClient.SessionIdHeaderKey,
@@ -115,7 +119,7 @@ string adoconnect = builder.Configuration["CarbonApi:AdoConnect"];
 var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
 
 // ===== THIS IS FOR INTERNAL TESTING ONLY =====
-//string licaddress = "https://rcsapps.azurewebsites.net/licensing8test/";
+//string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
 //int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 //licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
 

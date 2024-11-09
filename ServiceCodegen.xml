@@ -444,6 +444,24 @@
     <return type="GenNode[]" description="TODO."/>
   </method>
 
+  <method name="ImportFull" method="Post" endpoint="job/import/full" auth="*">
+    <summary>General purpose import (full).</summary>
+    <parameters>
+      <parameter type="ImportSettings" name="request" description="Import settings."/>
+    </parameters>
+    <web postType="ImportSettings" direct="true"/>
+    <return type="string" description="TODO."/>
+  </method>
+
+  <method name="ImportPartial" method="Post" endpoint="job/import/partial" auth="*">
+    <summary>General purpose import (partial).</summary>
+    <parameters>
+      <parameter type="ImportSettings" name="request" description="Import settings."/>
+    </parameters>
+    <web postType="ImportSettings" direct="true"/>
+    <return type="string" description="TODO."/>
+  </method>
+
   <!-- REPORT -->
 
   <method name="GenTabExcelBlob" method="Post" endpoint="report/gentab/excel/blob" auth="*">

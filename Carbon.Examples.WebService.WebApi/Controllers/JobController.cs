@@ -5,7 +5,9 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Carbon.Examples.WebService.Common;
+using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
+using RCS.Carbon.Import;
 using RCS.Carbon.Shared;
 using RCS.RubyCloud.WebService;
 
@@ -457,7 +459,7 @@ partial class JobController
 		return await Task.FromResult(gnodes);
 	}
 
-	async Task<ActionResult<GenNode[]>> VarAsNodesImpl([FromRoute] string name)
+	async Task<ActionResult<GenNode[]>> VarAsNodesImpl(string name)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] nodes = wrap.Engine.VarAsNodes(name);
@@ -483,6 +485,28 @@ partial class JobController
 		string join = string.Join("&", request.Variables);
 		GenNode[] nodes = wrap.Engine.Nest(request.Axis, join);
 		return await Task.FromResult(nodes);
+	}
+
+	async Task<ActionResult<string>> ImportFullImpl(ImportSettings request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		var importer = new ImportEngine(LicProv);
+		importer.AttachJob(wrap.Engine);
+		PImport pi = await importer.ImportAsync(request);
+		return pi.Report();
+	}
+
+	async Task<ActionResult<string>> ImportPartialImpl(ImportSettings request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		var importer = new ImportEngine(LicProv);
+		importer.AttachJob(wrap.Engine);
+		bool b = await importer.ImportPartialAsync(request);
+		if (!b)
+		{
+			throw new ApplicationException(importer.Job.Message);
+		}
+		return importer.Job.Message;
 	}
 
 	#endregion
