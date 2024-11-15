@@ -514,6 +514,14 @@
     <return type="string" description="An error message or null if the syntax is valid."/>
   </method>
 
+  <method name="Format" method="Get" endpoint="report/format/{format}" auth="*">
+    <summary>Invokes a Carbon format.</summary>
+    <parameters>
+      <parameter route="true" type="XOutputFormat" name="format" description="Report format enumeration value."/>
+    </parameters>
+    <return type="string[]" description="An array of string lines of a report format."/>
+  </method>
+
   <!-- DASHBOARD -->
 
   <method name="ListDashboards" method="Get" endpoint="dashboard/list/{cust}/{job}" auth="*">

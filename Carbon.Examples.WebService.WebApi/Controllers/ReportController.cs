@@ -156,4 +156,12 @@ public partial class ReportController : ServiceControllerBase
 		if (message == "ok") return null;   // <========================= NOTE THAT 'ok' IS HARD_CODED IN TEH CARBON METHOD =========================
 		return await Task.FromResult(message);
 	}
+
+	async Task<ActionResult<string[]>> FormatImpl(XOutputFormat format)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		string report = wrap.Engine.TableAsFormat(format);
+		string[] lines = ServiceUtility.ListStringLines(report).ToArray();
+		return await Task.FromResult(lines);
+	}
 }

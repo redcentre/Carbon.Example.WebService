@@ -5,11 +5,15 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Carbon.Examples.WebService.Common;
-using DocumentFormat.OpenXml.Vml.Spreadsheet;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RCS.Carbon.Export;
 using RCS.Carbon.Import;
 using RCS.Carbon.Shared;
 using RCS.RubyCloud.WebService;
+using TSAPI.Public.Domain.Interviews;
+using TSAPI.Public.Domain.Metadata;
+using TSAPI.Public.Queries;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 
@@ -492,6 +496,7 @@ partial class JobController
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		var importer = new ImportEngine(LicProv);
 		importer.AttachJob(wrap.Engine);
+		importer.LoadVarTree(importer.Job.VarTree.Name);
 		PImport pi = await importer.ImportAsync(request);
 		return pi.Report();
 	}
@@ -501,12 +506,75 @@ partial class JobController
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		var importer = new ImportEngine(LicProv);
 		importer.AttachJob(wrap.Engine);
+		importer.LoadVarTree(importer.Job.VarTree.Name);
 		bool b = await importer.ImportPartialAsync(request);
 		if (!b)
 		{
 			throw new ApplicationException(importer.Job.Message);
 		}
 		return importer.Job.Message;
+	}
+
+	#endregion
+
+	#region Manually Defined Job Endpoints
+
+	/// <summary>
+	/// Exports TSAPI compliant metadata from a job (survey).
+	/// </summary>
+	/// <remarks>
+	/// &#x1F536; Note that this endpoint replaces the <c>carbon/tsapi/query/metadata</c> endpoint in the Bayes Price licensing service.
+	/// </remarks>
+	/// <param name="varnames">The names of the variables to be included in the export.</param>
+	/// <param name="filter">A filter to apply to the export.</param>
+	/// <response code="200">A TSAPI compliant <c>SurveyMetadata</c> serialized in the response body.</response>
+	/// <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+	[HttpGet]
+	[Route("tsapi/metadata")]
+	[AuthFilter]
+	[Produces("application/json", "text/xml")]
+	[ProducesResponseType(typeof(OpenCloudJobResponse), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+	public async Task<ActionResult<SurveyMetadata>> TsapiMetadata([FromQuery] string[] varnames, [FromQuery] string filter)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, false);
+		var exporter = new ExportEngine(LicProv);
+		exporter.AttachJob(wrap.Engine);
+		var query = new InterviewsQuery()
+		{
+			Variables = [.. varnames]
+		};
+		TSAPIData data = exporter.ExportTSAPI(query, filter);
+		return await Task.FromResult(data.MetaData);
+	}
+
+	/// <summary>
+	/// Exports TSAPI compliant interviews from a job (survey).
+	/// </summary>
+	/// <remarks>
+	/// &#x1F536; Note that this endpoint replaces the <c>carbon/tsapi/query/interview</c> endpoint in the Bayes Price licensing service.
+	/// </remarks>
+	/// <param name="varnames">The names of the variables to be included in the export.</param>
+	/// <param name="filter">A filter to apply to the export.</param>
+	/// <response code="200">A TSAPI compliant <c>Interview</c> array serialized in the response body.</response>
+	/// <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+	[HttpGet]
+	[Route("tsapi/interview")]
+	[AuthFilter]
+	[Produces("application/json", "text/xml")]
+	[ProducesResponseType(typeof(OpenCloudJobResponse), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+	public async Task<ActionResult<Interview[]>> TsapiInterview([FromQuery] string[] varnames, [FromQuery] string filter)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, false);
+		var exporter = new ExportEngine(LicProv);
+		exporter.AttachJob(wrap.Engine);
+		var query = new InterviewsQuery()
+		{
+			Variables = [.. varnames]
+		};
+		TSAPIData data = exporter.ExportTSAPI(query, filter);
+		return await Task.FromResult(data.Interviews);
 	}
 
 	#endregion

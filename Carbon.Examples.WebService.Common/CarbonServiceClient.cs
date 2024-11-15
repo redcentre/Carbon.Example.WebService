@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
@@ -7,6 +8,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using RCS.Carbon.Shared;
+using TSAPI.Public.Domain.Interviews;
+using TSAPI.Public.Domain.Metadata;
 
 namespace Carbon.Examples.WebService.Common
 {
@@ -100,6 +103,36 @@ namespace Carbon.Examples.WebService.Common
 		}
 
 		#region Special Calls
+
+		/// <summary>
+		/// Exports TSAPI compliant metadata from a job (survey).
+		/// </summary>
+		/// <param name="varnames">Variables names to export.</param>
+		/// <param name="filter">Filter expression for exported data.</param>
+		/// <returns>A TSAPI compliant <c>SurveyMetadata</c> object.</returns>
+		public async Task<SurveyMetadata> TsapiMetadata(string[] varnames, string filter)
+		{
+			if (varnames == null) throw new ArgumentNullException(nameof(varnames));
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
+			if (varnames.Length < 2) throw new ArgumentException("At least two variable names must be provided", nameof(varnames));
+			string vjoin = string.Join("&", varnames.Select(v => $"varnames={v}"));
+			return await InnerGet<SurveyMetadata>($"tsapi/metadata?{vjoin}&filter={filter}");
+		}
+
+		/// <summary>
+		/// Exports TSAPI compliant interviews from a job (survey).
+		/// </summary>
+		/// <param name="varnames">Variables names to export.</param>
+		/// <param name="filter">Filter expression for exported data.</param>
+		/// <returns>An array of TSAPI compliant <c>Interview</c> objects.</returns>
+		public async Task<Interview[]> TsapiInterview(string[] varnames, string filter)
+		{
+			if (varnames == null) throw new ArgumentNullException(nameof(varnames));
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
+			if (varnames.Length < 2) throw new ArgumentException("At least two variable names must be provided", nameof(varnames));
+			string vjoin = string.Join("&", varnames.Select(v => $"varnames={v}"));
+			return await InnerGet<Interview[]>($"tsapi/interview?{vjoin}&filter={filter}");
+		}
 
 		/// <summary>
 		/// Processes a JSON data containing Python pandas library compliant data values through cross-tabulation

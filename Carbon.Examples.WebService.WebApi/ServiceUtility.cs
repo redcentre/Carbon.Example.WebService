@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace Carbon.Examples.WebService.WebApi;
@@ -36,5 +38,17 @@ public static class ServiceUtility
 		s = s.Replace("\t", @"\t").Replace("\n", @"\n").Replace("\r", @"\r");
 		s = Regex.Replace(s, "[\x00-\x1f]", ".");
 		return s + sfx;
+	}
+
+	/// <ignore/>
+	public static IEnumerable<string> ListStringLines(string s)
+	{
+		using var reader = new StringReader(s);
+		string? line = reader.ReadLine();
+		while (line != null)
+		{
+			yield return line;
+			line = reader.ReadLine();
+		}
 	}
 }

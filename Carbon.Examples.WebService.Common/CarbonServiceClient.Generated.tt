@@ -20,6 +20,8 @@ using System;
 using System.Threading.Tasks;
 using RCS.Carbon.Shared;
 using RCS.Azure.Data.Common;
+using TSAPI.Public.Domain.Metadata;
+using TSAPI.Public.Domain.Interviews;
 
 #nullable enable
 
