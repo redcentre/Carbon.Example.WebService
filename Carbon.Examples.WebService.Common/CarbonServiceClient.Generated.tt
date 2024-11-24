@@ -118,8 +118,6 @@ void EmitGroup(string groupname, PMethod[] methods)
 		}
 #>
 		[global::System.CodeDom.Compiler.GeneratedCode("<#=TTName#>", "<#=TTVer#>")]
-		[global::System.Diagnostics.DebuggerNonUserCode]
-		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 		public async Task<<#=m.ReturnType#>> <#=m.Name#>(<#=m.MakeParams1()#>)
 		{
 <#

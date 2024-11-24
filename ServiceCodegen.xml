@@ -10,7 +10,6 @@
     <remarks>
       This test method verifies that an unhandled service-side exception is converted into a [c]CarbonServiceException[/c] expected on the client-side.
     </remarks>
-    <remarks>THIS ARE MOCK REMARKS</remarks>
     <parameters>
       <parameter route="true" type="int" name="number" description="An arbitrary number to pass into the mock Exception."/>
     </parameters>
