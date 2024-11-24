@@ -135,7 +135,7 @@ public partial class ReportController : ServiceControllerBase
 		var lines = CommonUtil.ReadStringLines(joined).ToArray();
 		static string? Reduce(string s) => string.IsNullOrEmpty(s) ? null : s;
 		// The lines in the format Key=Value are parsed and the values are returned in an array in the following Key index order.
-		string[] Keys = { "Top", "Side", "Filter", "Weight" };
+		string[] Keys = { "Top", "Side", "Filter", "Weight", "Case" };
 		var query = lines
 			.Select(x => Regex.Match(x, @"^(\w+)=(.*)"))
 			.Where(m => m.Success)
