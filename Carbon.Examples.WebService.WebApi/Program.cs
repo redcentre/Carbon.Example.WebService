@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using RCS.Carbon.Licensing.Example;
+
 #if SQL_PRODUCTION || SQL_TESTING
 using RCS.Carbon.Licensing.Example;
 #endif
@@ -108,54 +110,43 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddControllers()
 	.AddXmlSerializerFormatters();
 
+// Different licensing providers with possibly different parameters are
+// created depending on the build configuration.
+
 #if (SQL_PRODUCTION || SQL_TESTING)
-
-// ┌───────────────────────────────────────────────────────────────┐
-// │  We are using the example licensing provider which is a       │
-// │  wrapper over a SQL Database of licensing data.               │
-// └───────────────────────────────────────────────────────────────┘
-string prodkey = builder.Configuration["CarbonApi:ProductKey"];
-string adoconnect = builder.Configuration["CarbonApi:AdoConnect"];
+string prodkey = builder.Configuration["CarbonApi:ProductKey"]!;
+string adoconnect = builder.Configuration["CarbonApi:AdoConnect"]!;
 var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
-
-// ===== THIS IS FOR INTERNAL TESTING ONLY =====
-//string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
-//int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
-//licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
-
-#else
-
-// ┌───────────────────────────────────────────────────────────────┐
-// │  When not using the example licensing provider we are using   │
-// │  Red Centre Software provider which is a thin wrapper around  │
-// │  calls to the RCS custom licensing web service.               │
-// └───────────────────────────────────────────────────────────────┘
-
-#if DEBUG || RELEASE
-
-//string licaddress = "http://localhost:52123/";
-//string licaddress = ""https://localhost:7238/";
-string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
-
+#elif RCS_PRODUCTION
+int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
+string? licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
+if (string.IsNullOrEmpty(licaddress))
+{
+	licaddress = "https://rcsapps.azurewebsites.net/licensing2/";
+}
+var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
 #elif RCS_TESTING
-
+int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 string? licaddress = builder.Configuration["CarbonApi:LicensingTestBaseAddress"];
 if (string.IsNullOrEmpty(licaddress))
 {
 	licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
-
 }
-#else
-string licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
-if (string.IsNullOrEmpty(licaddress))
-{
-	licaddress = "https://rcsapps.azurewebsites.net/licensing2/";
-
-}
-#endif
-int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
-
+#elif (DEBUG || RELEASE)
+//━━━━━━━━━━━━━ RCS DEBUGGING ━━━━━━━━━━━━━
+//string licaddress = "http://localhost:52123/";
+//string licaddress = ""https://localhost:7238/";
+//string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
+//int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
+//var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
+//━━━━━━━━━━━━━ SQL DEBUGGING ━━━━━━━━━━━━━
+string prodkey = builder.Configuration["CarbonApi:ProductKey"]!;
+string adoconnect = builder.Configuration["CarbonApi:AdoConnect"]!;
+var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#else
+#error "No recognised licensing provider defined"
 #endif
 
 builder.Services.AddSingleton<ILicensingProvider>(licprov);
@@ -177,7 +168,7 @@ app.UseSwaggerUI();
 if (app.Environment.IsDevelopment())
 {
 	//app.UseDeveloperExceptionPage();
-	app.UseExceptionHandler("/error");  // <------ Use the following to see live error handling when debugging
+	app.UseExceptionHandler("/error");  // <------ Use this to see live error handling when debugging
 }
 else
 {
