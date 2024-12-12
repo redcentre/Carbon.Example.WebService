@@ -520,10 +520,12 @@ partial class JobController
 	#region Manually Defined Job Endpoints
 
 	/// <summary>
-	/// Exports TSAPI compliant metadata from a job (survey).
+	/// Exports filtered TSAPI compliant metadata from a job (survey).
 	/// </summary>
 	/// <remarks>
 	/// &#x1F536; Note that this endpoint replaces the <c>carbon/tsapi/query/metadata</c> endpoint in the Bayes Price licensing service.
+	/// This endpoint should be used if you only want to retrieve metadata. To retrieve both metadata and interviews then it is more efficient
+	/// to call the <c>job/tsapi</c> endpoint which returns an aggregate of both sets of data.
 	/// </remarks>
 	/// <param name="varnames">The names of the variables to be included in the export.</param>
 	/// <param name="filter">A filter to apply to the export.</param>
@@ -549,10 +551,12 @@ partial class JobController
 	}
 
 	/// <summary>
-	/// Exports TSAPI compliant interviews from a job (survey).
+	/// Exports filtered TSAPI compliant interviews from a job (survey).
 	/// </summary>
 	/// <remarks>
 	/// &#x1F536; Note that this endpoint replaces the <c>carbon/tsapi/query/interview</c> endpoint in the Bayes Price licensing service.
+	/// This endpoint should be used if you only want to retrieve interviews. To retrieve both metadata and interviews then it is more efficient
+	/// to call the <c>job/tsapi</c> endpoint which returns an aggregate of both sets of data.
 	/// </remarks>
 	/// <param name="varnames">The names of the variables to be included in the export.</param>
 	/// <param name="filter">A filter to apply to the export.</param>
@@ -575,6 +579,40 @@ partial class JobController
 		};
 		TSAPIData data = exporter.ExportTSAPI(query, filter);
 		return await Task.FromResult(data.Interviews);
+	}
+
+	/// <summary>
+	/// Exports filtered TSAPI compliant metadata AND interviews from a job (survey).
+	/// </summary>
+	/// <remarks>
+	/// This endpoint should be used to more efficiently retrieve both the metadata and interviews for a job (survey).
+	/// The response properties <c>MetaData</c> and <c>Interviews</c> contain the TSAPI compliant retrieved data, other
+	/// properties are reserved for future use will be null.
+	/// </remarks>
+	/// <param name="varnames">The names of the variables to be included in the export.</param>
+	/// <param name="filter">A filter to apply to the export.</param>
+	/// <response code="200">A serialized <c>TSAPIData</c> object which has properties containing both the metadata and interviews for a job (survey).</response>
+	/// <response code="403">The request failed because no authenticated session has been established with the web service.</response>
+	[HttpGet]
+	[Route("tsapi")]
+	[AuthFilter]
+	[Produces("application/json", "text/xml")]
+	[ProducesResponseType(typeof(TSAPIData), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+	public async Task<ActionResult<TSAPIData>> TsapiCombined([FromQuery] string[] varnames, [FromQuery] string filter)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, false);
+		var exporter = new ExportEngine(LicProv);
+		exporter.AttachJob(wrap.Engine);
+		var query = new InterviewsQuery()
+		{
+			Variables = [.. varnames]
+		};
+		TSAPIData data = exporter.ExportTSAPI(query, filter);
+		// The following are for Carbon use only and are not returned here.
+		data.ExportMetadata = null;
+		data.ExportInterview = null;
+		return await Task.FromResult(data);
 	}
 
 	#endregion

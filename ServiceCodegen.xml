@@ -562,47 +562,12 @@
     <web postType="UpsertDashboardRequest" direct="true"/>
     <return type="AzDashboard" description="The dashboard after processing."/>
   </method>
+  
+  <!-- Surveys (TSAPI Standard) -->
 
-  <!-- TEXT ANALYSIS (TA) -->
-
-  <method name="ListTaDefs" method="Get" endpoint="ta/list" auth="*">
-    <summary>Lists TA Definitions for a customer and job.</summary>
-    <return type="TADef[]" description="An array of [c]TADef[/c] objects."/>
-  </method>
-
-  <method name="UpsertTaDef" method="Post" endpoint="ta/upsert" auth="*">
-    <summary>Updates or inserts a TA definition.</summary>
-    <parameters>
-      <parameter type="TADef" name="request" description="Specifies the TA definition to update or insert."/>
-    </parameters>
-    <web postType="TADef" direct="true"/>
-    <return type="TADef" description="The TA after processing."/>
-  </method>
-
-  <method name="DeleteTaDef" method="Delete" endpoint="ta/{uid}" auth="*">
-    <summary>Deletes a TA definition.</summary>
-    <parameters>
-      <parameter route="true" type="Guid" name="uid" description="Ta unique id."/>
-    </parameters>
-    <return type="bool" description="True if the definition was found and deleted."/>
-  </method>
-
-  <method name="ExportTaDef" method="Post" endpoint="ta/export" auth="*">
-    <summary>Exports TSAPI data for a TA definition.</summary>
-    <parameters>
-      <parameter type="TADef" name="request" description="Specifies the TA definition to control export."/>
-    </parameters>
-    <web postType="TADef" direct="true"/>
-    <return type="TSAPIData" description="Export metadata and responses."/>
-  </method>
-
-  <method name="AnalyseTaDef" method="Post" endpoint="ta/analyse" auth="*">
-    <summary>Run LLM analysis for a TA definition.</summary>
-    <parameters>
-      <parameter type="TADef" name="request" description="Specifies the TA definition to control analysis."/>
-    </parameters>
-    <web postType="TADef" direct="true"/>
-    <return type="TADef" description="Results of text analysis."/>
-  </method>
+  <!--<method name="TsapiStandardList" method="Get" endpoint="Surveys" auth="*">
+    <summary>Lists TSAPI exportable jobs (surveys).</summary>
+    <return type="SurveyDetail[]" description="An array of [c]SurveyDetail[/c] objects."/>
+  </method>-->
 
 </methods>

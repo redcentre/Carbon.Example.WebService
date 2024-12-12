@@ -136,14 +136,15 @@ var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
 #elif (DEBUG || RELEASE)
 //━━━━━━━━━━━━━ RCS DEBUGGING ━━━━━━━━━━━━━
 //string licaddress = "http://localhost:52123/";
-//string licaddress = ""https://localhost:7238/";
+string licaddress = "https://localhost:7238/";
 //string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
-//int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
-//var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
+string apiKey= builder.Configuration["CarbonApi:LicensingApiKey"]!;
+int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
+var licprov = new RedCentreLicensingProvider(licaddress, apiKey, timeout);
 //━━━━━━━━━━━━━ SQL DEBUGGING ━━━━━━━━━━━━━
-string prodkey = builder.Configuration["CarbonApi:ProductKey"]!;
-string adoconnect = builder.Configuration["CarbonApi:AdoConnect"]!;
-var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
+//string prodkey = builder.Configuration["CarbonApi:ProductKey"]!;
+//string adoconnect = builder.Configuration["CarbonApi:AdoConnect"]!;
+//var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #else
 #error "No recognised licensing provider defined"

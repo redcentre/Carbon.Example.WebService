@@ -28,6 +28,7 @@ using RCS.Azure.Data.Common;
 using RCS.Carbon.Licensing.Shared;
 using RCS.Carbon.Shared;
 using TSAPI.Public.Domain.Interviews;
+using TSAPI.Public.Domain.Metadata;
 
 #nullable enable
 
@@ -136,8 +137,9 @@ void EmitClass(string rbase, PMethod[] methods)
 		/// </remarks>
 <#
 		}
-		string webargs = string.Join(", ", m.Params.Where(p => p.IsRoute == true).Select(p => string.Format("[FromRoute] {0} {1}", p.Type, p.Name)));;
-		string methpoint = m.Endpoint.Substring(m.Endpoint.IndexOf('/') + 1);
+		string webargs = string.Join(", ", m.Params.Where(p => p.IsRoute == true).Select(p => string.Format("[FromRoute] {0} {1}", p.Type, p.Name)));
+		int ix = m.Endpoint.IndexOf('/');
+		string methpoint = ix > 0 ? m.Endpoint.Substring(m.Endpoint.IndexOf('/') + 1) : "";
 #>
 		[global::System.CodeDom.Compiler.GeneratedCode("<#=TTName#>", "<#=TTVer#>")]
 		[global::System.Diagnostics.DebuggerNonUserCode]
