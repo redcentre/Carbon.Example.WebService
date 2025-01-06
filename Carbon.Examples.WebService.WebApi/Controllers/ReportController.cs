@@ -114,6 +114,14 @@ public partial class ReportController : ServiceControllerBase
 		return await Task.FromResult(lines);
 	}
 
+	async Task<ActionResult<string>> GenTabHtmlJoinedImpl(GenTabHtmlRequest request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		string report = wrap.Engine.GenTabAsHTML(request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter);
+		LogInfo(231, "GenTabHtmlJoined({Top},{Side},{Filter},{Weight},{CaseFilter) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, report.Length);
+		return await Task.FromResult(report);
+	}
+
 	async Task<ActionResult<GenNode[]>> AxisSyntaxToNodesImpl(string syntax)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, true);

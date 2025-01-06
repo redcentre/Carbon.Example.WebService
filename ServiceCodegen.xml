@@ -481,6 +481,15 @@
     <return type="string[]" description="The lines of a crosstab report as a HTML document."/>
   </method>
 
+  <method name="GenTabHtmlJoined" method="Post" endpoint="report/gentab/html/joined" auth="*">
+    <summary>Generates a crosstab report as a single line of a HTML document.</summary>
+    <parameters>
+      <parameter type="GenTabHtmlRequest" name="request" description="Request parameters."/>
+    </parameters>
+    <web postType="GenTabHtmlRequest" direct="true"/>
+    <return type="string" description="The lines of a crosstab report as a HTML document joined to a single string."/>
+  </method>
+
   <method name="AxisSyntaxToNodes" method="Post" endpoint="report/syntax/tonodes" auth="*">
     <summary>Converts a syntax string into a tree of generic nodes.</summary>
     <parameters>
