@@ -123,6 +123,15 @@
     </exceptions>
   </method>
 
+  <method name="ForceSessions" method="Delete" endpoint="session/force/{idlist}">
+    <summary>Forcibly ends all sessions with specified Ids.</summary>
+    <remarks>This method can be used by clients who wish to enforce the policy of a single session per account.</remarks>
+    <parameters>
+      <parameter route="true" type="string" name="idlist" description="A comma joined string of session Ids to forcibly end."/>
+    </parameters>
+    <return type="int" description="The number of sessions that were forcibly ended."/>
+  </method>
+
   <method name="EndSession" method="Delete" endpoint="session/end" session="end" auth="*">
     <summary>End a web service session. Licences are not returned.</summary>
     <remarks>Any active session Id is removed and subsequence web service calls will not include a session Id in the headers, effectively indicating to the service that the calls are coming from an anonymous (not authenticated) caller.</remarks>
@@ -142,6 +151,15 @@
     <remarks>Any active session Id is removed and subsequence web service calls will not include a session Id in the headers, effectively indicating to the service that the calls are coming from an anonymous (not authenticated) caller.</remarks>
     <web fromHeaderName="CarbonServiceClient.SessionIdHeaderKey" fromHeader="sessionId"/>
     <return type="int" description="Count of logins remaining."/>
+  </method>
+
+  <method name="ReadSession" method="Get" endpoint="session/{id}" auth="*">
+    <summary>Reads a session by Session Id.</summary>
+    <remarks>Clients can use this method to determine if a session is 'alive'.</remarks>
+    <parameters>
+      <parameter route="true" type="string" name="id" description="The Session Id to read."/>
+    </parameters>
+    <return type="SessionStatus" description="A [c]SessionStatus[/c] object or null if not found."/>
   </method>
 
   <method name="ListSessions" method="Get" endpoint="session/list" auth="*">

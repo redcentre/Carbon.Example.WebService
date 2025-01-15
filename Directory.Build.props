@@ -1,10 +1,10 @@
 ﻿<Project>
   <PropertyGroup>
-    <Version>9.1.10</Version>
+    <Version>9.1.11</Version>
     <Authors>Orthogonal Programming</Authors>
     <Company>Red Centre Software</Company>
     <Product>Carbon</Product>
-    <Copyright>Copyright © 2020-2024 Red Centre Software</Copyright>
+    <Copyright>Copyright © 2020-2025 Red Centre Software</Copyright>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
   </PropertyGroup>
 </Project>

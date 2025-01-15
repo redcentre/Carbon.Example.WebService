@@ -39,7 +39,7 @@ static class SessionManager
 
 	static SessionManager()
 	{
-		sessDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "_carbon_webapi"));
+		sessDir = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "CarbonService"));
 		sessFile = new FileInfo(Path.Combine(sessDir.FullName, "session-state-v1.json"));
 	}
 
@@ -146,6 +146,16 @@ static class SessionManager
 		return null;
 	}
 
+	static public SessionItem[] FindSessionsForId(string userId)
+	{
+		return map!.Where(x => x.Value.UserId == userId).Select(x => x.Value).ToArray();
+	}
+
+	static public SessionItem[] FindSessionsForName(string userName)
+	{
+		return map!.Where(x => string.Compare(x.Value.UserName, userName, true) == 0).Select(x => x.Value).ToArray();
+	}
+
 	static public Tuple<string, SessionItem>[] ListSessions()
 	{
 		return map!.Select(m => Tuple.Create(m.Key, m.Value)).ToArray();
@@ -192,7 +202,7 @@ static class SessionManager
 	/// <summary>
 	/// We know at this point what sort of files are being serialized, so we put nice
 	/// extensions on them to help browsing and debugging. In reality they could all
-	/// be .foo files if no one every looked at them.
+	/// be .foo files if no one ever looked at them.
 	/// </summary>
 	static readonly string[] StateExtensions = new string[] { ".json", ".json", ".ini", ".xml" };
 

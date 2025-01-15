@@ -23,6 +23,14 @@
 			Details = details;
 		}
 
+		public ErrorResponse(int code, string message, string? details, object? data)
+		{
+			Code = code;
+			Message = message;
+			Details = details;
+			Data = data;
+		}
+
 		/// <summary>
 		/// Numeric error code.
 		/// </summary>
@@ -37,6 +45,11 @@
 		/// Optional detailed error information.
 		/// </summary>
 		public string? Details { get; set; }
+
+		/// <summary>
+		/// Optional arbitrary data associated with the error that will be serialized into the error response body.
+		/// </summary>
+		public object? Data { get; set; }
 
 		public override string ToString() => $"{GetType().Name}({Code},{Message},{Details})";
 

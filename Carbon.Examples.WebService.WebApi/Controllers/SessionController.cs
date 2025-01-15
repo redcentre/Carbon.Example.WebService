@@ -1,8 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Azure.Core;
 using Carbon.Examples.WebService.Common;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using RCS.Carbon.Licensing.Shared;
@@ -28,17 +31,31 @@ partial class SessionController
 
 	async Task<ActionResult<SessionInfo>> LoginIdImpl(AuthenticateIdRequest request)
 	{
+		// Optional single session enforcement for user id.
+		if (Config.GetValue<bool>("CarbonApi:EnforceSingleSession"))
+		{
+			var sessions = SessionManager.FindSessionsForId(request.Id);
+			if (sessions.Length > 0)
+			{
+				string message = sessions.Length == 1 ?
+					$"A session for User Id {request.Id} is already active." :
+					$"{sessions.Length} sessions for User Id {request.Id} are already active.";
+				string[] ids = sessions.Select(s => s.SessionId).ToArray();
+				return BadRequest(new ErrorResponse(301, message, "The data property contains a string array of the sessionIds that are already active.", ids));
+			}
+		}
+		// Perform the Carbon engine login and session start for a user id.
 		try
 		{
 			var engine = new tab.CrossTabEngine(LicProv);
 			LicenceInfo licence = await engine.LoginId(request.Id, request.Password, request.SkipCache);
 			string sessionId = MakeSessionId();
 			SessionManager.StartSession(sessionId, licence);
-			var accisessinfofo = LicToInfo(licence, sessionId);
+			var sessinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
 			LogInfo(100, "{RequestSequence} Login Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
-			return Ok(accisessinfofo);
+			return Ok(sessinfo);
 		}
 		catch (CarbonException ex)
 		{
@@ -48,6 +65,20 @@ partial class SessionController
 
 	async Task<ActionResult<SessionInfo>> AuthenticateNameImpl(AuthenticateNameRequest request)
 	{
+		// Optional single session enforcement for user name.
+		if (Config.GetValue<bool>("CarbonApi:EnforceSingleSession"))
+		{
+			var sessions = SessionManager.FindSessionsForName(request.Name);
+			if (sessions.Length > 0)
+			{
+				string message = sessions.Length == 1 ?
+					$"A session for User Name {request.Name} is already active." :
+					$"{sessions.Length} sessions for User Name {request.Name} are already active.";
+				string[] ids = sessions.Select(s => s.SessionId).ToArray();
+				return BadRequest(new ErrorResponse(302, message, "The data property contains a string array of the sessionIds that are already active.", ids));
+			}
+		}
+		// Perform the Carbon engine login and session start for a user name.
 		try
 		{
 			var engine = new tab.CrossTabEngine(LicProv);
@@ -64,6 +95,16 @@ partial class SessionController
 		{
 			return BadRequest(new ErrorResponse(ex.Code, ex.Message));
 		}
+	}
+
+	async Task<ActionResult<int>> ForceSessionsImpl(string idlist)
+	{
+		string[] ids = idlist.Split(',');
+		bool[] flags = ids.Select(id => SessionManager.EndSession(id)).ToArray();
+		int count = flags.Count(f => f);
+		long total = ids.Select(id => SessionManager.DeleteState(id)).Sum();
+		LogInfo(104, "{RequestSequence} Force {IdList} count {Count} bytes {Total}", RequestSequence, idlist, count, total);
+		return await Task.FromResult(count);
 	}
 
 	async Task<ActionResult<bool>> EndSessionImpl(string sessionId)
@@ -123,6 +164,26 @@ partial class SessionController
 			LogWarn(115, "Return Session {SessionId} not found", RequestSequence, Sid, sessionId);
 			return Ok(-1);
 		}
+	}
+
+	async Task<ActionResult<SessionStatus>> ReadSessionImpl([FromRoute] string id)
+	{
+		SessionItem? session = SessionManager.FindSession(id, false);
+		if (session == null)
+		{
+			return null;
+		}
+		var ss = new SessionStatus()
+		{
+			SessionId = session.SessionId,
+			UserId = session.UserId,
+			UserName = session.UserName,
+			CreatedUtc = session.CreatedUtc,
+			LastActivityUtc = session.LastActivityUtc,
+			LastActivity = session.LastActivity,
+			ActivityCount = session.ActivityCount
+		};
+		return await Task.FromResult(ss);
 	}
 
 	/// <summary>

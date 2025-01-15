@@ -32,7 +32,7 @@ sealed class SessionItem
 
 	public string? FindStorageKey(string customerName, bool throwIfNotFound)
 	{
-		string[]? custpair = CustStorageKeys?.First(c => c[0] == customerName);
+		string[]? custpair = CustStorageKeys?.FirstOrDefault(c => c[0] == customerName);
 		if (custpair == null && throwIfNotFound) throw new Exception($"Customer name '{customerName}' is not found in the session. The account Id {UserId} does not have access to the customer.");
 		string? sk = custpair?.ElementAtOrDefault(1);
 		if (sk == null && throwIfNotFound) throw new Exception($"Customer name '{customerName}' does not have a storage key assigned.");
