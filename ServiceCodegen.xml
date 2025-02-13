@@ -97,7 +97,7 @@
   </method>
 
   <method name="LoginId" method="Post" endpoint="session/start/login/id" session="start">
-    <summary>Authenticates account Name and Password credentials. Does not start a session.</summary>
+    <summary>Authenticates account Name and Password credentials. Creates a new session.</summary>
     <parameters>
       <parameter type="string" name="id" description="Licensing account Id."/>
       <parameter type="string" name="password" description="Licensing account password."/>
@@ -111,7 +111,7 @@
   </method>
 
   <method name="AuthenticateName" method="Post" endpoint="session/start/authenticate/name" session="start">
-    <summary>Authenticates account Name and Password credentials. Does not start a session.</summary>
+    <summary>Authenticates account Name and Password credentials. Creates a new session.</summary>
     <parameters>
       <parameter type="string" name="name" description="Licensing account Name."/>
       <parameter type="string" name="password" description="Licensing account password."/>
