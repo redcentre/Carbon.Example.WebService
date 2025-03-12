@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Carbon.Examples.WebService.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
+using RCS.RubyCloud.WebService;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 
@@ -97,6 +101,189 @@ public partial class ReportController : ServiceControllerBase
 	}
 
 	#endregion
+
+	async Task<ActionResult<XDisplayProperties>> GetPropsImpl()
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, false);
+		XDisplayProperties jobprops = wrap.Engine.GetProps();
+		string json = JsonSerializer.Serialize(jobprops);
+		return await Task.FromResult(jobprops);
+	}
+
+	async Task<ActionResult<XlsxResponse>> SetPropsImpl(XDisplayProperties request)
+	{
+		string json = JsonSerializer.Serialize(request);
+		var watch = new Stopwatch();
+		watch.Start();
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		wrap.Engine.SetProps(request);
+		LogInfo(264, "Set props", RequestSequence, Sid);
+		return await MakeXlsxAndUpload(wrap, "SetProps");
+	}
+
+	async Task<ActionResult<string[]>> GenTabImpl(GenTabRequest request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		string[] lines;
+		if (request.DProps.Output.Format == XOutputFormat.XLSX)
+		{
+			// XLSX Excel output is a special case and does not return a typical set of report lines.
+			// It natively generates the buffer of an XLSX workbook, which is converted to a single
+			// base64 encoded string line for return.
+			byte[] buff = wrap.Engine.GenTabAsXLSX(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
+			lines = new string[] { Convert.ToBase64String(buff) };
+		}
+		else
+		{
+			// All other reports can be returned as lines. The lines maybe null for format None.
+			string report = wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
+			if (report == null)
+			{
+				return NoContent();
+			}
+			lines = CommonUtil.ReadStringLines(report).ToArray();
+		}
+		LogInfo(230, "GenTab({Format},{Top},{Side},{Filter},{Weight}) -> #{Length})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight, lines?.Length);
+		return await Task.FromResult(lines);
+	}
+
+	async Task<ActionResult<GenericResponse>> LoadReportImpl(LoadReportRequest request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		SessionManager.SetReportName(SessionId, request.Name);
+		wrap.Engine.TableLoadCBT(request.Name);
+		//using (Logger.BeginScope(new Dictionary<string, object?> { { "RequestSequence", RequestSequence }, { "Sid", Sid } }))
+		//{
+		//	LogInfo(232, "LoadReport {Name}", request.Name);
+		//}
+		LogDebug(232, "LoadReportImpl {Name} TEST", request.Name);
+		return await Task.FromResult(new GenericResponse(0, $"Loaded {request.Name}"));
+	}
+
+	async Task<ActionResult<bool>> UnloadReportImpl()
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		bool changed = SessionManager.SetReportName(SessionId, null);
+		return await Task.FromResult(changed);
+	}
+
+	async Task<ActionResult<XlsxResponse>> GenerateXlsxImpl()
+	{
+		var watch = new Stopwatch();
+		watch.Start();
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		return await MakeXlsxAndUpload(wrap, "Generate");
+	}
+
+	/// <summary>
+	/// This method generates multiple OXTs sequentially in a single call. It's only used in unit tests at
+	/// the moment because it will probably cause web service call from a client to timeout.
+	/// </summary>
+	async Task<ActionResult<MultiOxtResponse>> MultiOxtImpl(MultiOxtRequest request)
+	{
+		var moxt = new MoxtState(request);
+		MultiOxtSequentialProc(moxt);
+		var response = new MultiOxtResponse
+		{
+			Id = moxt.Id,
+			Created = moxt.Created,
+			ProgressMessage = moxt.ProgressMessage,
+			Items = moxt.Items
+		};
+		return await Task.FromResult(response);
+	}
+
+	DateTime multiOxtStartTime;
+
+	/// <summary>
+	/// This starts the asynchronous generation of mutiple OXTs. The processing runs on a dedicated
+	/// Thread and the client can call MultiOxtQuery to track progress, using the Guid Id returned
+	/// here as the key to the processing. Rememeber that this web session only lasts for the duration
+	/// of this method it cannot be referenced from the async thread. The caller can request single-thread
+	/// sequential processing in the traditional way, or parallel processing on multiple cores. The actual
+	/// number cores used will be limited to the number available.
+	/// </summary>
+	async Task<ActionResult<Guid>> MultiOxtStartImpl(MultiOxtRequest request)
+	{
+		multiOxtStartTime = DateTime.Now;
+		LogInfo(240, "MultiOxtStartImpl Enter");
+		var state = MakeState(request);
+		state.SessionId = SessionId;
+		state.ParallelCount = request.ParallelCount;
+		ParameterizedThreadStart proc = request.ParallelCount > 1 ? MultiOxtParallelProc : MultiOxtSequentialProc;
+		var t = new Thread(proc);
+		t.Start(state);
+		LogInfo(242, "MultiOxtStartImpl Exit {StateId} tid={ManagedThreadId}", state.Id, t.ManagedThreadId);
+		return await Task.FromResult(state.Id);
+	}
+
+	/// <summary>
+	/// Queries the progress of multi OXT processing running on a dedicated thread, using the Guid Id
+	/// that was returned by MultiOxtStart.
+	/// </summary>
+	async Task<ActionResult<MultiOxtResponse>> MultiOxtQueryImpl(Guid id)
+	{
+		var response = new MultiOxtResponse();
+		var moxt = GetState(id);
+		if (moxt != null)
+		{
+			response.Id = moxt.Id;
+			response.Created = moxt.Created;
+			response.ProgressMessage = moxt.ProgressMessage;
+			response.IsCancelled = moxt.CancelSource.IsCancellationRequested;
+			response.ParallelCount = moxt.ParallelCount;
+			response.Items = moxt.Items;
+			if (moxt.Items != null)
+			{
+				// When the Items array has a value then the loop over the multi-reports
+				// is finished and we can remove the state. The caller must recognise that
+				// the Items are present and realise that the reports are finished.
+				RemoveState(moxt.Id);
+				LogDebug(250, "Multi OXT Id {Id} complete and removed (count down to {MoxtCount})", id, MoxtList.Count);
+			}
+			else
+			{
+				//Global.LogInfo(893, $"Multi OXT Id {id} running - {moxt.ProgressMessage}");
+			}
+		}
+		else
+		{
+			// There is no specific error return for this. The returned Id will be Guid.Empty.
+			//Global.LogInfo(894, $"Multi OXT Id {id} not found in {Global.StateCount} items");
+		}
+		return await Task.FromResult(response);
+	}
+
+	async Task<ActionResult<bool>> MultiOxtCancelImpl(Guid id)
+	{
+		bool success = CancelState(id);
+		return await Task.FromResult(success);
+	}
+
+	async Task<ActionResult<GenericResponse>> DeleteInUserTocImpl(DeleteInUserTocRequest request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		bool success = wrap.Engine.DeleteInUserTOC(request.Name, true, out string message);
+		return await Task.FromResult(new GenericResponse(success ? 0 : 1, message));
+	}
+
+	async Task<ActionResult<XlsxResponse>> QuickUpdateReportImpl(QuickUpdateRequest request)
+	{
+		var watch = new Stopwatch();
+		watch.Start();
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		bool result = wrap.Engine.QuickEdit(request.ShowFreq, request.ShowColPct, request.ShowRowPct, request.ShowSig, request.Filter);
+		LogInfo(262, "QuickEdit {Freq} {Col} {Row} {Sig} {Filter}", RequestSequence, Sid, request.ShowFreq, request.ShowColPct, request.ShowColPct, request.ShowSig, request.Filter);
+		return await MakeXlsxAndUpload(wrap, "Quick");
+	}
+
+	async Task<ActionResult<GenericResponse>> SaveReportImpl(SaveReportRequest request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		bool success = wrap.Engine.SaveTableUserTOC(request.Name, request.Sub, true);
+		LogInfo(260, "SaveReport {Name}+{Sub}", RequestSequence, Sid, request.Name, request.Sub);
+		return await Task.FromResult(new GenericResponse(0, request.Name));
+	}
 
 	async Task<ActionResult<XlsxResponse>> GenTabExcelBlobImpl([FromBody] GenTabRequest request)
 	{

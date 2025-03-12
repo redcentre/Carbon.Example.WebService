@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Carbon.Examples.WebService.Common;
@@ -24,7 +25,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var asm = typeof(Program).Assembly;
 var an = asm.GetName();
-var infoattr = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+var buildTime = asm.GetCustomAttributes<AssemblyMetadataAttribute>().First(a => a.Key == "BuildTime")!.Value;
 
 builder.Services.AddCors(options =>
 {
@@ -67,7 +68,7 @@ builder.Services.AddSwaggerGen(c =>
 	{
 		Title = "Carbon Web API",
 		Version = "v1",
-		Description = $"REST style web service version {an.Version} (build {infoattr!.InformationalVersion}). This web service is under development by Red Centre Software. Access to the service requires a registered authorization key to be present in the request headers.",
+		Description = $"REST style web service version {an.Version} (build {buildTime}). This web service is under development by Red Centre Software. Access to the service requires a registered authorization key to be present in the request headers.",
 		Contact = new OpenApiContact()
 		{
 			Name = "Red Centre Software",

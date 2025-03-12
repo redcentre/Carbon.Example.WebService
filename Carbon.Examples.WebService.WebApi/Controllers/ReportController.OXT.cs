@@ -11,7 +11,7 @@ using RCS.RubyCloud.WebService;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 
-partial class JobController
+partial class ReportController
 {
 	#region OXT Helpers
 

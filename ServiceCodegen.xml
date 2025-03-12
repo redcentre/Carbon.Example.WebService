@@ -249,116 +249,6 @@
     <return type="GenNode[]" description="An array of root nodes representing the hierarchical structure and contents of the Exec User Table of Contents of the currently open job."/>
   </method>
 
-  <method name="GetProps" method="Get" endpoint="job/props" auth="*">
-    <summary>Get the display proeprties of the currently open job.</summary>
-    <return type="XDisplayProperties" description="A [c]XDisplayProperties[/c] class instance containing job properties."/>
-  </method>
-
-  <method name="SetProps" method="Post" endpoint="job/props" auth="*">
-    <summary>Sets the display properties of the currently open job.</summary>
-    <parameters>
-      <parameter type="XDisplayProperties" name="request" description="A [c]XDisplayProperties[/c] class instance containing the new job properties."/>
-    </parameters>
-    <web postType="XDisplayProperties" direct="true"/>
-    <return type="XlsxResponse" description="TODO"/>
-  </method>
-
-  <method name="GenTab" method="Post" endpoint="job/gentab" auth="*">
-    <summary>Generates a crosstab report in different formats.</summary>
-    <parameters>
-      <parameter type="string?" name="name" description="Cloud customer name (Storage Account name)."/>
-      <parameter type="string" name="top" description="Cloud job name (Container name)."/>
-      <parameter type="string" name="side" description="TODO"/>
-      <parameter type="string?" name="filter" description="TODO"/>
-      <parameter type="string?" name="weight" description="TODO"/>
-      <parameter type="XSpecProperties" name="sprops" description="TODO"/>
-      <parameter type="XDisplayProperties" name="dprops" description="TODO"/>
-    </parameters>
-    <web postType="GenTabRequest"/>
-    <return type="string[]" description="Lines of a crosstab report."/>
-  </method>
-
-  <method name="LoadReport" method="Post" endpoint="job/report/load" auth="*">
-    <summary>Loads a report and sets it as the currently loaded and active report for the session.</summary>
-    <parameters>
-      <parameter type="LoadReportRequest" name="request" description="Job relative path and name of the report to load."/>
-    </parameters>
-    <web postType="LoadReportRequest" direct="true"/>
-    <return type="GenericResponse" description="The reponse code is currently always zero (TODO what errors can happen?)."/>
-  </method>
-
-  <method name="UnloadReport" method="Get" endpoint="job/report/unload" auth="*">
-    <summary>Unloads any previously loaded report, usually indicating that a new unsaved report is active.</summary>
-    <return type="bool" description="Always returns true."/>
-  </method>
-
-  <method name="GenerateXlsx" method="Get" endpoint="job/report/xlsx" auth="*">
-    <summary>Generates XLSX for the currently loaded report.</summary>
-    <return type="XlsxResponse" description="The response gives the url and attributes of the generated XLSX workbook."/>
-  </method>
-
-  <method name="MultiOxt" method="Post" endpoint="job/report/multioxt" auth="*">
-    <summary>Generates OXT outputs for multiple reports.</summary>
-    <parameters>
-      <parameter type="MultiOxtRequest" name="request" description="TODO"/>
-    </parameters>
-    <web postType="MultiOxtRequest" direct="true"/>
-    <return type="MultiOxtResponse" description="TODO"/>
-  </method>
-
-  <method name="MultiOxtStart" method="Post" endpoint="job/report/multioxt/start" auth="*">
-    <summary>Starts backgorund generation of OXT outputs for multiple reports.</summary>
-    <parameters>
-      <parameter type="MultiOxtRequest" name="request" description="TODO"/>
-    </parameters>
-    <web postType="MultiOxtRequest" direct="true"/>
-    <return type="Guid" description="A unique identifier of the background process."/>
-  </method>
-
-  <method name="MultiOxtQuery" method="Get" endpoint="job/report/multioxt/query/{id}" auth="*" browsable="false">
-    <summary>Gets the status of background generation of multiple reports.</summary>
-    <parameters>
-      <parameter route="true" type="Guid" name="id" description="Id of the background processing to query."/>
-    </parameters>
-    <return type="MultiOxtResponse" description="TODO"/>
-  </method>
-
-  <method name="MultiOxtCancel" method="Get" endpoint="job/report/multioxt/cancel/{id}" auth="*">
-    <summary>Cancels a background generation of multiple reports.</summary>
-    <parameters>
-      <parameter route="true" type="Guid" name="id" description="Id of the background processing to cancel."/>
-    </parameters>
-    <return type="bool" description="True if the background process was found and cancelled."/>
-  </method>
-
-  <method name="DeleteInUserToc" method="Post" endpoint="job/report/delete" auth="*">
-    <summary>Deletes a report or folder in the user's TOC.</summary>
-    <parameters>
-      <parameter type="string" name="name" description="The name of the folder or report relative to the TOC root"/>
-    </parameters>
-    <web postType="DeleteInUserTocRequest"/>
-    <return type="GenericResponse" description="A status code and optional error message."/>
-  </method>
-
-  <method name="QuickUpdateReport" method="Post" endpoint="job/report/quickupdate" auth="*">
-    <summary>PENDING.</summary>
-    <parameters>
-      <parameter type="QuickUpdateRequest" name="request" description="TODO"/>
-    </parameters>
-    <web postType="QuickUpdateRequest" direct="true"/>
-    <return type="XlsxResponse" description="Details of the generated report."/>
-  </method>
-
-  <method name="SaveReport" method="Post" endpoint="job/report/save" auth="*">
-    <summary>Saves the current crosstab report as a job relative path and name.</summary>
-    <parameters>
-      <parameter type="string" name="name" description="Job relative name of the report to save. Any invalid characters in the name are converted to underscore '_'."/>
-      <parameter type="string?" name="sub" description="Optional subfolder."/>
-    </parameters>
-    <web postType="SaveReportRequest"/>
-    <return type="GenericResponse" description="TODO"/>
-  </method>
-
   <method name="ListVartrees" method="Get" endpoint="job/vartree/list" auth="*">
     <summary>List variable tree names in the currently open job.</summary>
     <return type="string[]" description="A non-null array of variable tree names in the currently open job."/>
@@ -480,6 +370,116 @@
   </method>
 
   <!-- REPORT -->
+
+  <method name="GetProps" method="Get" endpoint="report/props" auth="*">
+    <summary>Get the display proeprties of the currently open report.</summary>
+    <return type="XDisplayProperties" description="A [c]XDisplayProperties[/c] class instance containing report properties."/>
+  </method>
+
+  <method name="SetProps" method="Post" endpoint="report/props" auth="*">
+    <summary>Sets the display properties of the currently open report.</summary>
+    <parameters>
+      <parameter type="XDisplayProperties" name="request" description="A [c]XDisplayProperties[/c] class instance containing the new report properties."/>
+    </parameters>
+    <web postType="XDisplayProperties" direct="true"/>
+    <return type="XlsxResponse" description="TODO"/>
+  </method>
+
+  <method name="GenTab" method="Post" endpoint="report/gentab" auth="*">
+    <summary>Generates a crosstab report in different formats.</summary>
+    <parameters>
+      <parameter type="string?" name="name" description="Cloud customer name (Storage Account name)."/>
+      <parameter type="string" name="top" description="Cloud job name (Container name)."/>
+      <parameter type="string" name="side" description="TODO"/>
+      <parameter type="string?" name="filter" description="TODO"/>
+      <parameter type="string?" name="weight" description="TODO"/>
+      <parameter type="XSpecProperties" name="sprops" description="TODO"/>
+      <parameter type="XDisplayProperties" name="dprops" description="TODO"/>
+    </parameters>
+    <web postType="GenTabRequest"/>
+    <return type="string[]" description="Lines of a crosstab report."/>
+  </method>
+
+  <method name="LoadReport" method="Post" endpoint="report/load" auth="*">
+    <summary>Loads a report and sets it as the currently loaded and active report for the session.</summary>
+    <parameters>
+      <parameter type="LoadReportRequest" name="request" description="Job relative path and name of the report to load."/>
+    </parameters>
+    <web postType="LoadReportRequest" direct="true"/>
+    <return type="GenericResponse" description="The reponse code is currently always zero (TODO what errors can happen?)."/>
+  </method>
+
+  <method name="UnloadReport" method="Get" endpoint="report/unload" auth="*">
+    <summary>Unloads any previously loaded report and sets a new unsaved report as active.</summary>
+    <return type="bool" description="Always returns true."/>
+  </method>
+
+  <method name="GenerateXlsx" method="Get" endpoint="report/xlsx" auth="*">
+    <summary>Generates XLSX for the currently opened report.</summary>
+    <return type="XlsxResponse" description="The response gives the url and attributes of the generated XLSX workbook."/>
+  </method>
+
+  <method name="MultiOxt" method="Post" endpoint="report/multioxt" auth="*">
+    <summary>Generates OXT outputs for multiple reports.</summary>
+    <parameters>
+      <parameter type="MultiOxtRequest" name="request" description="TODO"/>
+    </parameters>
+    <web postType="MultiOxtRequest" direct="true"/>
+    <return type="MultiOxtResponse" description="TODO"/>
+  </method>
+
+  <method name="MultiOxtStart" method="Post" endpoint="report/multioxt/start" auth="*">
+    <summary>Starts backgorund generation of OXT outputs for multiple reports.</summary>
+    <parameters>
+      <parameter type="MultiOxtRequest" name="request" description="TODO"/>
+    </parameters>
+    <web postType="MultiOxtRequest" direct="true"/>
+    <return type="Guid" description="A unique identifier of the background process."/>
+  </method>
+
+  <method name="MultiOxtQuery" method="Get" endpoint="report/multioxt/query/{id}" auth="*" browsable="false">
+    <summary>Gets the status of background generation of multiple reports.</summary>
+    <parameters>
+      <parameter route="true" type="Guid" name="id" description="Id of the background processing to query."/>
+    </parameters>
+    <return type="MultiOxtResponse" description="TODO"/>
+  </method>
+
+  <method name="MultiOxtCancel" method="Get" endpoint="report/multioxt/cancel/{id}" auth="*">
+    <summary>Cancels a background generation of multiple reports.</summary>
+    <parameters>
+      <parameter route="true" type="Guid" name="id" description="Id of the background processing to cancel."/>
+    </parameters>
+    <return type="bool" description="True if the background process was found and cancelled."/>
+  </method>
+
+  <method name="DeleteInUserToc" method="Post" endpoint="report/delete" auth="*">
+    <summary>Deletes a report or folder in the user's TOC.</summary>
+    <parameters>
+      <parameter type="string" name="name" description="The name of the folder or report relative to the TOC root"/>
+    </parameters>
+    <web postType="DeleteInUserTocRequest"/>
+    <return type="GenericResponse" description="A status code and optional error message."/>
+  </method>
+
+  <method name="QuickUpdateReport" method="Post" endpoint="report/quickupdate" auth="*">
+    <summary>PENDING.</summary>
+    <parameters>
+      <parameter type="QuickUpdateRequest" name="request" description="TODO"/>
+    </parameters>
+    <web postType="QuickUpdateRequest" direct="true"/>
+    <return type="XlsxResponse" description="Details of the generated report."/>
+  </method>
+
+  <method name="SaveReport" method="Post" endpoint="report/save" auth="*">
+    <summary>Saves the current crosstab report as a job relative path and name.</summary>
+    <parameters>
+      <parameter type="string" name="name" description="Job relative name of the report to save. Any invalid characters in the name are converted to underscore '_'."/>
+      <parameter type="string?" name="sub" description="Optional subfolder."/>
+    </parameters>
+    <web postType="SaveReportRequest"/>
+    <return type="GenericResponse" description="TODO"/>
+  </method>
 
   <method name="GenTabExcelBlob" method="Post" endpoint="report/gentab/excel/blob" auth="*">
     <summary>Generates a crosstab report as an Excel workbook and saves it in a blob.</summary>
