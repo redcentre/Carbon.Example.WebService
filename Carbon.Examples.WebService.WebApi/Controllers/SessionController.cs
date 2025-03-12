@@ -25,7 +25,7 @@ partial class SessionController
 		var sessinfo = LicToInfo(licence, sessionId);
 		string[] state = engine.SaveState();
 		SessionManager.SaveState(sessionId, state);
-		LogInfo(103, "{RequestSequence} Start Free Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
+		LogInfo(103, "Start Free Session {SessionId} Id {LicenceId} Name {LicenceName}", sessionId, licence.Id, licence.Name);
 		return Ok(sessinfo);
 	}
 
@@ -54,7 +54,7 @@ partial class SessionController
 			var sessinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
-			LogInfo(100, "{RequestSequence} Login Session {SessionId} Id {LicenceId} Name {LicenceName}", RequestSequence, sessionId, licence.Id, licence.Name);
+			LogInfo(100, "Login Session {SessionId} Id {LicenceId} Name {LicenceName}", sessionId, licence.Id, licence.Name);
 			return Ok(sessinfo);
 		}
 		catch (CarbonException ex)
@@ -88,7 +88,7 @@ partial class SessionController
 			var sessinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
-			LogInfo(102, "{RequestSequence} Login Session {SessionName} Name {LicenceName}", RequestSequence, sessionId, licence.Name);
+			LogInfo(102, "Login Session {SessionName} Name {LicenceName}", sessionId, licence.Name);
 			return Ok(sessinfo);
 		}
 		catch (CarbonException ex)
@@ -103,7 +103,7 @@ partial class SessionController
 		bool[] flags = ids.Select(id => SessionManager.EndSession(id)).ToArray();
 		int count = flags.Count(f => f);
 		long total = ids.Select(id => SessionManager.DeleteState(id)).Sum();
-		LogInfo(104, "{RequestSequence} Force {IdList} count {Count} bytes {Total}", RequestSequence, idlist, count, total);
+		LogInfo(104, "Force {IdList} count {Count} bytes {Total}", idlist, count, total);
 		return await Task.FromResult(count);
 	}
 
@@ -111,7 +111,7 @@ partial class SessionController
 	{
 		bool success = SessionManager.EndSession(sessionId);
 		long total = SessionManager.DeleteState(sessionId);
-		LogInfo(110, "End Session {SessionId} {Total}", RequestSequence, Sid, sessionId, total);
+		LogInfo(110, "End Session {SessionId} {Total}", sessionId, total);
 		SessionCleanup();
 		return await Task.FromResult(success);
 	}
@@ -130,13 +130,13 @@ partial class SessionController
 			bool success = SessionManager.EndSession(sessionId);
 			long total = SessionManager.DeleteState(sessionId);
 			string showuserid = si.UserId ?? "NULL";
-			LogInfo(112, "Logoff Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", RequestSequence, Sid, sessionId, count, showuserid, success, total);
+			LogInfo(112, "Logoff Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", sessionId, count, showuserid, success, total);
 			SessionCleanup();
 			return Ok(count);
 		}
 		else
 		{
-			LogWarn(113, "Logoff Session {SessionId} not found", RequestSequence, Sid, sessionId);
+			LogWarn(113, "Logoff Session {SessionId} not found", sessionId);
 			return Ok(-1);
 		}
 	}
@@ -155,13 +155,13 @@ partial class SessionController
 			bool success = SessionManager.EndSession(sessionId);
 			long total = SessionManager.DeleteState(sessionId);
 			string showuserid = si.UserId ?? "NULL";
-			LogInfo(114, "Return Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", RequestSequence, Sid, sessionId, count, showuserid, success, total);
+			LogInfo(114, "Return Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", sessionId, count, showuserid, success, total);
 			SessionCleanup();
 			return Ok(count);
 		}
 		else
 		{
-			LogWarn(115, "Return Session {SessionId} not found", RequestSequence, Sid, sessionId);
+			LogWarn(115, "Return Session {SessionId} not found", sessionId);
 			return Ok(-1);
 		}
 	}

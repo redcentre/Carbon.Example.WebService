@@ -91,7 +91,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.SimpleTOCGenNodes();
-		LogInfo(212, "List simple TOC Nodes {Load} -> {Count}", RequestSequence, Sid, load, gnodes.Length);
+		LogInfo(212, "List simple TOC Nodes {Load} -> {Count}", load, gnodes.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -99,7 +99,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.FullTOCGenNodes();
-		LogInfo(214, "List full TOC Nodes {Load} -> {Count}", RequestSequence, Sid, load, gnodes.Length);
+		LogInfo(214, "List full TOC Nodes {Load} -> {Count}", load, gnodes.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -107,7 +107,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.ExecUserTOCGenNodes();
-		LogInfo(216, "List ExecUser TOC Nodes {Load} -> {Count}", RequestSequence, Sid, load, gnodes.Length);
+		LogInfo(216, "List ExecUser TOC Nodes {Load} -> {Count}", load, gnodes.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -229,7 +229,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		string[] names = wrap.Engine.ListVartreeNames().ToArray();
-		LogInfo(276, "List vartrees {Count}", RequestSequence, Sid, names.Length);
+		LogInfo(276, "List vartrees {Count}", names.Length);
 		return await Task.FromResult(names);
 	}
 
@@ -244,7 +244,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.VarTreeAsNodes();
-		LogInfo(280, "List vartree nodes -> {Count}", RequestSequence, Sid, gnodes?.Length);
+		LogInfo(280, "List vartree nodes -> {Count}", gnodes?.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -252,7 +252,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.AxisTreeAsNodes();
-		LogInfo(281, "Get axis tree Nodes -> {Count}", RequestSequence, Sid, gnodes?.Length);
+		LogInfo(281, "Get axis tree Nodes -> {Count}", gnodes?.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -260,7 +260,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.FunctionListAsNodes();
-		LogInfo(282, "Get function tree Nodes -> {Count}", RequestSequence, Sid, gnodes?.Length);
+		LogInfo(282, "Get function tree Nodes -> {Count}", gnodes?.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -268,7 +268,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.AxisAsNodes(name);
-		LogInfo(283, "List axis '{Name}' child nodes -> {Count}", RequestSequence, Sid, name, gnodes?.Length);
+		LogInfo(283, "List axis '{Name}' child nodes -> {Count}", name, gnodes?.Length);
 		return await Task.FromResult(gnodes);
 	}
 
@@ -276,7 +276,7 @@ partial class JobController
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] nodes = wrap.Engine.VarAsNodes(name);
-		LogInfo(284, "Get varmeta '{Name}' Nodes -> {Count}", RequestSequence, Sid, name, nodes?.Length);
+		LogInfo(284, "Get varmeta '{Name}' Nodes -> {Count}", name, nodes?.Length);
 		return await Task.FromResult(nodes);
 	}
 

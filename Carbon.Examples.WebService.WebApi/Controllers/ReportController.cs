@@ -117,7 +117,7 @@ public partial class ReportController : ServiceControllerBase
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		wrap.Engine.SetProps(request);
-		LogInfo(264, "Set props", RequestSequence, Sid);
+		LogInfo(264, "Set props");
 		return await MakeXlsxAndUpload(wrap, "SetProps");
 	}
 
@@ -152,11 +152,7 @@ public partial class ReportController : ServiceControllerBase
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		SessionManager.SetReportName(SessionId, request.Name);
 		wrap.Engine.TableLoadCBT(request.Name);
-		//using (Logger.BeginScope(new Dictionary<string, object?> { { "RequestSequence", RequestSequence }, { "Sid", Sid } }))
-		//{
-		//	LogInfo(232, "LoadReport {Name}", request.Name);
-		//}
-		LogDebug(232, "LoadReportImpl {Name} TEST", request.Name);
+		LogInfo(232, "LoadReport {Name}", request.Name);
 		return await Task.FromResult(new GenericResponse(0, $"Loaded {request.Name}"));
 	}
 
@@ -273,7 +269,7 @@ public partial class ReportController : ServiceControllerBase
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		bool result = wrap.Engine.QuickEdit(request.ShowFreq, request.ShowColPct, request.ShowRowPct, request.ShowSig, request.Filter);
-		LogInfo(262, "QuickEdit {Freq} {Col} {Row} {Sig} {Filter}", RequestSequence, Sid, request.ShowFreq, request.ShowColPct, request.ShowColPct, request.ShowSig, request.Filter);
+		LogInfo(262, "QuickEdit {Freq} {Col} {Row} {Sig} {Filter}", request.ShowFreq, request.ShowColPct, request.ShowColPct, request.ShowSig, request.Filter);
 		return await MakeXlsxAndUpload(wrap, "Quick");
 	}
 
@@ -281,7 +277,7 @@ public partial class ReportController : ServiceControllerBase
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		bool success = wrap.Engine.SaveTableUserTOC(request.Name, request.Sub, true);
-		LogInfo(260, "SaveReport {Name}+{Sub}", RequestSequence, Sid, request.Name, request.Sub);
+		LogInfo(260, "SaveReport {Name}+{Sub}", request.Name, request.Sub);
 		return await Task.FromResult(new GenericResponse(0, request.Name));
 	}
 

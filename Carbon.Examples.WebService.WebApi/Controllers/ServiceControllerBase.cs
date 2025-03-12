@@ -52,20 +52,7 @@ public abstract class ServiceControllerBase : ControllerBase
 
 	void LogCommon(EventId eventId, Microsoft.Extensions.Logging.LogLevel level, Exception? error, string message, params object?[] args)
 	{
-		string? sid = null;
-		if (HttpContext.Request.Headers.TryGetValue(CarbonServiceClient.SessionIdHeaderKey, out StringValues values))
-		{
-			// Unchecked manually get the sid if it's there, and truncate it to 3 character slug (like below).
-			sid = values.FirstOrDefault();
-			if (sid?.Length > 3)
-			{
-				sid = sid[..3];
-			}
-		}
-		using (Logger.BeginScope(new Dictionary<string, object?> { { "RequestSequence", RequestSequence }, { "Sid", sid } }))
-		{
-			Logger.Log(level, eventId, error, message, args);
-		}
+		Logger.Log(level, eventId, error, message, args);
 	}
 
 	/// <summary>
@@ -118,16 +105,6 @@ public abstract class ServiceControllerBase : ControllerBase
 			}
 		}
 	}
-
-	/// <summary>
-	/// An abbreviated Session ID slug to help logging.
-	/// </summary>
-	protected string? Sid => SessionId?[..3];
-
-	/// <summary>
-	/// Attempts to get the request sequence out of the context items.
-	/// </summary>
-	protected int? RequestSequence => GetContextItemInt(GeneralActionFilterAttribute.RequestSequenceItemKey);
 
 	protected string GetKey(string customerName)
 	{

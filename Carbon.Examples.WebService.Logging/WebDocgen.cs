@@ -68,13 +68,11 @@ internal class WebDocgen : IDocumentFactory
 		{
 			return AddVal<T>(GetScalarVal<T>(logEvent.Properties, options, key), key, columnName);
 		}
-		GetAdd<int>(logEvent.Properties, options, "RequestSequence", "Sequence");
 		GetAdd<string>(logEvent.Properties, options, "Method");
 		GetAdd<string>(logEvent.Properties, options, "Path");
 		GetAdd<int>(logEvent.Properties, options, "Status");
 		GetAdd<int>(logEvent.Properties, options, "ThreadId");
 		GetAdd<int>(logEvent.Properties, options, "ProcessId");
-		GetAdd<string>(logEvent.Properties, options, "Sid");
 		string? evid = GetStructVal(logEvent.Properties, options, "EventId");
 		var m = Regex.Match(evid ?? string.Empty, @"\bId:\s*(\d+)");
 		if (m.Success)

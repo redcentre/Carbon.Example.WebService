@@ -19,11 +19,8 @@ namespace Carbon.Examples.WebService.WebApi;
 public class GeneralActionFilterAttribute : ActionFilterAttribute
 {
 	/// <ignore/>
-	public const string RequestSequenceItemKey = "count";
-	/// <ignore/>
 	public const string RequestStartItemKey = "started";
 
-	static int requestSequence = 1000;
 	const string HeaderElapsed = "x-service-elapsed";
 	static ILogger? logger;
 
@@ -40,18 +37,12 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 	{
 		base.OnActionExecuting(context);
 		bool? browsable = context.ActionDescriptor.EndpointMetadata.OfType<BrowsableAttribute>().FirstOrDefault()?.Browsable;
-		++requestSequence;
 		var req = context.HttpContext.Request;
-		context.HttpContext.Items[RequestSequenceItemKey] = requestSequence;
 		context.HttpContext.Items[RequestStartItemKey] = DateTime.Now;
 		string? sessionId = GetSesssId(req);
-		string sid = sessionId?[..3] ?? "---";
 		if (browsable != false)
 		{
-			using (logger!.BeginScope(new Dictionary<string, object?> { { "RequestSequence", requestSequence }, { "Sid", sid } }))
-			{
-				logger!.LogDebug(750, "{Method} {Path}", req.Method, req.Path);
-			}
+			logger!.LogDebug(750, "{Method} {Path}", req.Method, req.Path);
 		}
 		string method = req.Method;
 		string url = req.Path.ToString();
@@ -62,16 +53,8 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 	public override void OnResultExecuting(ResultExecutingContext context)
 	{
 		bool? browsable = context.ActionDescriptor.EndpointMetadata.OfType<BrowsableAttribute>().FirstOrDefault()?.Browsable;
-		int requestSequence = -1;
 		DateTime started;
 		double secs = 0.0;
-		if (context.HttpContext.Items.TryGetValue(RequestSequenceItemKey, out object? val1))
-		{
-			if (val1 is int i)
-			{
-				requestSequence = i;
-			}
-		}
 		if (context.HttpContext.Items.TryGetValue(RequestStartItemKey, out object? val2))
 		{
 			if (val2 is DateTime dt)
@@ -83,7 +66,6 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 			}
 		}
 		string? sessionId = GetSesssId(context.HttpContext.Request);
-		string? sid = sessionId?[..3];
 		int errcode = 0;
 		string? errmsg = null;
 		int status = context.HttpContext.Response.StatusCode;   // Default
@@ -111,20 +93,17 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 		string? errorStack = context.HttpContext.Items.TryGetValue("ErrorStack", out m) ? m.ToString() : null;
 		if (browsable != false)
 		{
-			using (logger!.BeginScope(new Dictionary<string, object?> { { "RequestSequence", requestSequence }, { "Sid", sid } }))
+			if (status >= 500)
 			{
-				if (status >= 500)
-				{
-					logger!.LogError(752, "{Method} {Path} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
-				}
-				else if (status >= 400)
-				{
-					logger!.LogWarning(754, "{Method} {Path} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
-				}
-				else
-				{
-					logger!.LogInformation(756, "{Method} {Path} {Status} {Seconds} {Message}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message);
-				}
+				logger!.LogError(752, "{Method} {Path} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
+			}
+			else if (status >= 400)
+			{
+				logger!.LogWarning(754, "{Method} {Path} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
+			}
+			else
+			{
+				logger!.LogInformation(756, "{Method} {Path} {Status} {Seconds} {Message}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message);
 			}
 		}
 		base.OnResultExecuting(context);
