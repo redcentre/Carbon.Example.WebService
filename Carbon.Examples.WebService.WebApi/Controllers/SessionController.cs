@@ -29,7 +29,7 @@ partial class SessionController
 		return Ok(sessinfo);
 	}
 
-	async Task<ActionResult<SessionInfo>> LoginIdImpl(AuthenticateIdRequest request)
+	async Task<ActionResult<SessionInfo>> StartSessionIdImpl(AuthenticateIdRequest request)
 	{
 		// Optional single session enforcement for user id.
 		if (Config.GetValue<bool>("CarbonApi:EnforceSingleSession"))
@@ -48,7 +48,7 @@ partial class SessionController
 		try
 		{
 			var engine = new tab.CrossTabEngine(LicProv);
-			LicenceInfo licence = await engine.LoginId(request.Id, request.Password, request.SkipCache);
+			LicenceInfo licence = await engine.GetLicenceId(request.Id, request.Password, request.SkipCache);
 			string sessionId = MakeSessionId();
 			SessionManager.StartSession(sessionId, licence);
 			var sessinfo = LicToInfo(licence, sessionId);
@@ -63,7 +63,7 @@ partial class SessionController
 		}
 	}
 
-	async Task<ActionResult<SessionInfo>> AuthenticateNameImpl(AuthenticateNameRequest request)
+	async Task<ActionResult<SessionInfo>> StartSessionNameImpl(AuthenticateNameRequest request)
 	{
 		// Optional single session enforcement for user name.
 		if (Config.GetValue<bool>("CarbonApi:EnforceSingleSession"))
@@ -116,55 +116,55 @@ partial class SessionController
 		return await Task.FromResult(success);
 	}
 
-	async Task<ActionResult<int>> LogoffSessionImpl(string sessionId)
-	{
-		var engine = new tab.CrossTabEngine(LicProv);
-		SessionItem? si = SessionManager.FindSession(SessionId, false);
-		int count = -1;
-		if (si != null)
-		{
-			if (si.UserId != null)
-			{
-				count = await engine.LogoutId(si.UserId);
-			}
-			bool success = SessionManager.EndSession(sessionId);
-			long total = SessionManager.DeleteState(sessionId);
-			string showuserid = si.UserId ?? "NULL";
-			LogInfo(112, "Logoff Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", sessionId, count, showuserid, success, total);
-			SessionCleanup();
-			return Ok(count);
-		}
-		else
-		{
-			LogWarn(113, "Logoff Session {SessionId} not found", sessionId);
-			return Ok(-1);
-		}
-	}
+	//async Task<ActionResult<int>> LogoffSessionImpl(string sessionId)
+	//{
+	//	var engine = new tab.CrossTabEngine(LicProv);
+	//	SessionItem? si = SessionManager.FindSession(SessionId, false);
+	//	int count = -1;
+	//	if (si != null)
+	//	{
+	//		if (si.UserId != null)
+	//		{
+	//			count = await engine.LogoutId(si.UserId);
+	//		}
+	//		bool success = SessionManager.EndSession(sessionId);
+	//		long total = SessionManager.DeleteState(sessionId);
+	//		string showuserid = si.UserId ?? "NULL";
+	//		LogInfo(112, "Logoff Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", sessionId, count, showuserid, success, total);
+	//		SessionCleanup();
+	//		return Ok(count);
+	//	}
+	//	else
+	//	{
+	//		LogWarn(113, "Logoff Session {SessionId} not found", sessionId);
+	//		return Ok(-1);
+	//	}
+	//}
 
-	async Task<ActionResult<int>> ReturnSessionImpl(string sessionId)
-	{
-		var engine = new tab.CrossTabEngine(LicProv);
-		SessionItem? si = SessionManager.FindSession(SessionId, false);
-		int count = -1;
-		if (si != null)
-		{
-			if (si.UserId != null)
-			{
-				count = await engine.ReturnId(si.UserId);
-			}
-			bool success = SessionManager.EndSession(sessionId);
-			long total = SessionManager.DeleteState(sessionId);
-			string showuserid = si.UserId ?? "NULL";
-			LogInfo(114, "Return Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", sessionId, count, showuserid, success, total);
-			SessionCleanup();
-			return Ok(count);
-		}
-		else
-		{
-			LogWarn(115, "Return Session {SessionId} not found", sessionId);
-			return Ok(-1);
-		}
-	}
+	//async Task<ActionResult<int>> ReturnSessionImpl(string sessionId)
+	//{
+	//	var engine = new tab.CrossTabEngine(LicProv);
+	//	SessionItem? si = SessionManager.FindSession(SessionId, false);
+	//	int count = -1;
+	//	if (si != null)
+	//	{
+	//		if (si.UserId != null)
+	//		{
+	//			count = await engine.ReturnId(si.UserId);
+	//		}
+	//		bool success = SessionManager.EndSession(sessionId);
+	//		long total = SessionManager.DeleteState(sessionId);
+	//		string showuserid = si.UserId ?? "NULL";
+	//		LogInfo(114, "Return Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", sessionId, count, showuserid, success, total);
+	//		SessionCleanup();
+	//		return Ok(count);
+	//	}
+	//	else
+	//	{
+	//		LogWarn(115, "Return Session {SessionId} not found", sessionId);
+	//		return Ok(-1);
+	//	}
+	//}
 
 	async Task<ActionResult<SessionStatus>> ReadSessionImpl([FromRoute] string id)
 	{

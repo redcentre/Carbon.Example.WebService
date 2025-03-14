@@ -96,7 +96,7 @@
     <return type="SessionInfo" description="Summary information about the licensing account associated with the session."/>
   </method>
 
-  <method name="LoginId" method="Post" endpoint="session/start/login/id" session="start">
+  <method name="StartSessionId" method="Post" endpoint="session/start/authenticate/id" session="start">
     <summary>Authenticates account Name and Password credentials. Creates a new session.</summary>
     <parameters>
       <parameter type="string" name="id" description="Licensing account Id."/>
@@ -110,7 +110,7 @@
     </exceptions>
   </method>
 
-  <method name="AuthenticateName" method="Post" endpoint="session/start/authenticate/name" session="start">
+  <method name="StartSessionName" method="Post" endpoint="session/start/authenticate/name" session="start">
     <summary>Authenticates account Name and Password credentials. Creates a new session.</summary>
     <parameters>
       <parameter type="string" name="name" description="Licensing account Name."/>
@@ -137,20 +137,6 @@
     <remarks>Any active session Id is removed and subsequence web service calls will not include a session Id in the headers, effectively indicating to the service that the calls are coming from an anonymous (not authenticated) caller.</remarks>
     <web fromHeaderName="CarbonServiceClient.SessionIdHeaderKey" fromHeader="sessionId"/>
     <return type="bool" description="True if the session was ended, False if it was not found."/>
-  </method>
-
-  <method name="LogoffSession" method="Delete" endpoint="session/end/logoff" session="end" auth="*">
-    <summary>End a web service session and issue a licensing logoff.</summary>
-    <remarks>Any active session Id is removed and subsequence web service calls will not include a session Id in the headers, effectively indicating to the service that the calls are coming from an anonymous (not authenticated) caller.</remarks>
-    <web fromHeaderName="CarbonServiceClient.SessionIdHeaderKey" fromHeader="sessionId"/>
-    <return type="int" description="Count of logins remaining."/>
-  </method>
-
-  <method name="ReturnSession" method="Delete" endpoint="session/end/return" session="end" auth="*">
-    <summary>End a web service session and issue a licensing return.</summary>
-    <remarks>Any active session Id is removed and subsequence web service calls will not include a session Id in the headers, effectively indicating to the service that the calls are coming from an anonymous (not authenticated) caller.</remarks>
-    <web fromHeaderName="CarbonServiceClient.SessionIdHeaderKey" fromHeader="sessionId"/>
-    <return type="int" description="Count of logins remaining."/>
   </method>
 
   <method name="ReadSession" method="Get" endpoint="session/{id}" auth="*">

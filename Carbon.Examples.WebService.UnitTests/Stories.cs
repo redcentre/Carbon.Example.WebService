@@ -19,7 +19,7 @@ namespace Carbon.Examples.WebService.UnitTests
         {
             using var client = MakeClient();
             Sep1("LoginId");
-            SessionInfo sessinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+            SessionInfo sessinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
             //Assert.IsNotNull(sessinfo);
             DumpSessinfoShort(sessinfo);
 
@@ -89,11 +89,11 @@ namespace Carbon.Examples.WebService.UnitTests
             Trace($"ReturnClose job → {ended}");
 
             Sep1("ReturnSession");
-            int count = await client.ReturnSession();
-            Trace($"Return session → {count}");
-        }
+			ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
+		}
 
-        [TestMethod]
+		[TestMethod]
         public async Task T200_Big_Story()
         {
             CarbonServiceException pex;
@@ -103,27 +103,27 @@ namespace Carbon.Examples.WebService.UnitTests
             using var client = MakeClient();
 #if FAILS
             Sep1("Bad Id");
-            pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.LoginId("NOUSER", "BADPASS"));
+            pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.StartSessionId("NOUSER", "BADPASS"));
             Trace(pex.Message);
             Assert.AreEqual("User Id 'NOUSER' not found", pex.Message);
 
             Sep1("Null Id");
-            anex = await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => client.LoginId(null, null));
+            anex = await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => client.StartSessionId(null, null));
             Trace(anex.Message);
             Assert.AreEqual("Value cannot be null. (Parameter 'id')", anex.Message);
 
             Sep1("Null Pass");
-            anex = await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => client.LoginId(TestAccountId, null));
+            anex = await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => client.StartSessionId(TestAccountId, null));
             Trace(anex.Message);
             Assert.AreEqual("Value cannot be null. (Parameter 'password')", anex.Message);
 
             Sep1("Bad Id");
-            pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.LoginId(TestAccountId, "BADPASS"));
+            pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.StartSessionId(TestAccountId, "BADPASS"));
             Trace(pex.Message);
             Assert.AreEqual("User '" + TestAccountName + "' Id '" + TestAccountId + "' incorrect password", pex.Message);
 #endif
             Sep1("LoginId");
-            SessionInfo sessinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+            SessionInfo sessinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
             Assert.IsNotNull(sessinfo);
             DumpSessinfo(sessinfo);
 
@@ -314,8 +314,8 @@ namespace Carbon.Examples.WebService.UnitTests
             Trace($"ReturnClose job → {ended}");
 
             Sep1("ReturnSession");
-            int count = await client.ReturnSession();
-            Trace($"Return session → {count}");
-        }
-    }
+			ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
+		}
+	}
 }

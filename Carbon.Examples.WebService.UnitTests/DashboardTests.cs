@@ -18,8 +18,8 @@ namespace Carbon.Examples.WebService.UnitTests
 		{
 			Sep1("AuthenticateName");
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.AuthenticateName(TestAccountName, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
+			Trace($"StartSessionName → {sinfo}");
 
 			Sep1("OpenCloudJob");
 			//OpenCloudJobResponse jobinfo = await client.OpenCloudJob(CustomerName1, "skyuk");
@@ -51,8 +51,8 @@ namespace Carbon.Examples.WebService.UnitTests
 			Dumpobj(info);
 
 			await client.CloseJob();
-			int count = await client.LogoffSession();
-			Trace($"Logoff count → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
@@ -63,8 +63,8 @@ namespace Carbon.Examples.WebService.UnitTests
 			var info = await client.GetCacheInfo(200);
 			Dumpobj(info);
 			Sep1("AuthenticateName");
-			SessionInfo sinfo = await client.AuthenticateName(TestAccountName, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
+			Trace($"StartSessionName → {sinfo}");
 
 			Sep1("OpenCloudJob");
 			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(CustomerName1, "skyuk");
@@ -101,8 +101,8 @@ namespace Carbon.Examples.WebService.UnitTests
 				DumpMultiOxtResponse(resp);
 			}
 
-			int count = await client.LogoffSession();
-			Trace($"Logoff count → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 
 			Sep1("After cache");
 			info = await client.GetCacheInfo(200);
@@ -113,20 +113,20 @@ namespace Carbon.Examples.WebService.UnitTests
 		public async Task T024_GetCacheInfo()
 		{
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.AuthenticateName(TestAccountName, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
+			Trace($"StartSessionName → {sinfo}");
 			var info = await client.GetCacheInfo(100);
 			Dumpobj(info);
-			int count = await client.LogoffSession();
-			Trace($"Logoff count → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
 		public async Task T030_List_Dashboards()
 		{
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.AuthenticateName(TestAccountName, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
+			Trace($"StartSessionName → {sinfo}");
 			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(CustomerName1, JobName1);
 
 			var dashlist = await client.ListDashboards(CustomerName1, JobName1);
@@ -138,16 +138,16 @@ namespace Carbon.Examples.WebService.UnitTests
 
 			bool closed = await client.CloseJob();
 			Trace($"CloseJob → {closed}");
-			int count = await client.LogoffSession();
-			Trace($"Logoff count → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
 		public async Task T040_KPI_Upsert()
 		{
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.AuthenticateName(TestAccountName, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
+			Trace($"StartSessionName → {sinfo}");
 			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(CustomerName1, JobName1);
 
 			var dashlist = await client.ListDashboards(CustomerName1, JobName1);
@@ -182,8 +182,8 @@ namespace Carbon.Examples.WebService.UnitTests
 
 			bool closed = await client.CloseJob();
 			Trace($"CloseJob → {closed}");
-			int count = await client.LogoffSession();
-			Trace($"Logoff count → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		static readonly string[] KPIReportNames =

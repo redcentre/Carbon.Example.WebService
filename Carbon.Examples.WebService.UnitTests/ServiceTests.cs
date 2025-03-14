@@ -59,7 +59,7 @@ namespace Carbon.Examples.WebService.UnitTests
 		public async Task T040_Job_GenTab_All_Formats()
 		{
 			using var client = MakeClient();
-			var sinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+			var sinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
 			Trace($"Login → {sinfo}");
 			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
 			Trace($"Open job → {resp}");
@@ -82,15 +82,15 @@ namespace Carbon.Examples.WebService.UnitTests
 			}
 			bool closed = await client.CloseJob();
 			Trace($"Closed job → {closed}");
-			int count = await client.ReturnSession();
-			Trace($"Returned session → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
 		public async Task T100_Report_GenTab_All_Formats()
 		{
 			using var client = MakeClient();
-			var sinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+			var sinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
 			Trace($"Login → {sinfo}");
 			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
 			Trace($"Open job → {resp}");
@@ -129,15 +129,15 @@ namespace Carbon.Examples.WebService.UnitTests
 			}
 			bool closed = await client.CloseJob();
 			Trace($"Closed job → {closed}");
-			int count = await client.ReturnSession();
-			Trace($"Returned session → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
 		public async Task T120_Report_GenTab_XML()
 		{
 			using var client = MakeClient();
-			var sinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+			var sinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
 			Trace($"Login → {sinfo}");
 			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
 			Trace($"Open job → {resp}");
@@ -148,15 +148,15 @@ namespace Carbon.Examples.WebService.UnitTests
 			Trace(xml);
 			bool closed = await client.CloseJob();
 			Trace($"Closed job → {closed}");
-			int count = await client.ReturnSession();
-			Trace($"Returned session → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
 		public async Task T140_Report_GenTab_Excel_Blob()
 		{
 			using var client = MakeClient();
-			var sinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+			var sinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
 			Trace($"Login → {sinfo}");
 			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
 			Trace($"Open job → {resp}");
@@ -180,15 +180,15 @@ namespace Carbon.Examples.WebService.UnitTests
 			}
 			bool closed = await client.CloseJob();
 			Trace($"Closed job → {closed}");
-			int count = await client.ReturnSession();
-			Trace($"Returned session → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
 		public async Task T200_Report_GenTab_Pandas()
 		{
 			using var client = MakeClient();
-			var sinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+			var sinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
 			Trace($"Login → {sinfo}");
 			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
 			Trace($"Open job → {resp}");
@@ -203,8 +203,8 @@ namespace Carbon.Examples.WebService.UnitTests
 			}
 			bool closed = await client.CloseJob();
 			Trace($"Closed job → {closed}");
-			int count = await client.ReturnSession();
-			Trace($"Returned session → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 	}
 }

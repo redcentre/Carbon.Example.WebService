@@ -69,6 +69,8 @@ namespace Carbon.Examples.WebService.UnitTests
 			Dumpobj(jobresp);
 			bool closed = await client.CloseJob();
 			Trace($"Closed → {closed}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
@@ -86,13 +88,15 @@ namespace Carbon.Examples.WebService.UnitTests
 			DumpLines(lines);
 			bool closed = await client.CloseJob();
 			Trace($"Closed → {closed}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
 		public async Task T220_Save_Report()
 		{
 			using var client = MakeClient();
-			await client.LoginId(TestAccountId, TestAccountPassword);
+			await client.StartSessionId(TestAccountId, TestAccountPassword);
 			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, JobName1, tocType: JobTocType.ExecUser);
 			Sep1("Open job toc");
 			DumpToc(jobresp.Toc!);
@@ -124,6 +128,8 @@ namespace Carbon.Examples.WebService.UnitTests
 
 			bool closed = await client.CloseJob();
 			Trace($"Closed → {closed}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
@@ -138,7 +144,7 @@ namespace Carbon.Examples.WebService.UnitTests
 		public async Task T400_SingleXlsx()
 		{
 			using var client = MakeClient();
-			SessionInfo info = await client.LoginId(TestAccountId, TestAccountPassword);
+			SessionInfo info = await client.StartSessionId(TestAccountId, TestAccountPassword);
 			Trace($"Session → {info.SessionId}");
 			//Dumpobj(info);
 			OpenCloudJobResponse jobresp = await client.OpenCloudJob("client1rcs", JobName1, null, false, true, true, JobTocType.ExecUser, false);
@@ -182,27 +188,29 @@ namespace Carbon.Examples.WebService.UnitTests
 
 			bool closed = await client.CloseJob();
 			Trace($"Closed → {closed}");
-			int count = await client.LogoffSession();
-			Trace($"LogoffSession → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
 		public async Task T500_Delete_Toc()
 		{
 			using var client = MakeClient();
-			SessionInfo info = await client.LoginId(TestAccountId, TestAccountPassword);
+			SessionInfo info = await client.StartSessionId(TestAccountId, TestAccountPassword);
 			Trace($"Session → {info.SessionId}");
 			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, JobName1, null, false, true, true, JobTocType.ExecUser, false);
 			DumpToc(jobresp.Toc!);
 			bool closed = await client.CloseJob();
 			Trace($"Closed → {closed}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
 		public async Task T600_SkipDouble_Reproduce()
 		{
 			using var client = MakeClient();
-			SessionInfo info = await client.LoginId(TestAccountId, TestAccountPassword);
+			SessionInfo info = await client.StartSessionId(TestAccountId, TestAccountPassword);
 			Trace($"Session → {info.SessionId}");
 			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, "skyuk", null, true, true, true, JobTocType.ExecUser, true);
 			//DumpToc(jobresp.Toc!);
@@ -212,6 +220,8 @@ namespace Carbon.Examples.WebService.UnitTests
 			//Dumpobj(jobresp);
 			bool closed = await client.CloseJob();
 			Trace($"Closed → {closed}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 	}

@@ -22,7 +22,7 @@ namespace Carbon.Examples.WebService.UnitTests
 
 			await RandWait();
 			Sep1("Start Session");
-			var sessinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+			var sessinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
 			Assert.IsNotNull(sessinfo);
 			Trace($"Session Id → {sessinfo.SessionId}");
 
@@ -94,8 +94,8 @@ namespace Carbon.Examples.WebService.UnitTests
 
 			await RandWait();
 			Sep1("Return Session");
-			int count = await client.ReturnSession();
-			Trace($"Return session {sessinfo.SessionId} → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]
@@ -122,7 +122,7 @@ namespace Carbon.Examples.WebService.UnitTests
 				string[] lines = await client.GenTab(null, top, side, null, null, sprops, dprops);
 				foreach (string s in lines.Take(10)) Trace(s);
 			}
-			var sessinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+			var sessinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
 			await client.OpenCloudJob(CustomerName1, JobName1);
 			await Show(XOutputFormat.OXT, Top1, Side1);
 			await Show(XOutputFormat.CSV, Top1, "Occupation");
@@ -132,8 +132,8 @@ namespace Carbon.Examples.WebService.UnitTests
 			await Show(XOutputFormat.OXT, "Occ15", "TrialYear");
 			await Show(XOutputFormat.OXT, "Case", "CrimeValue21");
 			Sep1("Return Session");
-			int count = await client.ReturnSession();
-			Trace($"Return session {sessinfo.SessionId} → {count}");
+			bool ended = await client.EndSession();
+			Trace($"EndSession → {ended}");
 		}
 
 		[TestMethod]

@@ -193,7 +193,7 @@ public class PythonController : ServiceControllerBase
 			}
 			else
 			{
-				lic = await engine.LoginId(request.Id, request.password!, request.SkipCache);
+				lic = await engine.GetLicenceId(request.Id, request.password!, request.SkipCache);
 			}
 		}
 		catch (Exception ex)

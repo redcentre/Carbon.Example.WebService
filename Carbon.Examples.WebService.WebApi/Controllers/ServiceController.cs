@@ -149,7 +149,7 @@ partial class ServiceController
 	async Task<ActionResult<string[]>> ReadTiming2Impl(ReadTimingRequest2 request)
 	{
 		var engine = new CrossTabEngine(LicProv);
-		await engine.LoginId("G1234567", "37Reddot2");
+		await engine.GetLicenceId("G1234567", "37Reddot2");
 		string[] lines = engine.LoadTest(request.Customer, request.Job, request.Vars, request.Count);
 		return lines;
 	}
