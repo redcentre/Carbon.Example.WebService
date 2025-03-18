@@ -55,8 +55,12 @@ WebLog.Info($"Start {an.Name} {an.Version}");
 
 builder.Services.AddControllers(opt =>
 {
+	opt.OutputFormatters.RemoveType<XmlSerializerOutputFormatter>();
+	opt.OutputFormatters.RemoveType<StringOutputFormatter>();
 	opt.OutputFormatters.RemoveType<HttpNoContentOutputFormatter>();
-}).AddXmlSerializerFormatters();
+	opt.OutputFormatters.Add(new TextPlainOutputFormatter());
+	opt.InputFormatters.Add(new TextPlainInputFormatter());
+});
 
 SessionManager.CacheSlidingSeconds = builder.Configuration.GetValue<int>("CarbonApi:SessionCacheSlideSeconds");
 
@@ -107,9 +111,6 @@ builder.Services.AddSwaggerGen(c =>
 		}
 	});
 });
-
-builder.Services.AddControllers()
-	.AddXmlSerializerFormatters();
 
 // Different licensing providers with possibly different parameters are
 // created depending on the build configuration.

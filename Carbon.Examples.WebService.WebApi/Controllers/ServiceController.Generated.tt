@@ -17,6 +17,7 @@
 #>
 using System;
 using System.ComponentModel;
+using System.Net.Mime;
 using System.Reflection;
 using System.Threading.Tasks;
 using Carbon.Examples.WebService.Common;
@@ -172,7 +173,8 @@ void EmitClass(string rbase, PMethod[] methods)
 			}
 		}
 #>
-		[Produces("application/json", "text/xml")]
+		[Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
+		[Consumes(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 		[ProducesResponseType(typeof(<#=m.ReturnType#>), StatusCodes.Status200OK)]
 <#
 		if (m.Auths != null)
