@@ -1,16 +1,13 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Azure.Core;
 using Carbon.Examples.WebService.Common;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using RCS.Carbon.Licensing.Shared;
 using RCS.Carbon.Shared;
-using tab = RCS.Carbon.Tables;
+using TAB = RCS.Carbon.Tables;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 
@@ -18,7 +15,7 @@ partial class SessionController
 {
 	async Task<ActionResult<SessionInfo>> StartSessionFreeImpl(AuthenticateFreeRequest request)
 	{
-		var engine = new tab.CrossTabEngine(LicProv);
+		var engine = new TAB.CrossTabEngine(LicProv);
 		LicenceInfo licence = await engine.GetFreeLicence(request.Email, request.SkipCache);
 		string sessionId = MakeSessionId();
 		SessionManager.StartSession(sessionId, licence);
@@ -47,7 +44,7 @@ partial class SessionController
 		// Perform the Carbon engine login and session start for a user id.
 		try
 		{
-			var engine = new tab.CrossTabEngine(LicProv);
+			var engine = new TAB.CrossTabEngine(LicProv);
 			LicenceInfo licence = await engine.GetLicenceId(request.Id, request.Password, request.SkipCache);
 			string sessionId = MakeSessionId();
 			SessionManager.StartSession(sessionId, licence);
@@ -81,7 +78,7 @@ partial class SessionController
 		// Perform the Carbon engine login and session start for a user name.
 		try
 		{
-			var engine = new tab.CrossTabEngine(LicProv);
+			var engine = new TAB.CrossTabEngine(LicProv);
 			LicenceInfo licence = await engine.GetLicenceName(request.Name, request.Password);
 			string sessionId = MakeSessionId();
 			SessionManager.StartSession(sessionId, licence);
@@ -115,56 +112,6 @@ partial class SessionController
 		SessionCleanup();
 		return await Task.FromResult(success);
 	}
-
-	//async Task<ActionResult<int>> LogoffSessionImpl(string sessionId)
-	//{
-	//	var engine = new tab.CrossTabEngine(LicProv);
-	//	SessionItem? si = SessionManager.FindSession(SessionId, false);
-	//	int count = -1;
-	//	if (si != null)
-	//	{
-	//		if (si.UserId != null)
-	//		{
-	//			count = await engine.LogoutId(si.UserId);
-	//		}
-	//		bool success = SessionManager.EndSession(sessionId);
-	//		long total = SessionManager.DeleteState(sessionId);
-	//		string showuserid = si.UserId ?? "NULL";
-	//		LogInfo(112, "Logoff Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", sessionId, count, showuserid, success, total);
-	//		SessionCleanup();
-	//		return Ok(count);
-	//	}
-	//	else
-	//	{
-	//		LogWarn(113, "Logoff Session {SessionId} not found", sessionId);
-	//		return Ok(-1);
-	//	}
-	//}
-
-	//async Task<ActionResult<int>> ReturnSessionImpl(string sessionId)
-	//{
-	//	var engine = new tab.CrossTabEngine(LicProv);
-	//	SessionItem? si = SessionManager.FindSession(SessionId, false);
-	//	int count = -1;
-	//	if (si != null)
-	//	{
-	//		if (si.UserId != null)
-	//		{
-	//			count = await engine.ReturnId(si.UserId);
-	//		}
-	//		bool success = SessionManager.EndSession(sessionId);
-	//		long total = SessionManager.DeleteState(sessionId);
-	//		string showuserid = si.UserId ?? "NULL";
-	//		LogInfo(114, "Return Session {SessionId} Count {Count} User Id {UserId} Success {Success} State {Total}", sessionId, count, showuserid, success, total);
-	//		SessionCleanup();
-	//		return Ok(count);
-	//	}
-	//	else
-	//	{
-	//		LogWarn(115, "Return Session {SessionId} not found", sessionId);
-	//		return Ok(-1);
-	//	}
-	//}
 
 	async Task<ActionResult<SessionStatus>> ReadSessionImpl([FromRoute] string id)
 	{
@@ -221,33 +168,14 @@ partial class SessionController
 		return await Task.FromResult(list);
 	}
 
-	async Task<GenericResponse> ChangePasswordImpl(ChangePasswordRequest request)
+	async Task<int> ChangePasswordImpl(ChangePasswordRequest request)
 	{
-		//var licreq = new lic.ChangePasswordRequest()
-		//{
-		//	UserId = request.UserId,
-		//	OldPassword = request.OldPassword,
-		//	NewPassword = request.Newpassword
-		//};
-		// TODO Implmenent ChangePasswordImpl in the licensing provider
-		throw new NotImplementedException(nameof(ChangePasswordImpl));
-		//lic.ErrorResponse resp = await Lic.ChangePassword(licreq);
-		//return new GenericResponse(resp.Code, resp.Message);
+		return await LicProv.ChangePassword(request.UserId, request.OldPassword, request.Newpassword);
 	}
 
-	async Task<GenericResponse> UpdateAccountImpl(UpdateAccountRequest request)
+	async Task<int> UpdateAccountImpl(UpdateAccountRequest request)
 	{
-		//var licreq = new lic.UpdateAccountRequest()
-		//{
-		//	UserId = request.UserId,
-		//	UserName = request.UserName,
-		//	Comment = request.Comment,
-		//	Email = request.Email
-		//};
-		// TODO Implmenent UpdateAccountImpl in the licensing provider
-		throw new NotImplementedException(nameof(UpdateAccountImpl));
-		//lic.ErrorResponse resp = await Lic.UpdateAccount(licreq);
-		//return new GenericResponse(resp.Code, resp.Message);
+		return await LicProv.UpdateAccount(request.UserId, request.UserName, request.Comment, request.Email);
 	}
 
 	static SessionInfo LicToInfo(LicenceInfo licence, string sessionId) => new SessionInfo()

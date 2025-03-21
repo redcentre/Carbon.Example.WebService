@@ -161,11 +161,11 @@
       <parameter type="string" name="newPassword" description="New password."/>
     </parameters>
     <web postType="ChangePasswordRequest"/>
-    <return type="GenericResponse" description="A result code and optional error message."/>
+    <return type="int" description="A count of database records changed by processing."/>
   </method>
 
   <method name="UpdateAccount" method="Post" endpoint="session/updateaccount" auth="*">
-    <summary>Updates selected account details.</summary>
+    <summary>Updates a subset of account details.</summary>
     <parameters>
       <parameter type="string" name="userId" description="Licensing account user Id."/>
       <parameter type="string" name="userName" description="New user name."/>
@@ -173,7 +173,7 @@
       <parameter type="string" name="email" description="New email address."/>
     </parameters>
     <web postType="UpdateAccountRequest"/>
-    <return type="GenericResponse" description="A result code and optional error message."/>
+    <return type="int" description="A count of database records changed by processing."/>
   </method>
 
   <!-- JOB -->

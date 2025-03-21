@@ -1,9 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using RCS.Carbon.Export;
-using TSAPI.Public.Domain.Metadata;
-
-namespace Carbon.Examples.WebService.WebApi.Controllers;
+﻿namespace Carbon.Examples.WebService.WebApi.Controllers;
 
 //partial class SurveysController
 //{

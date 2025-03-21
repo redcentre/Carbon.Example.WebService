@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using Carbon.Examples.WebService.Common;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using RCS.Carbon.Export;
 using RCS.Carbon.Import;
 using RCS.Carbon.Shared;
-using RCS.RubyCloud.WebService;
 using TSAPI.Public.Domain.Interviews;
 using TSAPI.Public.Domain.Metadata;
 using TSAPI.Public.Queries;

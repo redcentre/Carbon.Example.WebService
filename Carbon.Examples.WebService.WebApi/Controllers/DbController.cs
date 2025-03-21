@@ -14,7 +14,7 @@ namespace Carbon.Examples.WebService.WebApi.Controllers;
 /// <ignore/>
 public partial class DbController : ServiceControllerBase
 {
-	DbCore _core;
+	readonly DbCore _core;
 
 	public DbController(ILoggerFactory logfac, IConfiguration config, ILicensingProvider licprov)
 		: base(logfac, config, licprov)
@@ -96,7 +96,7 @@ public partial class DbController : ServiceControllerBase
 	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound, MediaTypeNames.Application.Json)]
 	public async Task<ActionResult> DbDelete([FromRoute] string key1, [FromRoute] string key2)
 	{
-		bool deleted= await _core.Delete(key1, key2);
+		bool deleted = await _core.Delete(key1, key2);
 		if (deleted) return NoContent();
 		return NotFound(new ErrorResponse(404, $"Delete failed. No database row was found with keys [{key1},{key2}]."));
 	}

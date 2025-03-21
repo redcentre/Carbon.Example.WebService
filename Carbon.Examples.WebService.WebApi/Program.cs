@@ -12,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using RCS.Carbon.Licensing.Example;
 
 #if SQL_PRODUCTION || SQL_TESTING
 using RCS.Carbon.Licensing.Example;
@@ -46,7 +45,7 @@ if (string.IsNullOrEmpty(logTableName))
 string? logTableName = builder.Configuration["CarbonApi:LogTestTableName"];
 if (string.IsNullOrEmpty(logTableName))
 {
-	logTableName  ="ServiceLog3Test";
+	logTableName = "ServiceLog3Test";
 }
 #endif
 
@@ -140,7 +139,7 @@ var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
 //string licaddress = "http://localhost:52123/";
 //string licaddress = "https://localhost:7238/";
 string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
-string apiKey= builder.Configuration["CarbonApi:LicensingApiKey"]!;
+string apiKey = builder.Configuration["CarbonApi:LicensingApiKey"]!;
 int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 var licprov = new RedCentreLicensingProvider(licaddress, apiKey, timeout);
 //━━━━━━━━━━━━━ SQL DEBUGGING ━━━━━━━━━━━━━
