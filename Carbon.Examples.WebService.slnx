@@ -1,0 +1,27 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="RCS Production" />
+    <BuildType Name="RCS Testing" />
+    <BuildType Name="Release" />
+    <BuildType Name="SQL Production" />
+    <BuildType Name="SQL Testing" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="README.md" />
+    <File Path="ServiceCodegen.ttinclude" />
+    <File Path="ServiceCodegen.xml" />
+  </Folder>
+  <Project Path="Carbon.Examples.WebService.Common/Carbon.Examples.WebService.Common.csproj" />
+  <Project Path="Carbon.Examples.WebService.Database/Carbon.Examples.WebService.Database.csproj">
+    <BuildType Solution="RCS Production|*" Project="Release" />
+    <BuildType Solution="RCS Testing|*" Project="Release" />
+    <BuildType Solution="SQL Production|*" Project="Release" />
+    <BuildType Solution="SQL Testing|*" Project="Release" />
+  </Project>
+  <Project Path="Carbon.Examples.WebService.Logging/Carbon.Examples.WebService.Logging.csproj" />
+  <Project Path="Carbon.Examples.WebService.UnitTests/Carbon.Examples.WebService.UnitTests.csproj" />
+  <Project Path="Carbon.Examples.WebService.WebApi/Carbon.Examples.WebService.WebApi.csproj" />
+</Solution>

@@ -240,10 +240,6 @@ public class PythonController : ServiceControllerBase
 		string respjson = JsonSerializer.Serialize(dict, new JsonSerializerOptions() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
 		LogInfo(420, "PandasGenTab{Format} {Length}", request.FormatType, respjson.Length);
 		engine.CloseJob();
-		if (request.Id != null)
-		{
-			await engine.LogoutId(request.Id);
-		}
 		return new ContentResult() { Content = respjson, ContentType = "application/json", StatusCode = StatusCodes.Status200OK };
 	}
 }
