@@ -4,8 +4,6 @@
     <ItemGroup>
       <XmlDocs Include="%(Reference.RelativeDir)RCS.Carbon.Shared.xml;%(Reference.RelativeDir)RCS.Carbon.Licensing.Shared.xml" />
     </ItemGroup>
-    <!--<Message Text="Reference.RelativeDir = %(Reference.RelativeDir)" Importance="high"/>-->
-    <!--<Message Text="XmlDocs = @(XmlDocs)" Importance="high"/>-->
     <Copy SourceFiles="@(XmlDocs)" DestinationFolder="$(OutDir)" Condition="Exists(%(FullPath))" />
   </Target>
 
@@ -73,12 +71,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Markdig" Version="0.40.0" />
+    <PackageReference Include="Markdig" Version="0.41.0" />
     <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.3" />
-    <PackageReference Include="RCS.Carbon.Export" Version="9.1.18" />
-    <PackageReference Include="RCS.Carbon.Import" Version="9.1.18" />
-    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="9.1.18" />
-    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.18" />
+    <PackageReference Include="RCS.Carbon.Export" Version="9.1.19" />
+    <PackageReference Include="RCS.Carbon.Import" Version="9.1.19" />
+    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="9.1.19" />
+    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.19" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
   </ItemGroup>
