@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -199,6 +199,8 @@ static class SessionManager
 
 	#region State
 
+	static object stateLock = new object();
+
 	/// <summary>
 	/// We know at this point what sort of files are being serialized, so we put nice
 	/// extensions on them to help browsing and debugging. In reality they could all
@@ -208,56 +210,65 @@ static class SessionManager
 
 	static public void SaveState(string sessionId, string?[] state)
 	{
-		for (int i = 0; i < state.Length; i++)
+		lock (stateLock)
 		{
-			string ext = StateExtensions.ElementAtOrDefault(i) ?? ".txt";
-			string filename = Path.Combine(sessDir.FullName, $"State-{sessionId}-{i:D2}{ext}");
-			File.WriteAllText(filename, state[i] ?? String.Empty);
+			for (int i = 0; i < state.Length; i++)
+			{
+				string ext = StateExtensions.ElementAtOrDefault(i) ?? ".txt";
+				string filename = Path.Combine(sessDir.FullName, $"State-{sessionId}-{i:D2}{ext}");
+				File.WriteAllText(filename, state[i] ?? String.Empty);
+			}
+			var policy = new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromSeconds(CacheSlidingSeconds), RemovedCallback = CacheCallback };
+			MemoryCache.Default.Set(sessionId, state, policy);
 		}
-		var policy = new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromSeconds(CacheSlidingSeconds), RemovedCallback = CacheCallback };
-		MemoryCache.Default.Set(sessionId, state, policy);
 		Trace($"CACHE SET {sessionId} {NiceState(state)} ({CacheSlidingSeconds})");
 	}
 
 	static public string?[] LoadState(string sessionId)
 	{
-		string?[] results = (string?[])MemoryCache.Default.Get(sessionId);
-		if (results != null)
+		lock (stateLock)
 		{
-			Trace($"CACHE HIT {sessionId} {NiceState(results)}");
+			string?[] results = (string?[])MemoryCache.Default.Get(sessionId);
+			if (results != null)
+			{
+				Trace($"CACHE HIT {sessionId} {NiceState(results)}");
+				return results;
+			}
+			FileInfo[] files = sessDir.GetFiles($"State-{sessionId}-*.*");
+			var query = from f in files
+						let m = Regex.Match(f.Name, @"-(\d\d)\.")
+						let ix = int.Parse(m.Groups[1].Value)
+						let state = File.ReadAllText(f.FullName)
+						select new { ix, state };
+			results = query.OrderBy(q => q.ix).Select(q => q.state.Length == 0 ? null : q.state).ToArray();
+			Trace($"CACHE MISS {NiceState(results)}");
 			return results;
 		}
-		FileInfo[] files = sessDir.GetFiles($"State-{sessionId}-*.*");
-		var query = from f in files
-					let m = Regex.Match(f.Name, @"-(\d\d)\.")
-					let ix = int.Parse(m.Groups[1].Value)
-					let state = File.ReadAllText(f.FullName)
-					select new { ix, state };
-		results = query.OrderBy(q => q.ix).Select(q => q.state.Length == 0 ? null : q.state).ToArray();
-		Trace($"CACHE MISS {NiceState(results)}");
-		return results;
 	}
 
 	static public long DeleteState(string sessionId)
 	{
 		long total = 0;
-		FileInfo[] files = sessDir.GetFiles($"State-{sessionId}-*.*");
-		foreach (var file in files)
+		lock (stateLock)
 		{
-			try
+			FileInfo[] files = sessDir.GetFiles($"State-{sessionId}-*.*");
+			foreach (var file in files)
 			{
-				total += file.Length;
-				file.Delete();
-				++total;
+				try
+				{
+					total += file.Length;
+					file.Delete();
+					++total;
+				}
+				catch (Exception ex)
+				{
+					Trace($"{ex.Message}");
+				}
 			}
-			catch (Exception ex)
-			{
-				Trace($"{ex.Message}");
-			}
+			object o = MemoryCache.Default.Remove(sessionId);
+			Trace($"CACHE REMOVE {sessionId} {(o != null)} {total} KB");
+			return total;
 		}
-		object o = MemoryCache.Default.Remove(sessionId);
-		Trace($"CACHE REMOVE {sessionId} {(o != null)} {total} KB");
-		return total;
 	}
 
 	static void CacheCallback(CacheEntryRemovedArguments args)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Azure.Data.Tables;
@@ -7,14 +7,9 @@ using Serilog.Sinks.AzureTableStorage;
 
 namespace Carbon.Examples.WebService.Logging;
 
-internal class WebDocgen : IDocumentFactory
+internal partial class WebDocgen(string partitionKey) : IDocumentFactory
 {
-	readonly string _pk;
-
-	public WebDocgen(string partitionKey)
-	{
-		_pk = partitionKey;
-	}
+	readonly string _pk = partitionKey;
 
 	public TableEntity Create(LogEvent logEvent, AzureTableStorageSinkOptions options, IKeyGenerator keyGenerator)
 	{
@@ -44,7 +39,7 @@ internal class WebDocgen : IDocumentFactory
 		//	}
 		//}
 
-		T? GetScalarVal<T>(IReadOnlyDictionary<string, LogEventPropertyValue> props, AzureTableStorageSinkOptions options, string key)
+		T? GetScalarVal<T>(IReadOnlyDictionary<string, LogEventPropertyValue> props, AzureTableStorageSinkOptions _, string key)
 		{
 			if (!props.TryGetValue(key, out var lepv)) return default;
 			if (lepv == null) return default;
@@ -52,7 +47,7 @@ internal class WebDocgen : IDocumentFactory
 			if (scalar.Value == null) return default;
 			return (T?)scalar.Value;
 		}
-		string? GetStructVal(IReadOnlyDictionary<string, LogEventPropertyValue> props, AzureTableStorageSinkOptions options, string key)
+		string? GetStructVal(IReadOnlyDictionary<string, LogEventPropertyValue> props, AzureTableStorageSinkOptions _, string key)
 		{
 			if (!props.TryGetValue(key, out var lepv)) return default;
 			if (lepv == null) return default;
@@ -64,7 +59,7 @@ internal class WebDocgen : IDocumentFactory
 			if (value != null) row[columnName ?? key] = value;
 			return value;
 		}
-		T? GetAdd<T>(IReadOnlyDictionary<string, LogEventPropertyValue> props, AzureTableStorageSinkOptions options, string key, string? columnName = null)
+		T? GetAdd<T>(IReadOnlyDictionary<string, LogEventPropertyValue> _, AzureTableStorageSinkOptions options, string key, string? columnName = null)
 		{
 			return AddVal<T>(GetScalarVal<T>(logEvent.Properties, options, key), key, columnName);
 		}
@@ -74,7 +69,7 @@ internal class WebDocgen : IDocumentFactory
 		GetAdd<int>(logEvent.Properties, options, "ThreadId");
 		GetAdd<int>(logEvent.Properties, options, "ProcessId");
 		string? evid = GetStructVal(logEvent.Properties, options, "EventId");
-		var m = Regex.Match(evid ?? string.Empty, @"\bId:\s*(\d+)");
+		var m = RegEventId().Match(evid ?? string.Empty);
 		if (m.Success)
 		{
 			row["EventId"] = int.Parse(m.Groups[1].Value);
@@ -98,7 +93,7 @@ internal class WebDocgen : IDocumentFactory
 		return row;
 	}
 
-	protected object? ConvertValue(LogEventPropertyValue value, string? format = null, IFormatProvider? formatProvider = null)
+	protected static object? ConvertValue(LogEventPropertyValue value, string? format = null, IFormatProvider? formatProvider = null)
 	{
 		return value switch
 		{
@@ -126,4 +121,7 @@ internal class WebDocgen : IDocumentFactory
 			_ => value?.ToString()
 		};
 	}
+
+	[GeneratedRegex(@"\bId:\s*(\d+)")]
+	private static partial Regex RegEventId();
 }
