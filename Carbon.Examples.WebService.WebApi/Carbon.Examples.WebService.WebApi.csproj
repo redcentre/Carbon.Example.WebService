@@ -71,11 +71,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.3" />
-    <PackageReference Include="RCS.Carbon.Export" Version="9.1.22" />
-    <PackageReference Include="RCS.Carbon.Import" Version="9.1.22" />
-    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="9.1.19" />
-    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.22" />
+    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.4" />
+    <PackageReference Include="RCS.Carbon.Export" Version="9.1.23" />
+    <PackageReference Include="RCS.Carbon.Import" Version="9.1.23" />
+    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="9.1.23" />
+    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.23" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
   </ItemGroup>
