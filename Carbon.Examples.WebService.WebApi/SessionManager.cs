@@ -51,7 +51,7 @@ static class SessionManager
 		{
 			UserId = licence.Id,
 			UserName = licence.Name,
-			Roles = licence.Roles ?? Array.Empty<string>(),
+			Roles = licence.Roles ?? [],
 			CustStorageKeys = licence.Customers.Select(c => new string[] { c.Name, c.StorageKey }).ToArray()
 		};
 		if (map!.TryGetValue(sessionId, out var sessionItem))

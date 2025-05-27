@@ -1,4 +1,4 @@
-﻿# Overview
+# Overview
 
 This repository contains a set of projects to support a comprehensive REST style web service that hosts and publishes Carbon cross-tabulation functionality.
 
@@ -25,6 +25,29 @@ Red Centre Software has published a fully working versions of the example web se
 
 
 The RCS and BayesPrice deployments use different [licensing providers][licprov] internally for authentication.
+
+---
+
+## Authentication
+
+The web service uses a simple authentication flow based on obtaining a *Session Id*.
+
+Clients will call the `/session/start/authenticate/id` or `/session/start/authenticate/name` endpoints to authenticate their credentials and receive a response body containing account information details and a `SessionId` string property which identifies the client's session with the web service. The session Id must be passed in the `x‑session‑id` header of all subsequent requests to the service.
+
+The service does not apply authorisation rules to any endpoints at the moment. Providing a valid session Id the requests headers allows all endpoints to be used. The authorisation model is therefore *flat*, or in other words, it is *all or nothing*.
+
+However, the service code does contain logic to apply roles based authorisation very easily. For example, suppose that the ability to import data into a job was restricted to certain user accounts, then two steps are required.
+
+1. Flag the endpoint as requiring a specific authorisation role by editing the [AuthFilter] attribute on the endpoints's method to include the role name (the code is abbreviated):
+
+```
+[HttpPost]
+[Route("import/full")]
+[AuthFilter("Import")]    // <-- A role name is specified
+public async Task<ActionResult<string>> ImportFull(...);
+```
+
+2. The user accounts that are permitted to call the import endpoint must have the matching role name "Import" included in the list of roles in their licensing record. *The example licensing web service or a desktop application like DNA can be used to manage licensing datbase records.*
 
 ---
 

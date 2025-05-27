@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
@@ -22,7 +22,7 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 	/// <ignore/>
 	public AuthFilterAttribute(params string[] requiredRoles)
 	{
-		this.requiredRoles = requiredRoles ?? Array.Empty<string>();
+		this.requiredRoles = requiredRoles ?? [];
 	}
 
 	/// <summary>
@@ -52,7 +52,19 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 					context.Result = MakeAuthFail(3, $"No session '{key}' exist for {req.Method} {req.Path}");
 					return;
 				}
-
+				// ╔══════════════════════════════════════════════════════════════════════════╗
+				// ║  NOTE -- This example web service does not by default use RBAC (roles    ║
+				// ║  based authentication). The feature can be enabled by changing an        ║
+				// ║  attribute on the endpoints like this example:                           ║
+				// ║                                                                          ║
+				// ║     before  [AuthFilter]                                                 ║
+				// ║     after   [AuthFilter("Import","DeleteReport")]                        ║
+				// ║             public Task ... MyEndpoint(...)                              ║
+				// ║                                                                          ║
+				// ║  Two mock roles have been invented and applied to an endpoint. A user    ║
+				// ║  account cannot use the endpoint unless is has at least one of those     ║
+				// ║  role names listed in their licensing account record.                    ║
+				// ╚══════════════════════════════════════════════════════════════════════════╝
 				if (requiredRoles.Length > 0 && !requiredRoles.Intersect(si.Roles).Any())
 				{
 					string needsJoin = string.Join(",", requiredRoles);

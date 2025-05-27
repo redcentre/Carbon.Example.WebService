@@ -184,8 +184,8 @@ partial class SessionController
 		Id = licence.Id,
 		Name = licence.Name,
 		Email = licence.Email,
-		Roles = licence.Roles ?? Array.Empty<string>(),
-		VartreeNames = licence.VartreeNames ?? Array.Empty<string>(),
+		Roles = licence.Roles ?? [],
+		VartreeNames = licence.VartreeNames ?? [],
 		SessionCusts = licence.Customers.Select(c => new SessionCust()
 		{
 			Id = c.Id,
