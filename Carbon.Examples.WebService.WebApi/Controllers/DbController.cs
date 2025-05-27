@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Carbon.Examples.WebService.Common;
@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RCS.Carbon.Licensing.Shared;
+using RCS.Licensing.Provider.Shared;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 

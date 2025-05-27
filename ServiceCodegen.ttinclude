@@ -1,4 +1,4 @@
-﻿<#+
+<#+
 PMethod[] LoadCodegen(string rulesfile)
 {
 	string Getattr(XElement elem, string name)
@@ -88,7 +88,7 @@ static string Unesc(string value) => value?.Replace("[", "<").Replace("]", ">").
 
 static string TitleCase(string value) => value == null ? null : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(value);
 
-static readonly string[] SkipNullCheckTypes = new string[] { "string?", "int", "long", "short", "bool", "DateTime", "DateTimeOffset", "Guid", "JobTocType", "FunctionAction" };
+static readonly string[] SkipNullCheckTypes = new string[] { "string?", "int", "long", "short", "bool", "DateTime", "DateTimeOffset", "Guid", "JobTocType", "FunctionAction", "XOutputFormat" };
 
 string TTName => Host.GetType().Name;
 

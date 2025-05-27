@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -59,8 +59,8 @@ namespace Carbon.Examples.WebService.UnitTests
 		public async Task T040_Job_GenTab_All_Formats()
 		{
 			using var client = MakeClient();
-			var sinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			var sinfo = await GuardedSessionId(TestAccountId, TestAccountPassword, client);
+
 			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
 			Trace($"Open job → {resp}");
 
@@ -90,8 +90,7 @@ namespace Carbon.Examples.WebService.UnitTests
 		public async Task T100_Report_GenTab_All_Formats()
 		{
 			using var client = MakeClient();
-			var sinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			var sinfo = await GuardedSessionId(TestAccountId, TestAccountPassword, client);
 			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
 			Trace($"Open job → {resp}");
 
@@ -137,8 +136,7 @@ namespace Carbon.Examples.WebService.UnitTests
 		public async Task T120_Report_GenTab_XML()
 		{
 			using var client = MakeClient();
-			var sinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			var sinfo = await GuardedSessionId(TestAccountId, TestAccountPassword, client);
 			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
 			Trace($"Open job → {resp}");
 
@@ -156,8 +154,7 @@ namespace Carbon.Examples.WebService.UnitTests
 		public async Task T140_Report_GenTab_Excel_Blob()
 		{
 			using var client = MakeClient();
-			var sinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			var sinfo = await GuardedSessionId(TestAccountId, TestAccountPassword, client);
 			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
 			Trace($"Open job → {resp}");
 
@@ -188,8 +185,7 @@ namespace Carbon.Examples.WebService.UnitTests
 		public async Task T200_Report_GenTab_Pandas()
 		{
 			using var client = MakeClient();
-			var sinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			var sinfo = await GuardedSessionId(TestAccountId, TestAccountPassword, client);
 			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
 			Trace($"Open job → {resp}");
 

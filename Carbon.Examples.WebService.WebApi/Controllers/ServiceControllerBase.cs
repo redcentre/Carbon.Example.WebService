@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -14,9 +14,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using RCS.Azure.Data.Processor;
-using RCS.Carbon.Licensing.Shared;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
+using RCS.Licensing.Provider.Shared;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 

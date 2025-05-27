@@ -1,9 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+    <Description>Implements a simple general purpose string storage database using an Azure Table.</Description>
+    <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Testing;SQL Production</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>1591;CS8618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

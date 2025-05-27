@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Carbon.Examples.WebService.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using RCS.Carbon.Licensing.Shared;
 using RCS.Carbon.Shared;
+using RCS.Licensing.Provider.Shared;
 using TAB = RCS.Carbon.Tables;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;

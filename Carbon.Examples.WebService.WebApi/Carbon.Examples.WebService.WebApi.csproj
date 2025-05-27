@@ -2,13 +2,12 @@
 
   <Target Name="CopyXmlDocs" AfterTargets="Build">
     <ItemGroup>
-      <XmlDocs Include="%(Reference.RelativeDir)RCS.Carbon.Shared.xml;%(Reference.RelativeDir)RCS.Carbon.Licensing.Shared.xml" />
+      <XmlDocs Include="%(Reference.RelativeDir)RCS.Carbon.Shared.xml;%(Reference.RelativeDir)RCS.Licensing.Provider.Shared.xml;%(Reference.RelativeDir)RCS.Licensing.ClientLib.xml" />
     </ItemGroup>
     <Copy SourceFiles="@(XmlDocs)" DestinationFolder="$(OutDir)" Condition="Exists(%(FullPath))" />
   </Target>
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>Carbon.Examples.WebService.WebApi.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
@@ -16,12 +15,13 @@
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
+    <IsPublishable>true</IsPublishable>
     <UserSecretsId>a05e8c94-92ae-4346-a204-d10b0c4516ce</UserSecretsId>
     <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Production;SQL Testing</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591;CS8618</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -71,11 +71,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.4" />
-    <PackageReference Include="RCS.Carbon.Export" Version="9.1.23" />
-    <PackageReference Include="RCS.Carbon.Import" Version="9.1.23" />
-    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="9.1.23" />
-    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.23" />
+    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.5" />
+    <PackageReference Include="RCS.Carbon.Export" Version="9.1.31" />
+    <PackageReference Include="RCS.Carbon.Import" Version="9.1.31" />
+    <PackageReference Include="RCS.Carbon.Licensing.Example" Version="9.1.26" />
+    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.31" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
   </ItemGroup>

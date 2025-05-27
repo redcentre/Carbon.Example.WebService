@@ -1,10 +1,10 @@
-﻿using Carbon.Examples.WebService.Common;
+using Carbon.Examples.WebService.Common;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RCS.Carbon.Licensing.Shared;
+using RCS.Licensing.Provider.Shared;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 

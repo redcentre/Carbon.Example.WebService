@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.Encodings.Web;
@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RCS.Carbon.Licensing.Shared;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
 using RCS.Carbon.Variables;
+using RCS.Licensing.Provider.Shared;
 using tab = RCS.Carbon.Tables;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;

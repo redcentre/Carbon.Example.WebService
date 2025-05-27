@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <Description>Logging library for the Carbon web service</Description>
     <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
     <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Testing;SQL Production</Configurations>
   </PropertyGroup>
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,12 +12,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using RCS.Licensing.Provider;
+using RCS.Licensing.Provider.Shared;
 
 #if SQL_PRODUCTION || SQL_TESTING
 using RCS.Carbon.Licensing.Example;
 #endif
-using RCS.Carbon.Licensing.RedCentre;
-using RCS.Carbon.Licensing.Shared;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -82,7 +82,7 @@ builder.Services.AddSwaggerGen(c =>
 	var xmlFile = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
 	c.IncludeXmlComments(xmlFile);
 	var dir = new DirectoryInfo(AppContext.BaseDirectory);
-	foreach (var file in dir.GetFiles("RCS.Carbon.*.xml"))
+	foreach (var file in dir.GetFiles("RCS.*.xml"))
 	{
 		c.IncludeXmlComments(file.FullName);
 		WebLog.Info($"Include XML file {file.FullName}");

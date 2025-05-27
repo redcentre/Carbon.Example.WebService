@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using RCS.Carbon.Shared;
 using TSAPI.Public.Domain.Interviews;
 using TSAPI.Public.Domain.Metadata;
@@ -335,7 +336,16 @@ namespace Carbon.Examples.WebService.Common
 			string? message = elem.TryGetProperty("message", out e) ? e.GetString() : null;
 			if (code != null && message != null)
 			{
-				throw new CarbonServiceException(code.Value, message);
+				var ex = new CarbonServiceException(code.Value, message);
+				if (code == 301)
+				{
+					// This is a duplicate session failure which can be treaed as a special
+					// case to return the existing session Ids so the caller can force those
+					// sessions to end if desirable.
+					string[] sessIds = [.. elem.GetProperty("data").EnumerateArray().Select(x => x.GetString()!)];
+					ex.SetDataStrings(sessIds);
+				}
+				throw ex;
 			}
 			// Is this an Azure failure response?
 			string? type = elem.TryGetProperty("type", out e) ? e.GetString() : null;

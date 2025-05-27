@@ -1,11 +1,13 @@
 <Project>
   <PropertyGroup>
-    <Version>9.2.10</Version>
+    <Version>9.2.13</Version>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
-    <Authors>Orthogonal Programming</Authors>
+    <Authors>Red Centre Software</Authors>
     <Company>Red Centre Software</Company>
     <Product>Carbon</Product>
     <Copyright>Copyright © 2020-2025 Red Centre Software</Copyright>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <PackageTags>redcentre;Red Centre Software;cross tabulation;crosstab</PackageTags>
   </PropertyGroup>
 </Project>

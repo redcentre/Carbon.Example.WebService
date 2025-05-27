@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Mime;
@@ -141,7 +141,7 @@ public partial class ReportController : ServiceControllerBase
 			{
 				return NoContent();
 			}
-			lines = CommonUtil.ReadStringLines(report).ToArray();
+			lines = [.. CommonUtil.ReadStringLines(report)];
 		}
 		LogInfo(230, "GenTab({Format},{Top},{Side},{Filter},{Weight}) -> #{Length})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight, lines?.Length);
 		return await Task.FromResult(lines);
@@ -284,6 +284,7 @@ public partial class ReportController : ServiceControllerBase
 	async Task<ActionResult<XlsxResponse>> GenTabExcelBlobImpl([FromBody] GenTabRequest request)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
+		wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
 		var resp = await MakeXlsxAndUpload(wrap, "ReportGenTabExcelBlob");
 		return await Task.FromResult(resp);
 	}
@@ -344,7 +345,7 @@ public partial class ReportController : ServiceControllerBase
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		string message = wrap.Engine.ValidateSyntax(syntax);
-		if (message == "ok") return null;   // <========================= NOTE THAT 'ok' IS HARD_CODED IN TEH CARBON METHOD =========================
+		if (message == "ok") return null;   // <========================= NOTE THAT 'ok' IS HARD_CODED IN THE CARBON METHOD =========================
 		return await Task.FromResult(message);
 	}
 

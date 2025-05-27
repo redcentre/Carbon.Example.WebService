@@ -1,4 +1,4 @@
-﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ output extension=".cs" #>
 <#@ Assembly Name="System.Core.dll" #>
 <#@ Assembly Name="System.Xml.dll" #>
@@ -26,10 +26,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RCS.Azure.Data.Common;
-using RCS.Carbon.Licensing.Shared;
 using RCS.Carbon.Shared;
-using TSAPI.Public.Domain.Interviews;
-using TSAPI.Public.Domain.Metadata;
+using RCS.Licensing.Provider.Shared;
+using RCS.Licensing.Provider.Shared.Entities;
 
 #nullable enable
 
@@ -62,6 +61,7 @@ void EmitClass(string rbase, PMethod[] methods)
 		/// </summary>
 		/// <param name="logfac">Logger factory reference provided by dependency injection.</param>
 		/// <param name="config">Configuration reference provided by dependency injection.</param>
+		/// <param name="licprov">Licensing provider to use for authentication.</param>
 		public <#=ClsName#>(ILoggerFactory logfac, IConfiguration config, ILicensingProvider licprov)
 			: base(logfac, config, licprov)
 		{

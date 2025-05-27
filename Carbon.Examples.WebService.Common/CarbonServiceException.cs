@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
-using System.Security.Permissions;
+using System;
 
 namespace Carbon.Examples.WebService.Common
 {
@@ -13,19 +11,22 @@ namespace Carbon.Examples.WebService.Common
 			Code = code;
 		}
 
-		public CarbonServiceException(SerializationInfo info, StreamingContext context)
-			: base(info, context)
-		{
-			Code = info.GetInt32(nameof(Code));
-		}
-
 		public int Code { get; }
 
-		[SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+
+		public string[]? GetDataStrings()
 		{
-			info.AddValue(nameof(Code), Code);
-			base.GetObjectData(info, context);
+			if (Data["Strings1"] is string joined)
+			{
+				if (joined.Length == 0) return [];
+				return joined.Split(',');
+			}
+			return null;
+		}
+
+		public void SetDataStrings(string[]? data)
+		{
+			Data.Add("Strings1", data == null ? null : string.Join(",", data));
 		}
 	}
 }

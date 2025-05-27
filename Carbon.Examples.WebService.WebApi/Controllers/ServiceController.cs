@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,10 +8,10 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Specialized;
 using Carbon.Examples.WebService.Common;
 using Microsoft.AspNetCore.Mvc;
-using RCS.Carbon.Licensing.Shared;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
 using RCS.Carbon.Variables;
+using RCS.Licensing.Provider.Shared;
 
 namespace Carbon.Examples.WebService.WebApi.Controllers;
 

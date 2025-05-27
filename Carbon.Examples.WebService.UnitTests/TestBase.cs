@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,10 +26,10 @@ namespace Carbon.Examples.WebService.UnitTests
 		// ║  The following customer and job names are being used for testing, ║
 		// ║  but this can change and it should be done here.                  ║
 		// ╚═══════════════════════════════════════════════════════════════════╝
-		protected const string CarbonTestId = "16499372";
-		protected const string CarbonTestUser = "CarbonGuest";
+		protected const string CarbonTestId = "10000016";
+		protected const string CarbonTestUser = "Cats4Sleeping";
 		protected const string CarbonTestPass = "C6H12O6";
-		protected const string CustomerName1 = "rcsruby";
+		protected const string CustomerName1 = "client1rcs";
 		protected const string JobName1 = "demo";
 		protected const string Top1 = "Age";
 		protected const string Side1 = "Region";
@@ -50,6 +50,28 @@ namespace Carbon.Examples.WebService.UnitTests
 			var client = new CarbonServiceClient(BaseUri, 300);
 			Trace($"MakeClient → {client.BaseAddress}");
 			return client;
+		}
+
+		protected async Task<SessionInfo> GuardedSessionId(string id, string password, CarbonServiceClient client)
+		{
+			try
+			{
+				var sinfo = await client.StartSessionId(id, password);
+				Trace($"Login OK → {sinfo}");
+				return sinfo;
+			}
+			catch (CarbonServiceException ex) when (ex.Code == 301)
+			{
+				Trace(ex.Message);
+				string[] sessIds = ex.GetDataStrings()!;
+				string join = string.Join(',', sessIds);
+				int count = await client.ForceSessions(join);
+				Trace($"ForceSessions({join}) → {count}");
+				Assert.AreEqual(sessIds.Length, count);
+				var sinfo = await client.StartSessionId(id, password);
+				Trace($"Login RETRY → {sinfo}");
+				return sinfo;
+			}
 		}
 
 		protected void Dumpobj(object value)

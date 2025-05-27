@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using RCS.Carbon.Export;
 using RCS.Carbon.Import;
 using RCS.Carbon.Shared;
+using RCS.Licensing.Provider.Shared;
+using RCS.Licensing.Provider.Shared.Entities;
 using TSAPI.Public.Domain.Interviews;
 using TSAPI.Public.Domain.Metadata;
 using TSAPI.Public.Queries;
@@ -38,8 +40,8 @@ partial class JobController
 		// Some of the following information could be returned by a Carbon OpenJob call, which would reduce the traffic
 		// of getting it now in chatty calls. As an experiment the vartree names are returned from the open.
 		var dprops = request.GetDisplayProps ? wrap.Engine.GetProps() : null;
-		string[]? vtnames = request.GetVartreeNames ? wrap.Engine.Job.ListVartreeNames().ToArray() : null;
-		string[]? axnames = request.GetAxisTreeNames ? wrap.Engine.Job.GetAxisNames().ToArray() : null;
+		string[]? vtnames = request.GetVartreeNames ? [.. wrap.Engine.Job.ListVartreeNames()] : null;
+		string[]? axnames = request.GetAxisTreeNames ? [.. wrap.Engine.Job.GetAxisNames()] : null;
 		GenNode[]? drillFilters = request.GetDrills ? wrap.Engine.DrillFiltersAsNodes() : null;
 		GenNode[]? tocnodes = null;
 		if (request.TocType != JobTocType.None)
@@ -72,6 +74,13 @@ partial class JobController
 		SessionManager.SetCustomerJob(SessionId, null, null, null);
 		return await Task.FromResult(closed);
 	}
+
+	async Task<ActionResult<UpsertResult<Job>>> CreateJobImpl(string custid, string jobname)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		return await wrap.Engine.CreateJob(custid, jobname);
+	}
+
 
 	async Task<ActionResult<string[]>> ReadFileAsLinesImpl(ReadFileRequest request)
 	{
@@ -226,7 +235,7 @@ partial class JobController
 	async Task<ActionResult<string[]>> ListVartreesImpl()
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
-		string[] names = wrap.Engine.ListVartreeNames().ToArray();
+		string[] names = [.. wrap.Engine.ListVartreeNames()];
 		LogInfo(276, "List vartrees {Count}", names.Length);
 		return await Task.FromResult(names);
 	}

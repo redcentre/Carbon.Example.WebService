@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <methods>
 
   <!-- SERVICE -->
@@ -200,6 +200,20 @@
   <method name="CloseJob" method="Delete" endpoint="job/close" auth="*">
     <summary>Closes the currently open job.</summary>
     <return type="bool" description="True if the job was closed. False if no job was open."/>
+  </method>
+
+  <method name="CreateJob" method="Get" endpoint="job/create/{custid}/{jobname}">
+    <summary>Creates a Job licensing record and the backing storage Container.</summary>
+    <remarks>An attempt is made to create a new Job record in the licensing database, and if a new
+    record is created, then a further attempt is made to create the Azure Container that is the
+    backing storage for the Job's data. The response contains a serialized &lt;c&gt;UpsertResult&lt;/c&gt;
+    class containing status codes and messages that describe the results of each internal processing step.
+  </remarks>
+    <parameters>
+      <parameter route="true" type="string" name="custid" description="The customer Id parent of the new job."/>
+      <parameter route="true" type="string" name="jobname" description="The name of the new job."/>
+    </parameters>
+    <return type="UpsertResult&lt;Job&gt;" description="A serialized &lt;c&gt;UpsertResult&lt;/c&gt; class. Clients should inspect the status codes and messages in the response to determine if processing satisfied their business rules. Clients are free to treat the various status codes as severities suitable for their business rules."/>
   </method>
 
   <method name="ReadFileAsLines" method="Post" endpoint="job/readfile/lines" auth="*">

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using RCS.Carbon.Licensing.Shared;
+using RCS.Licensing.Provider.Shared;
 
 namespace Carbon.Examples.WebService.WebApi;
 

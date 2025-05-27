@@ -1,4 +1,4 @@
-﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ output extension=".cs" #>
 <#@ Assembly Name="System.Core.dll" #>
 <#@ Assembly Name="System.Xml.dll" #>
@@ -22,6 +22,8 @@ using RCS.Carbon.Shared;
 using RCS.Azure.Data.Common;
 using TSAPI.Public.Domain.Metadata;
 using TSAPI.Public.Domain.Interviews;
+using RCS.Licensing.Provider.Shared;
+using RCS.Licensing.Provider.Shared.Entities;
 
 #nullable enable
 
