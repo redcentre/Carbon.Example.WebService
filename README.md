@@ -10,7 +10,7 @@ The service has some endpoints customised for [Python][pyorg] language clients. 
 
 These projects began as small test harnesses to verify that Carbon operated correctly in a web hosting environment where performance stress is unpredictable and requests may arrive on multiple overlapping threads. Tests proved that multiple instances of the Carbon cross-tabulation engine can save and restore their *state* over different *sessions* in web service hosting. The projects have expanded to become a reasonably sophisticated web service to support more complex testing from scripts and VS Code notebooks.
 
-The great majority of the codebase is boilerplate code *plumbing* to make a web service function, only a small subset of the code is involved in feeding request data into the Carbon API and sending it back as a response. The `DTO` folder contains all of the .NET classes that form the request and response contract. .NET clients may reference the [RCS.Carbon.Examples.WebService.Common][excommon] NuGet package which contains strongly-typed classes to bind to the web service.
+The great majority of the codebase is boilerplate code *plumbing* to make a web service function, only a small subset of the code is involved in feeding request data into the Carbon API and sending it back as a response. The `DTO` folder contains all of the .NET classes that form the request and response contract. .NET clients may reference the [RCS.RCS.Carbon.Example.WebService.Common][excommon] NuGet package which contains strongly-typed classes to bind to the web service.
 
 The projects use [T4 templates][t4] to generate a large amount of repetitive boilerplate code for the web service implementation and the .NET service client class.
 
@@ -74,6 +74,6 @@ Last updated: 25-Sep-2024
 
 [carbover]: https://rcsapps.azurewebsites.net/doc/carbon/articles/overview.htm
 [pyorg]: https://www.python.org/
-[excommon]: https://www.nuget.org/packages/RCS.Carbon.Examples.WebService.Common
+[excommon]: https://www.nuget.org/packages/RCS.RCS.Carbon.Example.WebService.Common
 [t4]: https://learn.microsoft.com/en-us/visualstudio/modeling/code-generation-and-t4-text-templates?view=vs-2022
-[licprov]: https://github.com/redcentre/Carbon.Examples.Licensing.Provider
+[licprov]: https://github.com/redcentre/Carbon.Example.Licensing.Provider

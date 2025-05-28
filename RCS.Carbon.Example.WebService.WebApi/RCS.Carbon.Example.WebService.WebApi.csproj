@@ -1,0 +1,114 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <Target Name="CopyXmlDocs" AfterTargets="Build">
+    <ItemGroup>
+      <XmlDocs Include="%(Reference.RelativeDir)RCS.Carbon.Shared.xml;%(Reference.RelativeDir)RCS.Licensing.Provider.Shared.xml;%(Reference.RelativeDir)RCS.Licensing.ClientLib.xml" />
+    </ItemGroup>
+    <Copy SourceFiles="@(XmlDocs)" DestinationFolder="$(OutDir)" Condition="Exists(%(FullPath))" />
+  </Target>
+
+  <PropertyGroup>
+    <ApplicationIcon>RCS.Carbon.Example.WebService.WebApi.ico</ApplicationIcon>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Description>Web API host service for the Carbon libraries</Description>
+    <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>true</IsPublishable>
+    <UserSecretsId>a05e8c94-92ae-4346-a204-d10b0c4516ce</UserSecretsId>
+    <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Production;SQL Testing</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>1591;CS8618</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageIcon>RCS.Carbon.Example.WebService.WebApi.png</PackageIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>$(DefineConstants);NO_EXAMPLE_PROVIDER</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DefineConstants>$(DefineConstants)</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='RCS Production'">
+    <DefineConstants>$(DefineConstants);RCS_PRODUCTION</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='RCS Testing'">
+    <DefineConstants>$(DefineConstants);RCS_TESTING</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='SQL Production'">
+    <DefineConstants>$(DefineConstants);SQL_PRODUCTION</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='SQL Testing'">
+    <DefineConstants>$(DefineConstants);SQL_TESTING</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\CarbonServiceClient.Generated.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="RCS.Carbon.Example.WebService.WebApi.ico" />
+    <None Remove="RCS.Carbon.Example.WebService.WebApi.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="RCS.Carbon.Example.WebService.WebApi.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.5" />
+    <PackageReference Include="RCS.Carbon.Export" Version="9.1.31" />
+    <PackageReference Include="RCS.Carbon.Import" Version="9.1.31" />
+    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.31" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+    <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RCS.Carbon.Example.WebService.Common\RCS.Carbon.Example.WebService.Common.csproj" />
+    <ProjectReference Include="..\RCS.Carbon.Example.WebService.Database\RCS.Carbon.Example.WebService.Database.csproj" />
+    <ProjectReference Include="..\RCS.Carbon.Example.WebService.Logging\RCS.Carbon.Example.WebService.Logging.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Controllers\ServiceController.Generated.tt">
+      <LastGenOutput>ServiceController.Generated.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="RCS.Carbon.Example.WebService.WebApi.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Controllers\ServiceController.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ServiceController.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ServiceUtility.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
+</Project>
