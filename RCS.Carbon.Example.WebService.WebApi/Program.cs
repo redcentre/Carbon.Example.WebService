@@ -12,11 +12,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using RCS.Licensing.Provider;
 using RCS.Licensing.Provider.Shared;
 
+
 #if SQL_PRODUCTION || SQL_TESTING
-using RCS.Carbon.Licensing.Example;
+using RCS.Licensing.Example.Provider;
+#else
+using RCS.Licensing.Provider;
 #endif
 using Serilog;
 
@@ -79,8 +81,6 @@ builder.Services.AddSwaggerGen(c =>
 			Email = "support@redcentresoftware.com"
 		}
 	});
-	var xmlFile = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
-	c.IncludeXmlComments(xmlFile);
 	var dir = new DirectoryInfo(AppContext.BaseDirectory);
 	foreach (var file in dir.GetFiles("RCS.*.xml"))
 	{
@@ -115,9 +115,8 @@ builder.Services.AddSwaggerGen(c =>
 // created depending on the build configuration.
 
 #if (SQL_PRODUCTION || SQL_TESTING)
-string prodkey = builder.Configuration["CarbonApi:ProductKey"]!;
 string adoconnect = builder.Configuration["CarbonApi:AdoConnect"]!;
-var licprov = new ExampleLicensingProvider(prodkey, adoconnect);
+var licprov = new ExampleLicensingProvider(adoconnect);
 #elif RCS_PRODUCTION
 int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 string? licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
