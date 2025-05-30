@@ -9,58 +9,65 @@ using System.Threading.Tasks;
 using RCS.Carbon.Example.WebService.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RCS.Carbon.Shared;
+using Microsoft.Extensions.Configuration;
+using RCS.Carbon.Example.WebService.Database;
 
 namespace RCS.Carbon.Example.WebService.UnitTests
 {
 	public class TestBase
 	{
-		// ╔═══════════════════════════════════════════════════════════════════╗
-		// ║  The following values must be defined as environment variables    ║
-		// ║  by each Windows user who is running the Carbon service tests.    ║
-		// ╚═══════════════════════════════════════════════════════════════════╝
-		protected readonly string TestAccountId = Environment.GetEnvironmentVariable("RCSTESTID") ?? CarbonTestId;
-		protected readonly string TestAccountName = Environment.GetEnvironmentVariable("RCSTESTNAME") ?? CarbonTestUser;
-		protected readonly string TestAccountPassword = Environment.GetEnvironmentVariable("RCSTESTPASS") ?? CarbonTestPass;
-
-		// ╔═══════════════════════════════════════════════════════════════════╗
-		// ║  The following customer and job names are being used for testing, ║
-		// ║  but this can change and it should be done here.                  ║
-		// ╚═══════════════════════════════════════════════════════════════════╝
-		protected const string CarbonTestId = "10000016";
-		protected const string CarbonTestUser = "Cats4Sleeping";
-		protected const string CarbonTestPass = "C6H12O6";
-		protected const string CustomerName1 = "client1rcs";
-		protected const string JobName1 = "demo";
-		protected const string Top1 = "Age";
-		protected const string Side1 = "Region";
-
-		// ╔═══════════════════════════════════════════════════════════════════╗
-		// ║  Change the service base address for testing in the debugger      ║
-		// ║  or at the published public address.                              ║
-		// ╚═══════════════════════════════════════════════════════════════════╝
-		protected const string BaseUri = "http://localhost:5086/";
-		//protected const string BaseUri = "http://rcsapps.azurewebsites.net/carbon/";
-
 		protected readonly JsonSerializerOptions Jopts = new JsonSerializerOptions() { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
-
 		public TestContext TestContext { get; set; }
+		protected string baseUri;
+		protected string userId;
+		protected string userName;
+		protected string userPass;
+		protected string custName;
+		protected string jobName;
+		protected string genTop;
+		protected string genSide;
+		protected string report;
+		protected bool skipCache;
+
+		protected IConfiguration Config { get; }
+
+		public TestBase()
+		{
+			var args = Environment.GetCommandLineArgs();
+			Config = new ConfigurationBuilder()
+				.AddJsonFile("appsettings.json")
+				.AddUserSecrets("RCS.Carbon.Example.WebService.UnitTests")
+				.Build();
+			baseUri = Config["UnitTests:BaseUri"]!;
+			userId = Config["UnitTests:UserId"]!;
+			userName = Config["UnitTests:UserName"]!;
+			userPass = Config["UnitTests:UserPass"]!;
+			custName = Config["UnitTests:CustName"]!;
+			jobName = Config["UnitTests:JobName"]!;
+			genTop = Config["UnitTests:Top"]!;
+			genSide = Config["UnitTests:Side"]!;
+			report = Config["UnitTests:Report"]!;
+			skipCache = Config.GetValue<bool>("UnitTests:SkipCache");
+		}
 
 		protected CarbonServiceClient MakeClient()
 		{
-			var client = new CarbonServiceClient(BaseUri, 300);
+			var client = new CarbonServiceClient(Config["UnitTests:BaseUri"]!, 300);
 			Trace($"MakeClient → {client.BaseAddress}");
 			return client;
 		}
 
-		protected async Task<SessionInfo> GuardedSessionId(string id, string password, CarbonServiceClient client)
+		protected DbCore MakeDb() => new DbCore(Config["CarbonApi:ApplicationStorageConnect"]!, Config["CarbonApi:DatabaseTableName"]!);
+
+		protected async Task<SessionInfo> GuardedSession(string idOrName, string password, CarbonServiceClient client, bool useId = true)
 		{
 			try
 			{
-				var sinfo = await client.StartSessionId(id, password);
+				var sinfo = useId ? await client.StartSessionId(idOrName, password, skipCache) : await client.StartSessionName(idOrName, password);
 				Trace($"Login OK → {sinfo}");
 				return sinfo;
 			}
-			catch (CarbonServiceException ex) when (ex.Code == 301)
+			catch (CarbonServiceException ex) when (ex.Code is 301 or 302)
 			{
 				Trace(ex.Message);
 				string[] sessIds = ex.GetDataStrings()!;
@@ -68,7 +75,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 				int count = await client.ForceSessions(join);
 				Trace($"ForceSessions({join}) → {count}");
 				Assert.AreEqual(sessIds.Length, count);
-				var sinfo = await client.StartSessionId(id, password);
+				var sinfo = useId ? await client.StartSessionId(idOrName, password, skipCache) : await client.StartSessionName(idOrName, password);
 				Trace($"Login RETRY → {sinfo}");
 				return sinfo;
 			}
@@ -190,6 +197,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			}
 		}
 
+		//protected void Trace(string message) => System.Diagnostics.Trace.WriteLine(message);
 		protected void Trace(string message) => TestContext.WriteLine(message);
 
 		protected async Task<long> DownloadUrlToFile(string url, string filename)

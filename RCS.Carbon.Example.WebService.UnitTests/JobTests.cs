@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using RCS.Carbon.Example.WebService.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RCS.Carbon.Shared;
+using RCS.Licensing.Provider.Shared;
 
 namespace RCS.Carbon.Example.WebService.UnitTests
 {
@@ -32,7 +33,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		//public async Task T030_Reformat()
 		//{
 		//	using var client = MakeClient();
-		//	SessionInfo sessinfo = await client.LoginId(TestAccountId, TestAccountPassword);
+		//	SessionInfo sessinfo = await client.LoginId(userId, userPass);
 		//	Trace($"LoginId {sessinfo.SessionId}");
 		//	Assert.IsNotNull(sessinfo);
 
@@ -43,7 +44,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		//	Sep1("GenTab Age x Region CSV");
 		//	var sprops = new XSpecProperties();
 		//	resp.DProps.Output.Format = XOutputFormat.CSV;
-		//	string[] lines1 = await client.GenTab(null, Top1, Side1, null, null, sprops, resp.DProps);
+		//	string[] lines1 = await client.GenTab(null, genTop, genSide, null, null, sprops, resp.DProps);
 		//	DumpLines(lines1);
 
 		//	Sep1("Reformat TSV");
@@ -62,9 +63,8 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T100_OpenCloudJob()
 		{
 			using var client = MakeClient();
-			SessionInfo sessinfo = await client.StartSessionFree("Unit Tests");
-			Trace($"StartSessionFree {sessinfo.SessionId}");
-			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, JobName1, null, true, true, true, JobTocType.ExecUser, true);
+			await GuardedSession(userId, userPass, client);
+			OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName, null, true, true, true, JobTocType.ExecUser, true);
 			Trace($"OpenCloudJob → {jobresp}");
 			Dumpobj(jobresp);
 			bool closed = await client.CloseJob();
@@ -77,14 +77,13 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T200_Gentab()
 		{
 			using var client = MakeClient();
-			SessionInfo sessinfo = await client.StartSessionFree("Unit Tests");
-			Trace($"StartSessionFree {sessinfo.SessionId}");
-			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, JobName1);
+			await GuardedSession(userId, userPass, client);
+			OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName);
 			Trace($"OpenCloudJob {jobresp.DProps} {jobresp.DrillFilters} {jobresp.VartreeNames} {jobresp.AxisTreeNames}");
 			var sprops = new XSpecProperties();
 			var dprops = new XDisplayProperties();
 			dprops.Output.Format = XOutputFormat.TSV;
-			string[] lines = await client.GenTab(null, Top1, Side1, null, null, sprops, dprops);
+			string[] lines = await client.GenTab(null, genTop, genSide, null, null, sprops, dprops);
 			DumpLines(lines);
 			bool closed = await client.CloseJob();
 			Trace($"Closed → {closed}");
@@ -96,8 +95,8 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T220_Save_Report()
 		{
 			using var client = MakeClient();
-			await client.StartSessionId(TestAccountId, TestAccountPassword);
-			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, JobName1, tocType: JobTocType.ExecUser);
+			await GuardedSession(userId, userPass, client);
+			OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName, tocType: JobTocType.ExecUser);
 			Sep1("Open job toc");
 			DumpToc(jobresp.Toc!);
 			Sep1("ListExecUserToc");
@@ -107,7 +106,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			var sprops = new XSpecProperties();
 			var dprops = new XDisplayProperties();
 			dprops.Output.Format = XOutputFormat.TSV;
-			string[] lines = await client.GenTab(null, Top1, Side1, null, null, sprops, dprops);
+			string[] lines = await client.GenTab(null, genTop, genSide, null, null, sprops, dprops);
 			Trace($"Report lines → {lines.Length}");
 			GenericResponse gr = await client.SaveReport("Age x Region", null);
 			Trace($"Save 1 code → {gr.Code}");
@@ -144,16 +143,15 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T400_SingleXlsx()
 		{
 			using var client = MakeClient();
-			SessionInfo info = await client.StartSessionId(TestAccountId, TestAccountPassword);
+			var info = await GuardedSession(userId, userPass, client);
 			Trace($"Session → {info.SessionId}");
 			//Dumpobj(info);
-			OpenCloudJobResponse jobresp = await client.OpenCloudJob("client1rcs", JobName1, null, false, true, true, JobTocType.ExecUser, false);
+			OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName, null, false, true, true, JobTocType.ExecUser, false);
 			//Dumpobj(jobresp);
 			DumpToc(jobresp.Toc!);
 			var rptnode = GenNode.WalkNodes(jobresp.Toc).First(n => n.Type == "Table");
 			Trace($"Report node → {rptnode}");
-			string rptname = "Tables/Exec/FolderA/AgeReg.cbt";
-			var loadreq = new LoadReportRequest(rptname);
+			var loadreq = new LoadReportRequest(report);
 			await client.LoadReport(loadreq);
 			var resp = await client.GenerateXlsx();
 			Dumpobj(resp);
@@ -196,9 +194,9 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T500_Delete_Toc()
 		{
 			using var client = MakeClient();
-			SessionInfo info = await client.StartSessionId(TestAccountId, TestAccountPassword);
+			SessionInfo info = await GuardedSession(userId, userPass, client);
 			Trace($"Session → {info.SessionId}");
-			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, JobName1, null, false, true, true, JobTocType.ExecUser, false);
+			OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName, null, false, true, true, JobTocType.ExecUser, false);
 			DumpToc(jobresp.Toc!);
 			bool closed = await client.CloseJob();
 			Trace($"Closed → {closed}");
@@ -210,13 +208,13 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T600_SkipDouble_Reproduce()
 		{
 			using var client = MakeClient();
-			SessionInfo info = await client.StartSessionId(TestAccountId, TestAccountPassword);
+			SessionInfo info = await GuardedSession(userId, userPass, client);
 			Trace($"Session → {info.SessionId}");
-			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, "skyuk", null, true, true, true, JobTocType.ExecUser, true);
+			OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, "skyuk", null, true, true, true, JobTocType.ExecUser, true);
 			//DumpToc(jobresp.Toc!);
 			var gr = await client.LoadReport(new LoadReportRequest("Tables/Exec/DB Input/B DB Input"));
 			Dumpobj(gr);
-			jobresp = await client.OpenCloudJob(CustomerName1, JobName1, null, true, true, true, JobTocType.ExecUser, true);
+			jobresp = await client.OpenCloudJob(custName, jobName, null, true, true, true, JobTocType.ExecUser, true);
 			//Dumpobj(jobresp);
 			bool closed = await client.CloseJob();
 			Trace($"Closed → {closed}");

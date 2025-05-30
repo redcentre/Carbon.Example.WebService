@@ -8,7 +8,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 	public class SessionTests : TestBase
 	{
 		[TestMethod]
-		public async Task T010_LoginId_NoUser()
+		public async Task T010_SessionId_NoUser()
 		{
 			using var client = MakeClient();
 			var pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.StartSessionId("NOUSER", "BADPASS"));
@@ -17,32 +17,31 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		}
 
 		[TestMethod]
-		public async Task T020_LoginId_BadPass()
+		public async Task T020_SessionId_BadPass()
 		{
 			using var client = MakeClient();
-			var pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.StartSessionId(TestAccountId, "BADPASS"));
+			var pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.StartSessionId(userId, "BADPASS"));
 			Trace($"ex Message ........ {pex.Message}");
 			Trace($"ex Code ........... {pex.Code}");
 		}
 
 		[TestMethod]
-		public async Task T030_LoginId_Out()
+		public async Task T030_SessionId_Out()
 		{
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.StartSessionName("GregK", "Cats4Sleeping");
-			Trace($"Login → {sinfo}");
+			SessionInfo sinfo = await GuardedSession(userId, userPass, client);
+			Trace($"Session → {sinfo}");
 			DumpSessinfo(sinfo);
 			bool ended = await client.EndSession();
 			Trace($"EndSession → {ended}");
-			//Assert.IsTrue(count == (sinfo.LoginCount - 1));
 		}
 
 		[TestMethod]
-		public async Task T040_LoginName_Out()
+		public async Task T040_SessionName_Out()
 		{
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
-			Trace($"Login → {sinfo}");
+			SessionInfo sinfo = await client.StartSessionName(userName, userPass);
+			Trace($"Session → {sinfo}");
 			Dumpobj(sinfo);
 			bool ended = await client.EndSession();
 			Trace($"EndSession → {ended}");
@@ -52,9 +51,9 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T050_OpenJob()
 		{
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
-			Trace($"Login → {sinfo}");
-			OpenCloudJobResponse jobresp = await client.OpenCloudJob("rcsruby", "demo", null, true, true, true, JobTocType.ExecUser, true);
+			SessionInfo sinfo = await client.StartSessionName(userName, userPass);
+			Trace($"Session → {sinfo}");
+			OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName, null, true, true, true, JobTocType.ExecUser, true);
 			Trace($"OpenCloudJob {jobresp.DProps} {jobresp.DrillFilters} {jobresp.VartreeNames} {jobresp.AxisTreeNames}");
 			bool ended = await client.EndSession();
 			Trace($"EndSession → {ended}");

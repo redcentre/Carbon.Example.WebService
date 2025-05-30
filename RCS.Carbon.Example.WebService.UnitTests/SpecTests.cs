@@ -14,8 +14,8 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T100_GetNewSpec()
 		{
 			using var client = MakeClient();
-			await client.StartSessionId(TestAccountId, TestAccountPassword);
-			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, JobName1, null, tocType: JobTocType.ExecUser);
+			await GuardedSession(userId, userPass, client);
+			OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName, null, tocType: JobTocType.ExecUser);
 			Sep1("Validate ctor spec");
 			var ts = new TableSpec();
 			Dumpobj(ts);
@@ -36,9 +36,9 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T120_GetEditSpec()
 		{
 			using var client = MakeClient();
-			await client.StartSessionId(TestAccountId, TestAccountPassword);
-			OpenCloudJobResponse jobresp = await client.OpenCloudJob(CustomerName1, JobName1, null, tocType: JobTocType.ExecUser);
-			var loadreq = new LoadReportRequest("Tables/Exec/FolderA/AgeReg");
+			await GuardedSession(userId, userPass, client);
+			OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName, null, tocType: JobTocType.ExecUser);
+			var loadreq = new LoadReportRequest(report);
 			var gr = await client.LoadReport(loadreq);
 			Dumpobj(gr);
 			SpecAggregate sa = await client.GetEditSpec();

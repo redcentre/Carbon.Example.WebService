@@ -131,7 +131,7 @@ public partial class ReportController : ServiceControllerBase
 			// It natively generates the buffer of an XLSX workbook, which is converted to a single
 			// base64 encoded string line for return.
 			byte[] buff = wrap.Engine.GenTabAsXLSX(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
-			lines = new string[] { Convert.ToBase64String(buff) };
+			lines = [Convert.ToBase64String(buff)];
 		}
 		else
 		{
@@ -158,7 +158,6 @@ public partial class ReportController : ServiceControllerBase
 
 	async Task<ActionResult<bool>> UnloadReportImpl()
 	{
-		using var wrap = new StateWrap(SessionId, LicProv, true);
 		bool changed = SessionManager.SetReportName(SessionId, null);
 		return await Task.FromResult(changed);
 	}
@@ -178,6 +177,7 @@ public partial class ReportController : ServiceControllerBase
 	async Task<ActionResult<MultiOxtResponse>> MultiOxtImpl(MultiOxtRequest request)
 	{
 		var moxt = new MoxtState(request);
+		moxt.SessionId = SessionId;
 		MultiOxtSequentialProc(moxt);
 		var response = new MultiOxtResponse
 		{

@@ -170,16 +170,6 @@ namespace RCS.Carbon.Example.WebService.Common
 			return await InnerPostText($"report/gentab/text/{format}", data);
 		}
 
-		public async Task<string> ReportGenTabXml(string? name, string top, string side, string? filter, string? weight, XSpecProperties sprops, XDisplayProperties dprops)
-		{
-			if (top == null) throw new ArgumentNullException(nameof(top));
-			if (side == null) throw new ArgumentNullException(nameof(side));
-			if (sprops == null) throw new ArgumentNullException(nameof(sprops));
-			if (dprops == null) throw new ArgumentNullException(nameof(dprops));
-			var data = new GenTabRequest(name, top, side, filter, weight, sprops, dprops);
-			return await InnerPostText($"report/gentab/xml", data);
-		}
-
 		public async Task<XlsxResponse> ReportGenTabExcelBlob(string? name, string top, string side, string? filter, string? weight, XSpecProperties sprops, XDisplayProperties dprops)
 		{
 			if (top == null) throw new ArgumentNullException(nameof(top));
@@ -337,7 +327,7 @@ namespace RCS.Carbon.Example.WebService.Common
 			if (code != null && message != null)
 			{
 				var ex = new CarbonServiceException(code.Value, message);
-				if (code == 301)
+				if (code is 301 or 302)
 				{
 					// This is a duplicate session failure which can be treaed as a special
 					// case to return the existing session Ids so the caller can force those

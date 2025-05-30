@@ -22,7 +22,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 
 			await RandWait();
 			Sep1("Start Session");
-			var sessinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
+			var sessinfo = await GuardedSession(userId, userPass, client);
 			Assert.IsNotNull(sessinfo);
 			Trace($"Session Id → {sessinfo.SessionId}");
 
@@ -40,7 +40,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 
 			await RandWait();
 			Sep1("Open Cloud Job");
-			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
+			var resp = await client.OpenCloudJob(custName, jobName);
 			Trace($"Open job → {resp}");
 
 			await RandWait();
@@ -70,7 +70,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 
 			await RandWait();
 			Sep1("VarAsNodes Nodes (Simple)");
-			GenNode[] nodes = await client.VarAsNodes(Top1);
+			GenNode[] nodes = await client.VarAsNodes(genTop);
 			foreach (string line in GenNode.PrintTree(nodes))
 			{
 				Trace(line);
@@ -89,7 +89,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			var dprops = new XDisplayProperties();
 			dprops.Output.Format = XOutputFormat.OXT;
 			var sprops = new XSpecProperties();
-			string[] lines	= await client.GenTab(null, Top1, Side1, null, null, sprops, dprops);
+			string[] lines	= await client.GenTab(null, genTop, genSide, null, null, sprops, dprops);
 			Dumpobj(lines.Take(20));
 
 			await RandWait();
@@ -122,11 +122,11 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 				string[] lines = await client.GenTab(null, top, side, null, null, sprops, dprops);
 				foreach (string s in lines.Take(10)) Trace(s);
 			}
-			var sessinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
-			await client.OpenCloudJob(CustomerName1, JobName1);
-			await Show(XOutputFormat.OXT, Top1, Side1);
-			await Show(XOutputFormat.CSV, Top1, "Occupation");
-			await Show(XOutputFormat.TSV, "Gender", Side1);
+			var sessinfo = await GuardedSession(userId, userPass, client);
+			await client.OpenCloudJob(custName, jobName);
+			await Show(XOutputFormat.OXT, genTop, genSide);
+			await Show(XOutputFormat.CSV, genTop, "Occupation");
+			await Show(XOutputFormat.TSV, "Gender", genSide);
 			await client.OpenCloudJob("rcspublic", "firstfleet");
 			await Show(XOutputFormat.OXT, "Age7", "Crime11");
 			await Show(XOutputFormat.OXT, "Occ15", "TrialYear");

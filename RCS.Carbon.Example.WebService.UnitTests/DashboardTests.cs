@@ -11,19 +11,17 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 	[TestClass]
 	public class DashboardTests : TestBase
 	{
-		Random rand = new Random();
-
 		[TestMethod]
 		public async Task T010_MultiOxt_Sync()
 		{
 			Sep1("AuthenticateName");
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
+			SessionInfo sinfo = await GuardedSession(userName, userPass, client, false);
 			Trace($"StartSessionName → {sinfo}");
 
 			Sep1("OpenCloudJob");
-			//OpenCloudJobResponse jobinfo = await client.OpenCloudJob(CustomerName1, "skyuk");
-			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(CustomerName1, JobName1);
+			//OpenCloudJobResponse jobinfo = await client.OpenCloudJob(custName, "skyuk");
+			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(custName, jobName);
 
 			Sep1("Before cache");
 			var info = await client.GetCacheInfo(200);
@@ -38,7 +36,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			//};
 			var multireq = new MultiOxtRequest()
 			{
-				Filters = new FilterPair[] { new FilterPair("Quarter", null, true), new FilterPair("Quarter", null, true), new FilterPair("Custom", null, false), new FilterPair("Male", "GEN(1)", false) },
+				Filters = [new FilterPair("Quarter", null, true), new FilterPair("Quarter", null, true), new FilterPair("Custom", null, false), new FilterPair("Male", "GEN(1)", false)],
 				ReportNames = KPIReportNames,
 				TableOnly = true
 			};
@@ -63,17 +61,16 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			var info = await client.GetCacheInfo(200);
 			Dumpobj(info);
 			Sep1("AuthenticateName");
-			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
+			SessionInfo sinfo = await GuardedSession(userName, userPass, client, false);
 			Trace($"StartSessionName → {sinfo}");
 
 			Sep1("OpenCloudJob");
-			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(CustomerName1, "skyuk");
-			//OpenCloudJobResponse jobinfo = await client.OpenCloudJob(CustomerName1, JobName1);
+			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(custName, jobName);
 
 			Sep1("MultiOxt");
 			var multireq = new MultiOxtRequest()
 			{
-				Filters = new FilterPair[] { new FilterPair("MASTER FILTER", "BB_Master(1)", false), new FilterPair("Age Groups", "BB_Age(3)", false) },
+				Filters = new FilterPair[] { new FilterPair("MASTER FILTER", "Age(1)", false), new FilterPair("Age Groups", "Age(2)", false), new FilterPair("Age Groups", "Age(3)", false) },
 				ReportNames = BB_Chart_Tables_ReportNames,
 				TableOnly = true
 			};
@@ -113,7 +110,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T024_GetCacheInfo()
 		{
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
+			SessionInfo sinfo = await GuardedSession(userName, userPass, client, false);
 			Trace($"StartSessionName → {sinfo}");
 			var info = await client.GetCacheInfo(100);
 			Dumpobj(info);
@@ -125,11 +122,11 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T030_List_Dashboards()
 		{
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
+			SessionInfo sinfo = await GuardedSession(userName, userPass, client, false);
 			Trace($"StartSessionName → {sinfo}");
-			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(CustomerName1, JobName1);
+			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(custName, jobName);
 
-			var dashlist = await client.ListDashboards(CustomerName1, JobName1);
+			var dashlist = await client.ListDashboards(custName, jobName);
 			Trace($"List count → {dashlist.Length}");
 			foreach (var dash in dashlist)
 			{
@@ -146,11 +143,11 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T040_KPI_Upsert()
 		{
 			using var client = MakeClient();
-			SessionInfo sinfo = await client.StartSessionName(TestAccountName, TestAccountPassword);
+			SessionInfo sinfo = await GuardedSession(userName, userPass, client, false);
 			Trace($"StartSessionName → {sinfo}");
-			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(CustomerName1, JobName1);
+			OpenCloudJobResponse jobinfo = await client.OpenCloudJob(custName, jobName);
 
-			var dashlist = await client.ListDashboards(CustomerName1, JobName1);
+			var dashlist = await client.ListDashboards(custName, jobName);
 			Trace($"Pre upsert count → {dashlist.Length}");
 			foreach (var dash in dashlist)
 			{
@@ -161,9 +158,9 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			FileInfo dashinfo = new FileInfo(dashfile1);
 			var azdash = new UpsertDashboardRequest()
 			{
-				CustomerName = CustomerName1,
-				JobName = JobName1,
-				UserName = TestAccountName,
+				CustomerName = custName,
+				JobName = jobName,
+				UserName = userName,
 				Name = dashfile1,
 				DisplayName = "Factoring Speeds",
 				CreatedUtc = dashinfo.CreationTimeUtc,
@@ -176,7 +173,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			updash.Buffer = null;
 			Dumpobj(updash);
 
-			dashlist = await client.ListDashboards(CustomerName1, JobName1);
+			dashlist = await client.ListDashboards(custName, jobName);
 			Trace($"Post upsert count → {dashlist.Length}");
 			Assert.IsTrue(dashlist.Count(d => d.Name == updash.Name) == 1);
 

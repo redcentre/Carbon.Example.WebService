@@ -27,7 +27,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T020_List()
 		{
 			var db = MakeDb();
-			await foreach (var row in db.ListRows())
+			await foreach (var row in db.ListRows(true))
 			{
 				Trace($"{row.Key1}|{row.Key2} = {row.Value}");
 			}
@@ -39,7 +39,5 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			var db = MakeDb();
 			await db.Delete("Key1", "Key22");
 		}
-
-		static DbCore MakeDb() => new DbCore("DefaultEndpointsProtocol=https;AccountName=carbonapi;AccountKey=;TableEndpoint=https://carbonapi.table.core.windows.net/;", "Database1");
 	}
 }

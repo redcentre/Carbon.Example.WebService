@@ -22,6 +22,11 @@
     <BuildType Solution="SQL Testing|*" Project="Release" />
   </Project>
   <Project Path="RCS.Carbon.Example.WebService.Logging/RCS.Carbon.Example.WebService.Logging.csproj" />
-  <Project Path="RCS.Carbon.Example.WebService.UnitTests/RCS.Carbon.Example.WebService.UnitTests.csproj" />
+  <Project Path="RCS.Carbon.Example.WebService.UnitTests/RCS.Carbon.Example.WebService.UnitTests.csproj" Id="33ded666-c5cd-4b07-9f27-24a6e680a139">
+    <BuildType Solution="RCS Production|*" Project="Debug" />
+    <BuildType Solution="RCS Testing|*" Project="Debug" />
+    <BuildType Solution="SQL Production|*" Project="Debug" />
+    <BuildType Solution="SQL Testing|*" Project="Debug" />
+  </Project>
   <Project Path="RCS.Carbon.Example.WebService.WebApi/RCS.Carbon.Example.WebService.WebApi.csproj" />
 </Solution>

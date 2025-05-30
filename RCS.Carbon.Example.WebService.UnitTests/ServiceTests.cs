@@ -59,9 +59,9 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T040_Job_GenTab_All_Formats()
 		{
 			using var client = MakeClient();
-			var sinfo = await GuardedSessionId(TestAccountId, TestAccountPassword, client);
+			var sinfo = await GuardedSession(userId, userPass, client);
 
-			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
+			var resp = await client.OpenCloudJob(custName, jobName);
 			Trace($"Open job → {resp}");
 
 			var sprops = new XSpecProperties();
@@ -72,7 +72,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 				dprops.Output.Format = format;
 				try
 				{
-					string[] lines = await client.GenTab($"GenTab-{format}", Top1, Side1, null, null, sprops, dprops);
+					string[] lines = await client.GenTab($"GenTab-{format}", genTop, genSide, null, null, sprops, dprops);
 					DumpLines(lines);
 				}
 				catch (Exception ex)
@@ -90,8 +90,8 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T100_Report_GenTab_All_Formats()
 		{
 			using var client = MakeClient();
-			var sinfo = await GuardedSessionId(TestAccountId, TestAccountPassword, client);
-			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
+			var sinfo = await GuardedSession(userId, userPass, client);
+			var resp = await client.OpenCloudJob(custName, jobName);
 			Trace($"Open job → {resp}");
 
 			var sprops = new XSpecProperties();
@@ -117,7 +117,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 				dprops.Output.Format = format;
 				try
 				{
-					string report = await client.ReportGenTabText(format, $"Report-{format}", Top1, Side1, null, null, sprops, dprops);
+					string report = await client.ReportGenTabText(format, $"Report-{format}", genTop, genSide, null, null, sprops, dprops);
 					string s = NiceFormatter.Sample(report, 200);
 					Trace(s);
 				}
@@ -136,13 +136,13 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T120_Report_GenTab_XML()
 		{
 			using var client = MakeClient();
-			var sinfo = await GuardedSessionId(TestAccountId, TestAccountPassword, client);
-			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
+			var sinfo = await GuardedSession(userId, userPass, client);
+			var resp = await client.OpenCloudJob(custName, jobName);
 			Trace($"Open job → {resp}");
 
 			var sprops = new XSpecProperties();
 			var dprops = new XDisplayProperties();
-			string xml = await client.ReportGenTabXml($"Report-XML", Top1, Side1, null, null, sprops, dprops);
+			string xml = await client.ReportGenTabText(XOutputFormat.XML, $"Report-XML", genTop, genSide, null, null, sprops, dprops);
 			Trace(xml);
 			bool closed = await client.CloseJob();
 			Trace($"Closed job → {closed}");
@@ -154,13 +154,13 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T140_Report_GenTab_Excel_Blob()
 		{
 			using var client = MakeClient();
-			var sinfo = await GuardedSessionId(TestAccountId, TestAccountPassword, client);
-			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
+			var sinfo = await GuardedSession(userId, userPass, client);
+			var resp = await client.OpenCloudJob(custName, jobName);
 			Trace($"Open job → {resp}");
 
 			var sprops = new XSpecProperties();
 			var dprops = new XDisplayProperties();
-			XlsxResponse xresp = await client.ReportGenTabExcelBlob($"Report-Excel-Blob", Top1, Side1, null, null, sprops, dprops);
+			XlsxResponse xresp = await client.ReportGenTabExcelBlob($"Report-Excel-Blob", genTop, genSide, null, null, sprops, dprops);
 			Dumpobj(xresp);
 			string filename = Path.GetFileName(xresp.ExcelUri);
 			using (var http = new HttpClient())
@@ -185,8 +185,8 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		public async Task T200_Report_GenTab_Pandas()
 		{
 			using var client = MakeClient();
-			var sinfo = await GuardedSessionId(TestAccountId, TestAccountPassword, client);
-			var resp = await client.OpenCloudJob(CustomerName1, JobName1);
+			var sinfo = await GuardedSession(userId, userPass, client);
+			var resp = await client.OpenCloudJob(custName, jobName);
 			Trace($"Open job → {resp}");
 
 			var sprops = new XSpecProperties();
@@ -194,7 +194,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			for (int i = 1; i <= 3; i++)
 			{
 				Sep1($"Pandas {i}");
-				string json = await client.ReportGenTabPandas(i, $"Report-Pandas", Top1, Side1, null, null, sprops, dprops);
+				string json = await client.ReportGenTabPandas(i, $"Report-Pandas", genTop, genSide, null, null, sprops, dprops);
 				Trace(json);
 			}
 			bool closed = await client.CloseJob();

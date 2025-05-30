@@ -19,12 +19,12 @@ namespace RCS.Carbon.Example.WebService.UnitTests
         {
             using var client = MakeClient();
             Sep1("LoginId");
-            SessionInfo sessinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
+            SessionInfo sessinfo = await GuardedSession(userId, userPass, client);
             //Assert.IsNotNull(sessinfo);
             DumpSessinfoShort(sessinfo);
 
             Sep1("OpenCloudJob");
-            OpenCloudJobResponse openresp = await client.OpenCloudJob(CustomerName1, JobName1, null, true, true, true, JobTocType.ExecUser, true);
+            OpenCloudJobResponse openresp = await client.OpenCloudJob(custName, jobName, null, true, true, true, JobTocType.ExecUser, true);
             GenNode[] tocflat = GenNode.WalkNodes(openresp.Toc).ToArray();
             Trace($"TOC roots {openresp.Toc.Length} total {tocflat.Length} • Vartree {openresp.VartreeNames.Length} • Axis {openresp.AxisTreeNames?.Length} • Drill {openresp.DrillFilters.Length} • DProps format {openresp.DProps.Output.Format}");
 
@@ -101,8 +101,12 @@ namespace RCS.Carbon.Example.WebService.UnitTests
             OpenCloudJobResponse resp;
 
             using var client = MakeClient();
+			SessionInfo sessinfo = await GuardedSession(userId, userPass, client);
+			Trace("Started guarded session");
+			await client.EndSession();
+			Trace("Ended guarded session");
 #if FAILS
-            Sep1("Bad Id");
+			Sep1("Bad Id");
             pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.StartSessionId("NOUSER", "BADPASS"));
             Trace(pex.Message);
             Assert.AreEqual("User Id 'NOUSER' not found", pex.Message);
@@ -113,17 +117,17 @@ namespace RCS.Carbon.Example.WebService.UnitTests
             Assert.AreEqual("Value cannot be null. (Parameter 'id')", anex.Message);
 
             Sep1("Null Pass");
-            anex = await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => client.StartSessionId(TestAccountId, null));
+            anex = await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => client.StartSessionId(userId, null));
             Trace(anex.Message);
             Assert.AreEqual("Value cannot be null. (Parameter 'password')", anex.Message);
 
             Sep1("Bad Id");
-            pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.StartSessionId(TestAccountId, "BADPASS"));
+            pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.StartSessionId(userId, "BADPASS"));
             Trace(pex.Message);
-            Assert.AreEqual("User '" + TestAccountName + "' Id '" + TestAccountId + "' incorrect password", pex.Message);
+            Assert.AreEqual("User '" + userName + "' Id '" + userId + "' incorrect password", pex.Message);
 #endif
             Sep1("LoginId");
-            SessionInfo sessinfo = await client.StartSessionId(TestAccountId, TestAccountPassword);
+            sessinfo = await GuardedSession(userId, userPass, client);
             Assert.IsNotNull(sessinfo);
             DumpSessinfo(sessinfo);
 
@@ -141,22 +145,22 @@ namespace RCS.Carbon.Example.WebService.UnitTests
             Assert.AreEqual("Value cannot be null. (Parameter 'customerName')", anex.Message);
 
             Sep1("OpenCloudJob null job");
-            anex = await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => client.OpenCloudJob(CustomerName1, null));
+            anex = await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => client.OpenCloudJob(custName, null));
             Trace(anex.Message);
             Assert.AreEqual("Value cannot be null. (Parameter 'jobName')", anex.Message);
 
             Sep1("OpenCloudJob blank cust");
-            pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.OpenCloudJob("", JobName1));
+            pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.OpenCloudJob("", jobName));
             Trace(pex.Message);
-            Assert.AreEqual("Open cloud Customer '' Job 'demo' Vartree '' failed - Customer '' is not a registered storage account", pex.Message);
+            Assert.AreEqual("Open cloud Customer '' Job 'demo' Vartree '' failed - Account Id 10000016 Name 'greg' does not have access to Customer '' Job 'demo'", pex.Message);
 
             Sep1("OpenCloudJob blank job");
-            pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.OpenCloudJob(CustomerName1, ""));
+            pex = await Assert.ThrowsExceptionAsync<CarbonServiceException>(() => client.OpenCloudJob(custName, ""));
             Trace(pex.Message);
-            Assert.AreEqual("Open cloud Customer 'client1rcs' Job '' Vartree '' failed - Job '' is not accessible in customer 'client1rcs'.", pex.Message);
+            Assert.AreEqual("Open cloud Customer 'client1rcs' Job '' Vartree '' failed - Account Id 10000016 Name 'greg' does not have access to Customer 'client1rcs' Job ''", pex.Message);
 #endif
             Sep1("OpenCloudJob");
-            resp = await client.OpenCloudJob(CustomerName1, JobName1, null, true, true, true, JobTocType.ExecUser, true);
+            resp = await client.OpenCloudJob(custName, jobName, null, true, true, true, JobTocType.ExecUser, true);
             Assert.IsNotNull(resp);
             Assert.IsNotNull(resp.Toc);
             Assert.IsNotNull(resp.DProps);
@@ -257,12 +261,12 @@ namespace RCS.Carbon.Example.WebService.UnitTests
             //string[] linesx = await client.GenTab(null, "FOO", "BAR", null, null, sprops, dprops);
             // Weird crash send to RS
 #endif
-            string[] lines = await client.GenTab(null, Top1, Side1, null, null, sprops, dprops);
+            string[] lines = await client.GenTab(null, genTop, genSide, null, null, sprops, dprops);
             DumpLines(lines);
-            Assert.IsTrue(lines[3].StartsWith("\t15-25"));
-            Assert.IsTrue(lines[4].StartsWith("NE\t479"));
-            Assert.IsTrue(lines[5].StartsWith("\t24.82%"));
-            Assert.IsTrue(lines[6].StartsWith("\t18.99%"));
+            Assert.IsTrue(lines[6].StartsWith("\t15-25"));
+            Assert.IsTrue(lines[7].StartsWith("NE\t479"));
+            Assert.IsTrue(lines[8].StartsWith("\t24.82%"));
+            Assert.IsTrue(lines[9].StartsWith("\t18.99%"));
             var dprops2 = await client.GetProps();
             Assert.AreEqual(XOutputFormat.TSV, dprops2.Output.Format);
             Assert.IsTrue(dprops2.Cells.RowPercents.Visible);
@@ -271,12 +275,12 @@ namespace RCS.Carbon.Example.WebService.UnitTests
             Sep1("GenTab Age x Region TSV (freq only)");
             dprops.Cells.RowPercents.Visible = false;
             dprops.Cells.ColumnPercents.Visible = false;
-            lines = await client.GenTab(null, Top1, Side1, null, null, sprops, dprops);
+            lines = await client.GenTab(null, genTop, genSide, null, null, sprops, dprops);
             DumpLines(lines);
-            Assert.IsTrue(lines[3].StartsWith("\t15-25"));
-            Assert.IsTrue(lines[4].StartsWith("NE\t479"));
-            Assert.IsTrue(lines[5].StartsWith("SE\t459"));
-            Assert.IsTrue(lines[6].StartsWith("SW\t523"));
+            Assert.IsTrue(lines[6].StartsWith("\t15-25"));
+            Assert.IsTrue(lines[7].StartsWith("NE\t479"));
+            Assert.IsTrue(lines[8].StartsWith("SE\t459"));
+            Assert.IsTrue(lines[9].StartsWith("SW\t523"));
             dprops2 = await client.GetProps();
             Assert.AreEqual(XOutputFormat.TSV, dprops2.Output.Format);
             Assert.IsFalse(dprops2.Cells.RowPercents.Visible);

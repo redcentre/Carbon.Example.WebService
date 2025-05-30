@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using RCS.Carbon.Example.WebService.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RCS.Carbon.Shared;
+using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace RCS.Carbon.Example.WebService.UnitTests
 {
@@ -16,29 +18,49 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 		[TestMethod]
 		public async Task T100_Http_Story()
 		{
+			JsonOpts.Converters.Add(new JsonStringEnumConverter());
 			using var client = new HttpClient();
-			client.BaseAddress = new System.Uri("http://localhost:5086/");
+			client.BaseAddress = new System.Uri(baseUri);
 
 			async Task<T> CarbonPostAsync<T>(string url, object request)
 			{
 				HttpResponseMessage hrm = await client.PostAsJsonAsync(url, request);
 				string json = await hrm.Content.ReadAsStringAsync();
 				//System.Diagnostics.Trace.WriteLine(json);
+				//hrm.EnsureSuccessStatusCode();
+				if (hrm.StatusCode == System.Net.HttpStatusCode.BadRequest)
+				{
+					JsonElement e;
+					int i;
+					var elem = JsonSerializer.Deserialize<JsonElement>(json);
+					int? code = elem.TryGetProperty("code", out e) ? e.TryGetInt32(out i) ? i : (int?)null : null;
+					if (code is 301 or 302)
+					{
+						// Special case - force session end and get a fresh one.
+						string[] sessIds = [.. elem.GetProperty("data").EnumerateArray().Select(x => x.GetString()!)];
+						string sessjoin = string.Join(",", sessIds);
+						var hrm2 = await client.DeleteAsync($"session/force/{sessjoin}");
+						hrm2.EnsureSuccessStatusCode();
+						hrm = await client.PostAsJsonAsync(url, request);
+						hrm.EnsureSuccessStatusCode();
+						json = await hrm.Content.ReadAsStringAsync();
+					}
+				}
 				hrm.EnsureSuccessStatusCode();
 				return JsonSerializer.Deserialize<T>(json, JsonOpts)!;
 			}
 
 			Sep1("Login");
-			var loginReq = new AuthenticateIdRequest("16499372", "C6H12O6");
-			var sinfo = await CarbonPostAsync<SessionInfo>("session/start/login/id", loginReq);
+			var authReq = new AuthenticateIdRequest(userId, userPass);
+			var sinfo = await CarbonPostAsync<SessionInfo>("session/start/authenticate/id", authReq);
 			Trace($"Login → {sinfo}");
 			client.DefaultRequestHeaders.Add("x-session-id", sinfo.SessionId);
 
 			Sep1("Open Job");
 			var openReq = new OpenCloudJobRequest()
 			{
-				CustomerName = "client1rcs",
-				JobName = "demo",
+				CustomerName = custName,
+				JobName = jobName,
 				TocType = JobTocType.ExecUser,
 				GetDisplayProps = true,
 				GetDrills = true,
@@ -78,7 +100,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			{
 				Sep1($"GenTab {format} ({(int)format})");
 				genreq.DProps.Output.Format = format;
-				string[] lines = await CarbonPostAsync<string[]>("job/gentab", genreq);
+				string[] lines = await CarbonPostAsync<string[]>("report/gentab", genreq);
 				DumpLines(lines);
 			}
 
@@ -90,11 +112,11 @@ namespace RCS.Carbon.Example.WebService.UnitTests
 			Trace($"Job closed → {closed}");
 
 			Sep1("Logoff (return)");
-			hrm = await client.DeleteAsync("session/end/return");
+			hrm = await client.DeleteAsync("session/end");
 			hrm.EnsureSuccessStatusCode();
 			json = await hrm.Content.ReadAsStringAsync();
-			int count = JsonSerializer.Deserialize<int>(json);
-			Trace($"Session return → {count}");
+			bool ended = JsonSerializer.Deserialize<bool>(json);
+			Trace($"Session end → {ended}");
 		}
 
 	}
