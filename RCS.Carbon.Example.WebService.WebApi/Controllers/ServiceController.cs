@@ -12,6 +12,7 @@ using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
 using RCS.Carbon.Variables;
 using RCS.Licensing.Provider.Shared;
+using Microsoft.Extensions.Logging;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
 
@@ -156,11 +157,11 @@ partial class ServiceController
 
 	async Task<ActionResult<bool>> LogTestImpl()
 	{
-		LogTrace(900, "This is a Trace message");
-		LogDebug(901, "This is a Debug message");
-		LogInfo(902, "This is an Information message");
-		LogWarn(903, "This is a Warning message");
-		LogError(904, new ApplicationException("This is a fake error"), "This is an Error message");
+		Logger.LogTrace(900, "This is a Trace message");
+		Logger.LogDebug(901, "This is a Debug message");
+		Logger.LogInformation(902, "This is an Information message");
+		Logger.LogWarning(903, "This is a Warning message");
+		Logger.LogError(904, new ApplicationException("This is a fake error"), "This is an Error message");
 		return await Task.FromResult(true);
 	}
 }

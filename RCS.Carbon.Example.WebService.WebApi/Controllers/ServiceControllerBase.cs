@@ -26,7 +26,7 @@ public abstract class ServiceControllerBase : ControllerBase
 	/// <summary>
 	/// All derived controllers can use this logger service.
 	/// </summary>
-	static ILogger Logger;
+	protected static ILogger Logger;
 
 	protected IConfiguration Config { get; private set; }
 
@@ -38,21 +38,6 @@ public abstract class ServiceControllerBase : ControllerBase
 		Logger ??= logfac.CreateLogger("WEBC");
 		Config = config;
 		LicProv = licprov;
-	}
-
-	protected void LogTrace(EventId eventId, string message, params object?[] args) => LogCommon(eventId, Microsoft.Extensions.Logging.LogLevel.Trace, null, message, args);
-
-	protected void LogDebug(EventId eventId, string message, params object?[] args) => LogCommon(eventId, Microsoft.Extensions.Logging.LogLevel.Debug, null, message, args);
-
-	protected void LogInfo(EventId eventId, string message, params object?[] args) => LogCommon(eventId, Microsoft.Extensions.Logging.LogLevel.Information, null, message, args);
-
-	protected void LogWarn(EventId eventId, string message, params object?[] args) => LogCommon(eventId, Microsoft.Extensions.Logging.LogLevel.Warning, null, message, args);
-
-	protected void LogError(EventId eventId, Exception? error, string message, params object?[] args) => LogCommon(eventId, Microsoft.Extensions.Logging.LogLevel.Error, error, message, args);
-
-	void LogCommon(EventId eventId, Microsoft.Extensions.Logging.LogLevel level, Exception? error, string message, params object?[] args)
-	{
-		Logger.Log(level, eventId, error, message, args);
 	}
 
 	/// <summary>
@@ -138,7 +123,7 @@ public abstract class ServiceControllerBase : ControllerBase
 			Config["CarbonApi:ArtefactsContainerName"]
 		);
 		var m = Regex.Match(azp.ApplicationStorageConnect, @"AccountName=(\w+).+AccountKey=([^;]+)");
-		LogDebug(600, "Created {Name} {AccName} {AccKey}… {ArtefactCon}", azp.GetType().Name, m.Groups[1].Value, m.Groups[2].Value.Substring(0, 8), azp.ArtefactsContainerName);
+		Logger.LogDebug(600, "Created {Name} {AccName} {AccKey}… {ArtefactCon}", azp.GetType().Name, m.Groups[1].Value, m.Groups[2].Value.Substring(0, 8), azp.ArtefactsContainerName);
 		return azp;
 	});
 
@@ -151,14 +136,14 @@ public abstract class ServiceControllerBase : ControllerBase
 		watch.Start();
 		byte[] blob = XTableOutputManager.AsSingleXLSXBuffer(wrap.Engine.Job.DisplayTable);
 		double xlsxsecs = watch.Elapsed.TotalSeconds;
-		LogDebug(610, "Make XLSX {BlobLength} [{XlsxSecs:F2}] - {Reason}", blob.Length, xlsxsecs, reason);
+		Logger.LogDebug(610, "Make XLSX {BlobLength} [{XlsxSecs:F2}] - {Reason}", blob.Length, xlsxsecs, reason);
 		watch.Restart();
 		var sess = SessionManager.FindSession(SessionId, true);
 		string repname = sess.OpenReportName ?? "UnsavedReport";
 		string upname = Path.ChangeExtension(repname, ".xlsx");
 		var azblob = await AzProc.UploadBufferForReport(sess.UserId, sess.OpenCustomerName, sess.OpenJobName, upname, blob);
 		double upsecs = watch.Elapsed.TotalSeconds;
-		LogDebug(612, "Upload {BlobUri} [{upsecs:F2}]", azblob.Uri, upsecs);
+		Logger.LogDebug(612, "Upload {BlobUri} [{upsecs:F2}]", azblob.Uri, upsecs);
 		return new XlsxResponse()
 		{
 			ReportName = sess.OpenReportName!,

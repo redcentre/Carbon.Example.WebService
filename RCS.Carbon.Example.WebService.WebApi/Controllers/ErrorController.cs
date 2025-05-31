@@ -29,10 +29,11 @@ public class ErrorController : ServiceControllerBase
 		{
 			// It is expected that most unhandled errors will arrive here.
 			// Respond with the typical status 500 and a possibly useful message.
+			HttpContext.Items["ErrorMethod"] = HttpContext.Request.Method;
+			HttpContext.Items["ErrorPath"] = handler.Path;
 			HttpContext.Items["ErrorType"] = handler.Error.GetType().Name;
 			HttpContext.Items["ErrorMessage"] = handler.Error.Message;
 			HttpContext.Items["ErrorStack"] = handler.Error.StackTrace;
-			HttpContext.Items["ErrorPath"] = handler.Path;
 			return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(1, $"{handler.Error.Message}"));
 		}
 		const string BadMessage = "The error handler could not find an error feature to provide error details";

@@ -134,10 +134,14 @@ if (string.IsNullOrEmpty(licaddress))
 }
 var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
 #elif (DEBUG || RELEASE)
+// ┌───────────────────────────────────────────────────────────────┐
+// │  In local debug or release configuration it's necessary to    │
+// │  manually choose the provider its parameters.                 │
+// └───────────────────────────────────────────────────────────────┘
 //━━━━━━━━━━━━━ RCS DEBUGGING ━━━━━━━━━━━━━
 //string licaddress = "http://localhost:52123/";
-string licaddress = "https://localhost:7238/";
-//string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
+//string licaddress = "https://localhost:7238/";
+string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
 string apiKey = builder.Configuration["CarbonApi:LicensingApiKey"]!;
 int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 var licprov = new RedCentreLicensingProvider(licaddress, apiKey, timeout);

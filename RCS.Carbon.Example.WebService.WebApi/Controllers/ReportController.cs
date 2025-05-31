@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
 using RCS.RubyCloud.WebService;
+using Microsoft.Extensions.Logging;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
 
@@ -51,7 +52,7 @@ public partial class ReportController : ServiceControllerBase
 		request.DProps.Output.Format = (XOutputFormat)(int)format;
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		string report = wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
-		LogInfo(510, "GenTab({Format},{Top},{Side},{Filter},{Weight})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight);
+		Logger.LogInformation(510, "GenTab({Format},{Top},{Side},{Filter},{Weight})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight);
 		var result = new ContentResult() { Content = report, ContentType = MediaTypeNames.Text.Plain, StatusCode = StatusCodes.Status200OK };
 		return await Task.FromResult(result);
 	}
@@ -117,7 +118,7 @@ public partial class ReportController : ServiceControllerBase
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		wrap.Engine.SetProps(request);
-		LogInfo(264, "Set props");
+		Logger.LogInformation(264, "Set props");
 		return await MakeXlsxAndUpload(wrap, "SetProps");
 	}
 
@@ -143,7 +144,7 @@ public partial class ReportController : ServiceControllerBase
 			}
 			lines = [.. CommonUtil.ReadStringLines(report)];
 		}
-		LogInfo(230, "GenTab({Format},{Top},{Side},{Filter},{Weight}) -> #{Length})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight, lines?.Length);
+		Logger.LogInformation(230, "GenTab({Format},{Top},{Side},{Filter},{Weight}) -> #{Length})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight, lines?.Length);
 		return await Task.FromResult(lines);
 	}
 
@@ -152,7 +153,7 @@ public partial class ReportController : ServiceControllerBase
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		SessionManager.SetReportName(SessionId, request.Name);
 		wrap.Engine.TableLoadCBT(request.Name);
-		LogInfo(232, "LoadReport {Name}", request.Name);
+		Logger.LogInformation(232, "LoadReport {Name}", request.Name);
 		return await Task.FromResult(new GenericResponse(0, $"Loaded {request.Name}"));
 	}
 
@@ -202,14 +203,14 @@ public partial class ReportController : ServiceControllerBase
 	async Task<ActionResult<Guid>> MultiOxtStartImpl(MultiOxtRequest request)
 	{
 		multiOxtStartTime = DateTime.Now;
-		LogInfo(240, "MultiOxtStartImpl Enter");
+		Logger.LogInformation(240, "MultiOxtStartImpl Enter");
 		var state = MakeState(request);
 		state.SessionId = SessionId;
 		state.ParallelCount = request.ParallelCount;
 		ParameterizedThreadStart proc = request.ParallelCount > 1 ? MultiOxtParallelProc : MultiOxtSequentialProc;
 		var t = new Thread(proc);
 		t.Start(state);
-		LogInfo(242, "MultiOxtStartImpl Exit {StateId} tid={ManagedThreadId}", state.Id, t.ManagedThreadId);
+		Logger.LogInformation(242, "MultiOxtStartImpl Exit {StateId} tid={ManagedThreadId}", state.Id, t.ManagedThreadId);
 		return await Task.FromResult(state.Id);
 	}
 
@@ -235,17 +236,17 @@ public partial class ReportController : ServiceControllerBase
 				// is finished and we can remove the state. The caller must recognise that
 				// the Items are present and realise that the reports are finished.
 				RemoveState(moxt.Id);
-				LogDebug(250, "Multi OXT Id {Id} complete and removed (count down to {MoxtCount})", id, MoxtList.Count);
+				Logger.LogDebug(250, "Multi OXT Id {Id} complete and removed (count down to {MoxtCount})", id, MoxtList.Count);
 			}
 			else
 			{
-				//Global.LogInfo(893, $"Multi OXT Id {id} running - {moxt.ProgressMessage}");
+				//Global.Logger.LogInformation(893, $"Multi OXT Id {id} running - {moxt.ProgressMessage}");
 			}
 		}
 		else
 		{
 			// There is no specific error return for this. The returned Id will be Guid.Empty.
-			//Global.LogInfo(894, $"Multi OXT Id {id} not found in {Global.StateCount} items");
+			//Global.Logger.LogInformation(894, $"Multi OXT Id {id} not found in {Global.StateCount} items");
 		}
 		return await Task.FromResult(response);
 	}
@@ -269,7 +270,7 @@ public partial class ReportController : ServiceControllerBase
 		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		bool result = wrap.Engine.QuickEdit(request.ShowFreq, request.ShowColPct, request.ShowRowPct, request.ShowSig, request.Filter);
-		LogInfo(262, "QuickEdit {Freq} {Col} {Row} {Sig} {Filter}", request.ShowFreq, request.ShowColPct, request.ShowColPct, request.ShowSig, request.Filter);
+		Logger.LogInformation(262, "QuickEdit {Freq} {Col} {Row} {Sig} {Filter}", request.ShowFreq, request.ShowColPct, request.ShowColPct, request.ShowSig, request.Filter);
 		return await MakeXlsxAndUpload(wrap, "Quick");
 	}
 
@@ -277,7 +278,7 @@ public partial class ReportController : ServiceControllerBase
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		bool success = wrap.Engine.SaveTableUserTOC(request.Name, request.Sub, true);
-		LogInfo(260, "SaveReport {Name}+{Sub}", request.Name, request.Sub);
+		Logger.LogInformation(260, "SaveReport {Name}+{Sub}", request.Name, request.Sub);
 		return await Task.FromResult(new GenericResponse(0, request.Name));
 	}
 
@@ -294,7 +295,7 @@ public partial class ReportController : ServiceControllerBase
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		string report = wrap.Engine.GenTabAsHTML(request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter);
 		var lines = CommonUtil.ReadStringLines(report).ToArray();
-		LogInfo(231, "GenTabHtml({Top},{Side},{Filter},{Weight},{CaseFilter) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, lines.Length);
+		Logger.LogInformation(231, "GenTabHtml({Top},{Side},{Filter},{Weight},{CaseFilter) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, lines.Length);
 		return await Task.FromResult(lines);
 	}
 
@@ -302,7 +303,7 @@ public partial class ReportController : ServiceControllerBase
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		string report = wrap.Engine.GenTabAsHTML(request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter);
-		LogInfo(231, "GenTabHtmlJoined({Top},{Side},{Filter},{Weight},{CaseFilter) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, report.Length);
+		Logger.LogInformation(231, "GenTabHtmlJoined({Top},{Side},{Filter},{Weight},{CaseFilter) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, report.Length);
 		return await Task.FromResult(report);
 	}
 

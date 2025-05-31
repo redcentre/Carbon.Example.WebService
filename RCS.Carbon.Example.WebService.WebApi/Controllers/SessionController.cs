@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using RCS.Carbon.Shared;
 using RCS.Licensing.Provider.Shared;
 using TAB = RCS.Carbon.Tables;
+using Microsoft.Extensions.Logging;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
 
@@ -22,7 +23,7 @@ partial class SessionController
 		var sessinfo = LicToInfo(licence, sessionId);
 		string[] state = engine.SaveState();
 		SessionManager.SaveState(sessionId, state);
-		LogInfo(103, "Start Free Session {SessionId} Id {LicenceId} Name {LicenceName}", sessionId, licence.Id, licence.Name);
+		Logger.LogInformation(103, "Start Free Session {SessionId} Id {LicenceId} Name {LicenceName}", sessionId, licence.Id, licence.Name);
 		return Ok(sessinfo);
 	}
 
@@ -51,7 +52,7 @@ partial class SessionController
 			var sessinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
-			LogInfo(100, "Login Session {SessionId} Id {LicenceId} Name {LicenceName}", sessionId, licence.Id, licence.Name);
+			Logger.LogInformation(100, "Login Session {SessionId} Id {LicenceId} Name {LicenceName}", sessionId, licence.Id, licence.Name);
 			return Ok(sessinfo);
 		}
 		catch (CarbonException ex)
@@ -85,7 +86,7 @@ partial class SessionController
 			var sessinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
-			LogInfo(102, "Login Session {SessionName} Name {LicenceName}", sessionId, licence.Name);
+			Logger.LogInformation(102, "Login Session {SessionName} Name {LicenceName}", sessionId, licence.Name);
 			return Ok(sessinfo);
 		}
 		catch (CarbonException ex)
@@ -100,7 +101,7 @@ partial class SessionController
 		bool[] flags = ids.Select(id => SessionManager.EndSession(id)).ToArray();
 		int count = flags.Count(f => f);
 		long total = ids.Select(id => SessionManager.DeleteState(id)).Sum();
-		LogInfo(104, "Force {IdList} count {Count} bytes {Total}", idlist, count, total);
+		Logger.LogInformation(104, "Force {IdList} count {Count} bytes {Total}", idlist, count, total);
 		return await Task.FromResult(count);
 	}
 
@@ -108,7 +109,7 @@ partial class SessionController
 	{
 		bool success = SessionManager.EndSession(sessionId);
 		long total = SessionManager.DeleteState(sessionId);
-		LogInfo(110, "End Session {SessionId} {Total}", sessionId, total);
+		Logger.LogInformation(110, "End Session {SessionId} {Total}", sessionId, total);
 		SessionCleanup();
 		return await Task.FromResult(success);
 	}
@@ -143,11 +144,11 @@ partial class SessionController
 		int count = SessionManager.Cleanup(days);
 		if (count == 0)
 		{
-			LogInfo(140, "No sessions older than {Days} to cleanup", days);
+			Logger.LogInformation(140, "No sessions older than {Days} days to cleanup", days);
 		}
 		else
 		{
-			LogInfo(141, "Cleaned {Count} sessions older than {Days}", count, days);
+			Logger.LogInformation(141, "Cleaned {Count} sessions older than {Days} days", count, days);
 		}
 		return count;
 	}

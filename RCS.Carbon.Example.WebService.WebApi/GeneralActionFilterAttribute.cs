@@ -2,14 +2,13 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
-using RCS.Carbon.Example.WebService.Common;
-using RCS.Carbon.Example.WebService.WebApi.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using RCS.Carbon.Example.WebService.Common;
+using RCS.Carbon.Example.WebService.WebApi.Controllers;
 
 namespace RCS.Carbon.Example.WebService.WebApi;
 
@@ -35,14 +34,9 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 	public override void OnActionExecuting(ActionExecutingContext context)
 	{
 		base.OnActionExecuting(context);
-		bool? browsable = context.ActionDescriptor.EndpointMetadata.OfType<BrowsableAttribute>().FirstOrDefault()?.Browsable;
 		var req = context.HttpContext.Request;
 		context.HttpContext.Items[RequestStartItemKey] = DateTime.Now;
 		string? sessionId = GetSesssId(req);
-		if (browsable != false)
-		{
-			logger!.LogDebug(750, "{Method} {Path}", req.Method, req.Path);
-		}
 		string method = req.Method;
 		string url = req.Path.ToString();
 		SessionManager.UpdateActivity(sessionId ?? "-", $"{method} {url}");
@@ -60,13 +54,11 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 			{
 				started = dt;
 				secs = DateTime.Now.Subtract(started).TotalSeconds;
-				secs = Math.Round(secs, 3);
 				context.HttpContext.Response.Headers[HeaderElapsed] = secs.ToString("F3");
 			}
 		}
 		string? sessionId = GetSesssId(context.HttpContext.Request);
 		int errcode = 0;
-		string? errmsg = null;
 		int status = context.HttpContext.Response.StatusCode;   // Default
 		if (status >= 400)
 		{
@@ -77,32 +69,36 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 				if (orval is ErrorResponse er)
 				{
 					errcode = er.Code;
-					errmsg = er.Message;
-				}
-				else
-				{
-					errmsg = ServiceUtility.NiceObj(orval);
 				}
 			}
 		}
-		string? message = context.HttpContext.Items.TryGetValue("Message", out var m) ? m.ToString() : null;
-		string? errorPath = context.HttpContext.Items.TryGetValue("ErrorPath", out m) ? m.ToString() : null;
-		string? errorType = context.HttpContext.Items.TryGetValue("ErrorType", out m) ? m.ToString() : null;
-		string? errorMessage = context.HttpContext.Items.TryGetValue("ErrorMessage", out m) ? m.ToString() : null;
-		string? errorStack = context.HttpContext.Items.TryGetValue("ErrorStack", out m) ? m.ToString() : null;
-		if (browsable != false)
+		// These items may have been set by the /error controller.
+		string? errorMethod = context.HttpContext.Items.TryGetValue("ErrorMethod", out var m) ? m?.ToString() : null;
+		if (errorMethod != null)
 		{
-			if (status >= 500)
+			string? errorPath = context.HttpContext.Items.TryGetValue("ErrorPath", out m) ? m?.ToString() : null;
+			string? errorType = context.HttpContext.Items.TryGetValue("ErrorType", out m) ? m?.ToString() : null;
+			string? message = context.HttpContext.Items.TryGetValue("Message", out m) ? m?.ToString() : null;
+			string? errorMessage = context.HttpContext.Items.TryGetValue("ErrorMessage", out m) ? m?.ToString() : null;
+			string? errorStack = context.HttpContext.Items.TryGetValue("ErrorStack", out m) ? m?.ToString() : null;
+			logger!.LogError(752, "{Status} {Method} {Path} [{Seconds:F2}] {Message} {Code} {ErrorType} {ErrorMessage}", status, errorMethod, errorPath, secs, message, errcode, errorType, errorMessage);
+		}
+		else
+		{
+			if (browsable != false)
 			{
-				logger!.LogError(752, "{Method} {Path} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
-			}
-			else if (status >= 400)
-			{
-				logger!.LogWarning(754, "{Method} {Path} {Status} {Seconds} {Message} {Code} {ErrorPath} {ErrorType} {ErrorMessage} {ErrorStack}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message, errcode, errorPath, errorType, errorMessage, errorStack);
-			}
-			else
-			{
-				logger!.LogInformation(756, "{Method} {Path} {Status} {Seconds} {Message}", context.HttpContext.Request.Method, context.HttpContext.Request.Path, status, secs, message);
+				if (status >= 500)
+				{
+					logger!.LogError(753, "{Status} {Method} {Path} [{Seconds:F2}] {Code}", status, context.HttpContext.Request.Method, context.HttpContext.Request.Path, secs, errcode);
+				}
+				else if (status >= 400)
+				{
+					logger!.LogWarning(754, "{Status} {Method} {Path} [{Seconds:F2}] {Code}", status, context.HttpContext.Request.Method, context.HttpContext.Request.Path, secs, errcode);
+				}
+				else
+				{
+					logger!.LogInformation(756, "{Status} {Method} {Path} [{Seconds:F2}]", status, context.HttpContext.Request.Method, context.HttpContext.Request.Path, secs);
+				}
 			}
 		}
 		base.OnResultExecuting(context);
@@ -119,8 +115,6 @@ public class GeneralActionFilterAttribute : ActionFilterAttribute
 		}
 		return null;
 	}
-
-	readonly JsonSerializerOptions JsonOpts = new JsonSerializerOptions() { WriteIndented = true };
 
 	readonly string TrafficFile = Path.Combine(Path.GetTempPath(), "_carbon_web_traffic.txt");
 

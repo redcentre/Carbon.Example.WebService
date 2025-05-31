@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using RCS.Carbon.Example.WebService.Common;
 using RCS.Carbon.Shared;
 using RCS.RubyCloud.WebService;
@@ -23,7 +24,7 @@ partial class ReportController
 	/// </summary>
 	void MultiOxtSequentialProc(object? o)
 	{
-		LogInfo(300, "MultiOxtProc START");
+		Logger.LogInformation(300, "MultiOxtProc START");
 		var state = (MoxtState)o!;
 		var watch = new Stopwatch();
 		using var wrap = new StateWrap(state.SessionId, LicProv, true);
@@ -40,7 +41,7 @@ partial class ReportController
 				// because the current OXT generation may take some time to complete and let
 				// the loop come around again. There is currenly no way to 'interrupt' Carbon
 				// crosstab processing.
-				LogWarn(302, "Multi OXT loop {StateId} cancelled", state.Id);
+				Logger.LogWarning(302, "Multi OXT loop {StateId} cancelled", state.Id);
 				state.Items = list.ToArray();
 				state.ProgressMessage = "Cancelled";
 				watch.Stop();
@@ -49,7 +50,7 @@ partial class ReportController
 			try
 			{
 				state.ProgressMessage = $"Running report {tup.Ix + 1}/{state.Request.ReportNames.Length}";
-				LogInfo(304, "{Message}", state.ProgressMessage);
+				Logger.LogInformation(304, "{Message}", state.ProgressMessage);
 				watch.Restart();
 				string fixname = FixMultiName(tup.Name);
 				string oxt = wrap.Engine.DrillDashboardTableAsOXT(tup.Name, fullfilter);
@@ -57,7 +58,7 @@ partial class ReportController
 
 				double repsecs = watch.Elapsed.TotalSeconds;
 				double totalsecs = DateTime.Now.Subtract(start).TotalSeconds;
-				LogDebug(306, "Loop {Ix}/{Count} {RepSecs,5:F1}/{TotalSecs:F1} {FixName}", tup.Ix + 1, repcount, repsecs, totalsecs, fixname);
+				Logger.LogDebug(306, "Loop {Ix}/{Count} {RepSecs,5:F1}/{TotalSecs:F1} {FixName}", tup.Ix + 1, repcount, repsecs, totalsecs, fixname);
 				int? titlesRowCount = GetMetaInt(lines, "Titles RowCount");
 				bool? dispColLetters = GetMetaBool(lines, "Display ColumnLetters");
 				bool? dispRowLetters = GetMetaBool(lines, "Display RowLetters");
@@ -85,7 +86,7 @@ partial class ReportController
 			}
 			catch (Exception ex)
 			{
-				LogError(308, ex, "Multi OXT reports");
+				Logger.LogError(308, ex, "Multi OXT reports");
 				var bex = ex.GetBaseException();
 				list.Add(new RubyMultiOxtItem()
 				{
@@ -97,14 +98,14 @@ partial class ReportController
 			}
 		}
 		watch.Stop();
-		LogInfo(309, "MultiOxtProc END =============== [{Elapsed:F2}] ===============", DateTime.Now.Subtract(multiOxtStartTime).TotalSeconds);
+		Logger.LogInformation(309, "MultiOxtProc END =============== [{Elapsed:F2}] ===============", DateTime.Now.Subtract(multiOxtStartTime).TotalSeconds);
 		// Setting the Itemds array here is the magic moment where this background thread
 		// is saying that it has finished the OXT generation loop and the results are available.
 		// Polling through the query endpoint will detect that the Items are available and the
 		// query response will contain the items.
 		state.Items = list.ToArray();
 		var secs = DateTime.UtcNow.Subtract(state.Created).TotalSeconds;
-		LogDebug(310, "Complete #{repcount}) {state.Items.Length} [{Secs:F2}]", repcount, state.Items.Length, secs);
+		Logger.LogDebug(310, "Complete #{repcount}) {state.Items.Length} [{Secs:F2}]", repcount, state.Items.Length, secs);
 		state.ProgressMessage = $"Completed {repcount} reports";
 	}
 
@@ -115,7 +116,7 @@ partial class ReportController
 	/// </summary>
 	void MultiOxtParallelProc(object? o)
 	{
-		LogInfo(320, "MultiOxtParallelProc START");
+		Logger.LogInformation(320, "MultiOxtParallelProc START");
 		var state = (MoxtState)o!;
 		var watch = new Stopwatch();
 		watch.Start();
@@ -132,11 +133,11 @@ partial class ReportController
 		{
 			if (state.CancelSource.IsCancellationRequested)
 			{
-				LogWarn(311, "Loop cancel requested - return");
+				Logger.LogWarning(311, "Loop cancel requested - return");
 				return;
 			}
 			string name = state.Request.ReportNames[ix];
-			LogDebug(322, "Start parallel {Ix} {Name}", ix, name);
+			Logger.LogDebug(322, "Start parallel {Ix} {Name}", ix, name);
 			double offsecs1 = watch.Elapsed.TotalSeconds;
 			lock (ixlist)
 			{
@@ -176,7 +177,7 @@ partial class ReportController
 				}
 				catch (Exception ex)
 				{
-					LogError(324, ex, "Parallel OXT[{Ix}] {Name}", ix, name);
+					Logger.LogError(324, ex, "Parallel OXT[{Ix}] {Name}", ix, name);
 					var bex = ex.GetBaseException();
 					holditems[ix] = new RubyMultiOxtItem()
 					{
@@ -195,14 +196,14 @@ partial class ReportController
 			}
 			double offsecs2 = watch.Elapsed.TotalSeconds;
 			double secs = offsecs2 - offsecs1;
-			LogDebug(326, "End parallel {Ix} [{Secs:F2}] {Offsecs1:F0} {Offsecs2:F0}", ix, secs, offsecs1, offsecs2);
+			Logger.LogDebug(326, "End parallel {Ix} [{Secs:F2}] {Offsecs1:F0} {Offsecs2:F0}", ix, secs, offsecs1, offsecs2);
 		});
 
 		state.Items = holditems;
 		double secs = watch.Elapsed.TotalSeconds;
 		watch.Stop();
 		state.ProgressMessage = $"Completed {repcount} reports [{secs:F2}]";
-		LogInfo(328, "MultiOxtParallelProc END [{Seconds:F2}]", secs);
+		Logger.LogInformation(328, "MultiOxtParallelProc END [{Seconds:F2}]", secs);
 	}
 
 	static string ComposeFilter(MultiOxtRequest request)
@@ -269,7 +270,7 @@ partial class ReportController
 		{
 			var moxt = new MoxtState(request);
 			MoxtList.Add(moxt);
-			//LogInfo(890, "Multi OXT Id {MoxtId} added (count up to {MoxtCount})", moxt.Id, MoxtList.Count);
+			//Logger.LogInformation(890, "Multi OXT Id {MoxtId} added (count up to {MoxtCount})", moxt.Id, MoxtList.Count);
 			MoxtCleanup();
 			return moxt;
 		}
@@ -328,7 +329,7 @@ partial class ReportController
 			{
 				moxt.Dispose();
 				MoxtList.Remove(moxt);
-				//LogInfo(891, $"Multi OXT Id {moxt.Id} stale {mins} minutes (count down to {MoxtList.Count})");
+				//Logger.LogInformation(891, $"Multi OXT Id {moxt.Id} stale {mins} minutes (count down to {MoxtList.Count})");
 			}
 		}
 	}
