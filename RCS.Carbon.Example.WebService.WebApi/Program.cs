@@ -67,18 +67,22 @@ SessionManager.CacheSlidingSeconds = builder.Configuration.GetValue<int>("Carbon
 
 builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
+string swaggerTitle = builder.Configuration["CarbonApi:SwaggerTitle"]!;
+string swaggerDesc = builder.Configuration["CarbonApi:SwaggerDesc"]!;
+string swaggerName = builder.Configuration["CarbonApi:SwaggerName"]!;
+string swaggerEmail = builder.Configuration["CarbonApi:SwaggerEmail"]!;
 builder.Services.AddSwaggerGen(c =>
 {
 	c.SwaggerDoc("v1", new OpenApiInfo
 	{
-		Title = "Carbon Web API",
+		Title = swaggerTitle,
 		Version = "v1",
-		Description = $"REST style web service version {an.Version} (build {buildTime}). This web service is under development by Red Centre Software. Access to the service requires a registered authorization key to be present in the request headers.",
+		Description = string.Format(swaggerDesc, an.Version, buildTime),
 		Contact = new OpenApiContact()
 		{
-			Name = "Red Centre Software",
+			Name = swaggerName,
 			Url = new Uri("https://www.redcentresoftware.com/"),
-			Email = "support@redcentresoftware.com"
+			Email = swaggerEmail
 		}
 	});
 	var dir = new DirectoryInfo(AppContext.BaseDirectory);
