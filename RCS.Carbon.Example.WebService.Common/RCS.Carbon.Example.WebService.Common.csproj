@@ -3,7 +3,6 @@
   <PropertyGroup>
     <ApplicationIcon>RCS.Carbon.Example.WebService.Common.ico</ApplicationIcon>
     <PackageIcon>RCS.Carbon.Example.WebService.Common.png</PackageIcon>
-    <PackageId>RCS.RCS.Carbon.Example.WebService.Common</PackageId>
     <Description>Crosstab engine Azure library</Description>
     <PackageOutputPath>S:\Nuget\redcentre</PackageOutputPath>
     <PackageReadmeFile>README.md</PackageReadmeFile>
