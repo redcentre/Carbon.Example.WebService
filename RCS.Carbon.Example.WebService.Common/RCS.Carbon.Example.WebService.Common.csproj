@@ -24,8 +24,8 @@
 
   <ItemGroup>
     <PackageReference Include="RCS.Azure.Data.Common" Version="3.0.5" />
-    <PackageReference Include="RCS.Carbon.Shared" Version="9.1.33" />
-    <PackageReference Include="RCS.Licensing.Provider.Shared" Version="8.1.15" />
+    <PackageReference Include="RCS.Carbon.Shared" Version="9.1.35" />
+    <PackageReference Include="RCS.Licensing.Provider.Shared" Version="8.1.16" />
   </ItemGroup>
 
   <ItemGroup>
