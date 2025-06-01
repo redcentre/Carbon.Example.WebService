@@ -122,7 +122,8 @@ builder.Services.AddSwaggerGen(c =>
 
 #if (SQL_PRODUCTION || SQL_TESTING)
 string adoconnect = builder.Configuration["CarbonApi:AdoConnect"]!;
-var licprov = new ExampleLicensingProvider(adoconnect);
+string productKey = builder.Configuration["CarbonApi:ProductKey"]!;
+var licprov = new ExampleLicensingProvider(adoconnect, productKey);
 #elif RCS_PRODUCTION
 int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 string? licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
