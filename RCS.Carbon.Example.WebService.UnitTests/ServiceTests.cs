@@ -3,9 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using RCS.Carbon.Example.WebService.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orthogonal.Common.Basic;
+using RCS.Carbon.Example.WebService.Common;
+using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Shared;
 
 namespace RCS.Carbon.Example.WebService.UnitTests

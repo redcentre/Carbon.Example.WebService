@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RCS.Carbon.Shared;
 using System.Linq;
 using System.Text.Json.Serialization;
+using RCS.Carbon.Example.WebService.Common.DTO;
 
 namespace RCS.Carbon.Example.WebService.UnitTests
 {

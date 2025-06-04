@@ -11,6 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RCS.Carbon.Shared;
 using Microsoft.Extensions.Configuration;
 using RCS.Carbon.Example.WebService.Database;
+using RCS.Carbon.Example.WebService.Common.DTO;
 
 namespace RCS.Carbon.Example.WebService.UnitTests
 {

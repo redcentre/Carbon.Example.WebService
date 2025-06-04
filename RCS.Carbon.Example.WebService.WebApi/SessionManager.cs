@@ -199,7 +199,7 @@ static class SessionManager
 
 	#region State
 
-	static object stateLock = new object();
+	static readonly object stateLock = new object();
 
 	/// <summary>
 	/// We know at this point what sort of files are being serialized, so we put nice

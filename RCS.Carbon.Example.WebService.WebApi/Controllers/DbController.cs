@@ -1,12 +1,12 @@
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using RCS.Carbon.Example.WebService.Common;
-using RCS.Carbon.Example.WebService.Database;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RCS.Carbon.Example.WebService.Common.DTO;
+using RCS.Carbon.Example.WebService.Database;
 using RCS.Licensing.Provider.Shared;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
@@ -59,7 +59,7 @@ public partial class DbController : ServiceControllerBase
 	public async Task<ActionResult> DbRead([FromRoute] string key1, [FromRoute] string key2)
 	{
 		string? value = await _core.Read(key1, key2);
-		if (value == null) return NotFound(new ErrorResponse(404, $"Read failed. No database row was found with keys [{key1},{key2}]."));
+		if (value == null) return NotFound(new ErrorResponse(ErrorResponseCode.DatabaseReadNotFound, $"Read failed. No database row was found with keys [{key1},{key2}]."));
 		return new ContentResult() { Content = value, ContentType = MediaTypeNames.Text.Plain, StatusCode = StatusCodes.Status200OK };
 	}
 
@@ -98,6 +98,6 @@ public partial class DbController : ServiceControllerBase
 	{
 		bool deleted = await _core.Delete(key1, key2);
 		if (deleted) return NoContent();
-		return NotFound(new ErrorResponse(404, $"Delete failed. No database row was found with keys [{key1},{key2}]."));
+		return NotFound(new ErrorResponse(ErrorResponseCode.DatabaseDeleteNotFound, $"Delete failed. No database row was found with keys [{key1},{key2}]."));
 	}
 }

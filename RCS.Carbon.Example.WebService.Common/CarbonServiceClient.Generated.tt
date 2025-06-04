@@ -24,6 +24,7 @@ using TSAPI.Public.Domain.Metadata;
 using TSAPI.Public.Domain.Interviews;
 using RCS.Licensing.Provider.Shared;
 using RCS.Licensing.Provider.Shared.Entities;
+using RCS.Carbon.Example.WebService.Common.DTO;
 
 #nullable enable
 

@@ -3,13 +3,14 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
-using RCS.Carbon.Example.WebService.Common;
-using RCS.Carbon.Example.WebService.WebApi.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using RCS.Carbon.Example.WebService.Common;
+using RCS.Carbon.Example.WebService.Common.DTO;
+using RCS.Carbon.Example.WebService.WebApi.Controllers;
 
 namespace RCS.Carbon.Example.WebService.WebApi;
 
@@ -34,7 +35,6 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 		ILoggerFactory logfac = (ILoggerFactory)context.HttpContext.RequestServices.GetService(typeof(ILoggerFactory))!;
 		ILogger logger = logfac.CreateLogger("AUTH");
 		HttpRequest req = context.HttpContext.Request;
-		static ObjectResult MakeAuthFail(int code, string message) => new(new ErrorResponse(code, message)) { StatusCode = StatusCodes.Status403Forbidden };
 		var mi = ((ControllerActionDescriptor)context.ActionDescriptor).MethodInfo;     // Note this tricky cast is needed
 		var attr = mi.GetCustomAttributes<AuthFilterAttribute>();
 		if (attr != null)
@@ -49,7 +49,7 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 				if (si == null)
 				{
 					logger.LogWarning(700, "No session {SessionId} exists for {Method} {Path}", key, req.Method, req.Path);
-					context.Result = MakeAuthFail(3, $"No session '{key}' exist for {req.Method} {req.Path}");
+					context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NoSessionFound, $"No session '{key}' exist for {req.Method} {req.Path}")) { StatusCode = StatusCodes.Status403Forbidden };
 					return;
 				}
 				// ╔══════════════════════════════════════════════════════════════════════════╗
@@ -70,7 +70,7 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 					string needsJoin = string.Join(",", requiredRoles);
 					string hasJoin = string.Join(",", si.Roles);
 					logger.LogWarning(701, "Not authorised for {Method} {Path}. Needs [{NeedsJoin}] has [{HasJoin}].", req.Method, req.Path, needsJoin, hasJoin);
-					context.Result = MakeAuthFail(3, $"Not authorised for {req.Method} {req.Path}. Needs [{needsJoin}] has [{hasJoin}].");
+					context.Result = new ObjectResult( new ErrorResponse(ErrorResponseCode.NotRoleAuthorised, $"Not authorised for {req.Method} {req.Path}. Needs [{needsJoin}] has [{hasJoin}].")) { StatusCode = StatusCodes.Status403Forbidden };
 					return;
 				}
 
@@ -81,7 +81,7 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 			else
 			{
 				logger.LogWarning(702, "Header {Key} is required for {Method} {Path}", CarbonServiceClient.SessionIdHeaderKey, req.Method, req.Path);
-				context.Result = MakeAuthFail(2, $"Header key '{CarbonServiceClient.SessionIdHeaderKey}' is required for {req.Method} {req.Path}");
+				context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NoSessionHeader, $"Header key '{CarbonServiceClient.SessionIdHeaderKey}' is required for {req.Method} {req.Path}")) { StatusCode = StatusCodes.Status403Forbidden };
 				return;
 			}
 		}

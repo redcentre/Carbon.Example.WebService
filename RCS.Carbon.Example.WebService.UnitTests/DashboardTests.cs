@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using RCS.Carbon.Example.WebService.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RCS.Azure.Data.Common;
+using RCS.Carbon.Example.WebService.Common.DTO;
 
 namespace RCS.Carbon.Example.WebService.UnitTests
 {

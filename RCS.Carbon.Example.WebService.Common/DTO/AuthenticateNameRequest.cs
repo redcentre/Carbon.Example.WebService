@@ -1,18 +1,17 @@
-namespace RCS.Carbon.Example.WebService.Common
+namespace RCS.Carbon.Example.WebService.Common.DTO;
+
+public sealed class AuthenticateNameRequest
 {
-	public sealed class AuthenticateNameRequest
+	public AuthenticateNameRequest(string name, string password, bool skipCache = false)
 	{
-		public AuthenticateNameRequest(string name, string password, bool skipCache = false)
-		{
-			Name = name;
-			Password = password;
-			SkipCache = skipCache;
-		}
-
-		public string Name { get; set; }
-
-		public string Password { get; set; }
-
-		public bool SkipCache { get; set; } = false;
+		Name = name;
+		Password = password;
+		SkipCache = skipCache;
 	}
+
+	public string Name { get; set; }
+
+	public string Password { get; set; }
+
+	public bool SkipCache { get; set; } = false;
 }

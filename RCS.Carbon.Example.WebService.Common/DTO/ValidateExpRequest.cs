@@ -1,16 +1,15 @@
-namespace RCS.Carbon.Example.WebService.Common
+namespace RCS.Carbon.Example.WebService.Common.DTO;
+
+public sealed class ValidateExpRequest
 {
-	public sealed class ValidateExpRequest
+	public ValidateExpRequest()
 	{
-		public ValidateExpRequest()
-		{
-		}
-
-		public ValidateExpRequest(string expression)
-		{
-			Expression = expression;
-		}
-
-		public string Expression { get; set; }
 	}
+
+	public ValidateExpRequest(string expression)
+	{
+		Expression = expression;
+	}
+
+	public string Expression { get; set; }
 }

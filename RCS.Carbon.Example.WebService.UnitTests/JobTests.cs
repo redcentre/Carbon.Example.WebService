@@ -5,6 +5,7 @@ using RCS.Carbon.Example.WebService.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RCS.Carbon.Shared;
 using RCS.Licensing.Provider.Shared;
+using RCS.Carbon.Example.WebService.Common.DTO;
 
 namespace RCS.Carbon.Example.WebService.UnitTests
 {

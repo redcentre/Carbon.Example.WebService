@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using RCS.Carbon.Example.WebService.Common;
+using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Shared;
 using RCS.RubyCloud.WebService;
 
@@ -42,7 +42,7 @@ partial class ReportController
 				// the loop come around again. There is currenly no way to 'interrupt' Carbon
 				// crosstab processing.
 				Logger.LogWarning(302, "Multi OXT loop {StateId} cancelled", state.Id);
-				state.Items = list.ToArray();
+				state.Items = [.. list];
 				state.ProgressMessage = "Cancelled";
 				watch.Stop();
 				return;
@@ -54,7 +54,7 @@ partial class ReportController
 				watch.Restart();
 				string fixname = FixMultiName(tup.Name);
 				string oxt = wrap.Engine.DrillDashboardTableAsOXT(tup.Name, fullfilter);
-				string[] lines = CommonUtil.ReadStringLines(oxt).ToArray();
+				string[] lines = [.. CommonUtil.ReadStringLines(oxt)];
 
 				double repsecs = watch.Elapsed.TotalSeconds;
 				double totalsecs = DateTime.Now.Subtract(start).TotalSeconds;
@@ -68,10 +68,9 @@ partial class ReportController
 					// FRAGILE --> If this option is set then we only take the lines from [Table] stopping before the next section (or end).
 					// Callers may only want the [Table] section in most cases, so the size of the total response can be greatly reduced
 					// by stripping out the [Table] section lines.
-					lines = lines
+					lines = [.. lines
 						.SkipWhile(l => !Regex.IsMatch(l, @"^\[Table\]"))
-						.TakeWhile(l => !Regex.IsMatch(l, @"^\[(?!Table)"))
-						.ToArray();
+						.TakeWhile(l => !Regex.IsMatch(l, @"^\[(?!Table)"))];
 				}
 				list.Add(new RubyMultiOxtItem()
 				{
@@ -103,7 +102,7 @@ partial class ReportController
 		// is saying that it has finished the OXT generation loop and the results are available.
 		// Polling through the query endpoint will detect that the Items are available and the
 		// query response will contain the items.
-		state.Items = list.ToArray();
+		state.Items = [.. list];
 		var secs = DateTime.UtcNow.Subtract(state.Created).TotalSeconds;
 		Logger.LogDebug(310, "Complete #{repcount}) {state.Items.Length} [{Secs:F2}]", repcount, state.Items.Length, secs);
 		state.ProgressMessage = $"Completed {repcount} reports";
@@ -149,7 +148,7 @@ partial class ReportController
 				try
 				{
 					string oxt = wrap.Engine.DrillDashboardTableAsOXT(name, fullfilter);
-					string[] lines = CommonUtil.ReadStringLines(oxt).ToArray();
+					string[] lines = [.. CommonUtil.ReadStringLines(oxt)];
 					int? titlesRowCount = GetMetaInt(lines, "Titles RowCount");
 					bool? dispColLetters = GetMetaBool(lines, "Display ColumnLetters");
 					bool? dispRowLetters = GetMetaBool(lines, "Display RowLetters");
@@ -159,10 +158,9 @@ partial class ReportController
 						// FRAGILE --> If this option is set then we only take the lines from [Table] stopping before the next section (or end).
 						// Callers may only want the [Table] section in most cases, so the size of the total response can be greatly reduced
 						// by stripping out the [Table] section lines.
-						lines = lines
+						lines = [.. lines
 							.SkipWhile(l => !Regex.IsMatch(l, @"^\[Table\]"))
-							.TakeWhile(l => !Regex.IsMatch(l, @"^\[(?!Table)"))
-							.ToArray();
+							.TakeWhile(l => !Regex.IsMatch(l, @"^\[(?!Table)"))];
 					}
 					holditems[ix] = new RubyMultiOxtItem()
 					{
@@ -318,7 +316,7 @@ partial class ReportController
 		}
 	}
 
-	public static List<MoxtState> MoxtList = new List<MoxtState>();
+	static readonly List<MoxtState> MoxtList = [];
 
 	static void MoxtCleanup()
 	{

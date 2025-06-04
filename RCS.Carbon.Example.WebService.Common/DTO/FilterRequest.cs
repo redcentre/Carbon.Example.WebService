@@ -1,15 +1,14 @@
-namespace RCS.Carbon.Example.WebService.Common
+namespace RCS.Carbon.Example.WebService.Common.DTO;
+
+public sealed class FilterRequest
 {
-	public sealed class FilterRequest
+	public FilterRequest()
 	{
-		public FilterRequest()
-		{
-		}
-
-		public FilterRequest(string drill)
-		{
-		}
-
-		public string drill { get; set; }
 	}
+
+	public FilterRequest(string drill)
+	{
+	}
+
+	public string drill { get; set; }
 }

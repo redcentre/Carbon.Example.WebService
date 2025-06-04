@@ -3,11 +3,11 @@
 using System;
 using System.Linq;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RCS.Carbon.Shared;
 using RCS.Carbon.Example.WebService.Common;
+using RCS.Carbon.Example.WebService.Common.DTO;
+using RCS.Carbon.Shared;
 
 namespace RCS.Carbon.Example.WebService.UnitTests
 {

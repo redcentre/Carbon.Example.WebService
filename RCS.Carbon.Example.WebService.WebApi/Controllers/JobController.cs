@@ -3,9 +3,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using RCS.Carbon.Example.WebService.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Export;
 using RCS.Carbon.Import;
 using RCS.Carbon.Shared;
@@ -14,7 +15,6 @@ using RCS.Licensing.Provider.Shared.Entities;
 using TSAPI.Public.Domain.Interviews;
 using TSAPI.Public.Domain.Metadata;
 using TSAPI.Public.Queries;
-using Microsoft.Extensions.Logging;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
 
@@ -35,7 +35,7 @@ partial class JobController
 		}
 		catch (CarbonException ex)
 		{
-			return BadRequest(new ErrorResponse(201, $"Open cloud Customer '{request.CustomerName}' Job '{request.JobName}' Vartree '{request.VartreeName}' failed - {ex.Message}"));
+			return BadRequest(new ErrorResponse(ErrorResponseCode.OpenJobFailed, $"Open cloud Customer '{request.CustomerName}' Job '{request.JobName}' Vartree '{request.VartreeName}' failed - {ex.Message}"));
 		}
 		SessionManager.SetCustomerJob(SessionId, request.CustomerName, request.JobName, request.VartreeName);
 		// Some of the following information could be returned by a Carbon OpenJob call, which would reduce the traffic
@@ -82,11 +82,10 @@ partial class JobController
 		return await wrap.Engine.CreateJob(custid, jobname);
 	}
 
-
 	async Task<ActionResult<string[]>> ReadFileAsLinesImpl(ReadFileRequest request)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
-		string[] lines = wrap.Engine.ReadFileLines(request.Name).ToArray();
+		string[] lines = [.. wrap.Engine.ReadFileLines(request.Name)];
 		Logger.LogInformation(210, "Set props");
 		return await Task.FromResult(lines);
 	}

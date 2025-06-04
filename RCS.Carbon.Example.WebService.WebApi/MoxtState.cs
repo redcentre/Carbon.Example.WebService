@@ -1,6 +1,6 @@
 using System;
 using System.Threading;
-using RCS.Carbon.Example.WebService.Common;
+using RCS.Carbon.Example.WebService.Common.DTO;
 
 namespace RCS.RubyCloud.WebService;
 

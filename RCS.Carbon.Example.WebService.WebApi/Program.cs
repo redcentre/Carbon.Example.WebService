@@ -15,10 +15,7 @@ using Microsoft.OpenApi.Models;
 using RCS.Licensing.Provider.Shared;
 using RCS.Licensing.Example.Provider;
 
-
-
 #if SQL_PRODUCTION || SQL_TESTING
-using RCS.Licensing.Example.Provider;
 #else
 using RCS.Licensing.Provider;
 #endif

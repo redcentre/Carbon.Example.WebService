@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using RCS.Carbon.Example.WebService.Common;
+using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Example.WebService.WebApi.Controllers;
 
 namespace RCS.Carbon.Example.WebService.WebApi;

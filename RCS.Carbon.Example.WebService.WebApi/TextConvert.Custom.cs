@@ -1,5 +1,5 @@
 using System.Linq;
-using RCS.Carbon.Example.WebService.Common;
+using RCS.Carbon.Example.WebService.Common.DTO;
 using Lines = System.Collections.Generic.List<string>;
 
 namespace RCS.Carbon.Example.WebService.WebApi;

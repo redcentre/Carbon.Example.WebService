@@ -1,16 +1,15 @@
-namespace RCS.Carbon.Example.WebService.Common
+namespace RCS.Carbon.Example.WebService.Common.DTO;
+
+public sealed class DeleteInUserTocRequest
 {
-	public sealed class DeleteInUserTocRequest
+	public DeleteInUserTocRequest()
 	{
-		public DeleteInUserTocRequest()
-		{
-		}
-
-		public DeleteInUserTocRequest(string name)
-		{
-			Name = name;
-		}
-
-		public string Name { get; set; }
 	}
+
+	public DeleteInUserTocRequest(string name)
+	{
+		Name = name;
+	}
+
+	public string Name { get; set; }
 }

@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
-using RCS.Carbon.Example.WebService.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
 using RCS.Carbon.Variables;
 using RCS.Licensing.Provider.Shared;
-using tab = RCS.Carbon.Tables;
+using TAB = RCS.Carbon.Tables;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
 
@@ -56,7 +56,7 @@ public class PythonController : ServiceControllerBase
 		XDisplayProperties dprops = new XDisplayProperties();
 
 		JsonDocument doc = JsonDocument.Parse(body);
-		JsonProperty[] rootprops = doc.RootElement.EnumerateObject().ToArray();
+		JsonProperty[] rootprops = [.. doc.RootElement.EnumerateObject()];
 		foreach (var prop in rootprops)
 		{
 			var upname = prop.Name.ToUpperInvariant();
@@ -68,7 +68,7 @@ public class PythonController : ServiceControllerBase
 				}
 				else if (prop.Value.ValueKind != JsonValueKind.Null)
 				{
-					return BadRequest(new ErrorResponse(303, $"Root property '{prop.Name}' is not a string value"));
+					return BadRequest(new ErrorResponse(ErrorResponseCode.JsonRootNotString, $"Root property '{prop.Name}' is not a string value"));
 				}
 			}
 			else if (upname == "TOP" || upname == "SIDE")
@@ -76,22 +76,22 @@ public class PythonController : ServiceControllerBase
 				IncomingData currData = upname == "TOP" ? topData : sideData;
 				if (prop.Value.ValueKind != JsonValueKind.Array)
 				{
-					return BadRequest(new ErrorResponse(301, $"Root property '{prop.Name}' must be an array"));
+					return BadRequest(new ErrorResponse(ErrorResponseCode.JsonPropertyNotArray, $"Root property '{prop.Name}' must be an array"));
 				}
-				JsonValueKind[] kinds = prop.Value.EnumerateArray().Select(v => v.ValueKind).ToArray();
+				JsonValueKind[] kinds = [.. prop.Value.EnumerateArray().Select(v => v.ValueKind)];
 				if (kinds.All(v => v == JsonValueKind.String))
 				{
 					// ┌──────────────────────────────────────────────────────┐
 					// │  Species 1 - Array of string                         │
 					// └──────────────────────────────────────────────────────┘
-					currData.Labels = prop.Value.EnumerateArray().Select(v => new string[] { v.GetString()! }).ToArray();
+					currData.Labels = [.. prop.Value.EnumerateArray().Select(v => new string[] { v.GetString()! })];
 				}
 				else if (kinds.All(v => v == JsonValueKind.Number))
 				{
 					// ┌──────────────────────────────────────────────────────┐
 					// │  Species 2 - Array of double as strings              │
 					// └──────────────────────────────────────────────────────┘
-					currData.Labels = prop.Value.EnumerateArray().Select(v => new string[] { v.GetDouble().ToString() }).ToArray();
+					currData.Labels = [.. prop.Value.EnumerateArray().Select(v => new string[] { v.GetDouble().ToString() })];
 				}
 				else if (kinds.All(v => v == JsonValueKind.Array))
 				{
@@ -101,15 +101,15 @@ public class PythonController : ServiceControllerBase
 						// ┌──────────────────────────────────────────────────────┐
 						// │  Species 4 - Array of (code,inc)                     │
 						// └──────────────────────────────────────────────────────┘
-						currData.Labels = prop.Value.EnumerateArray().Select(v => new string[] { v[0].GetString()! }).ToArray();
-						currData.Increments = prop.Value.EnumerateArray().Select(v => new double[] { v[1].GetDouble()! }).ToArray();
+						currData.Labels = [.. prop.Value.EnumerateArray().Select(v => new string[] { v[0].GetString()! })];
+						currData.Increments = [.. prop.Value.EnumerateArray().Select(v => new double[] { v[1].GetDouble()! })];
 					}
 					else if (tups.All(t => t.Kinds.All(k => k == JsonValueKind.String)))
 					{
 						// ┌──────────────────────────────────────────────────────┐
 						// │  Species 3 - Jagged string array                     │
 						// └──────────────────────────────────────────────────────┘
-						currData.Labels = prop.Value.EnumerateArray().Select(v => v.EnumerateArray().Select(v => v.GetString()!).ToArray()).ToArray();
+						currData.Labels = [.. prop.Value.EnumerateArray().Select(v => v.EnumerateArray().Select(v => v.GetString()!).ToArray())];
 					}
 					else if (tups.All(t => t.Kinds.All(k => k == JsonValueKind.Array && prop.Value.EnumerateArray().SelectMany(v => v.EnumerateArray()).All(x => x.GetArrayLength() == 2 && x[0].ValueKind == JsonValueKind.String && x[1].ValueKind == JsonValueKind.Number))))
 					{
@@ -117,22 +117,22 @@ public class PythonController : ServiceControllerBase
 						// │  Species 5 - Jagged array of (code,inc)              │
 						// └──────────────────────────────────────────────────────┘
 						var species5 = prop.Value.EnumerateArray().Select(v => v.EnumerateArray().Select(x => new { Code = x[0].GetString()!, Val = x[1].GetDouble() }).ToArray()).ToArray();
-						currData.Labels = species5.Select(x => x.Select(y => y.Code).ToArray()).ToArray();
-						currData.Increments = species5.Select(x => x.Select(y => y.Val).ToArray()).ToArray();
+						currData.Labels = [.. species5.Select(x => x.Select(y => y.Code).ToArray())];
+						currData.Increments = [.. species5.Select(x => x.Select(y => y.Val).ToArray())];
 					}
 					else
 					{
-						return BadRequest(new ErrorResponse(302, $"Root property '{prop.Name}' is not in a supported format"));
+						return BadRequest(new ErrorResponse(ErrorResponseCode.JsonRootBadFormat, $"Root property '{prop.Name}' is not in a supported format"));
 					}
 				}
 			}
 			else
 			{
-				return BadRequest(new ErrorResponse(300, $"Property name '{prop.Name}' not supported"));
+				return BadRequest(new ErrorResponse(ErrorResponseCode.JsonBadNAme, $"Property name '{prop.Name}' not supported"));
 			}
 		}
-		var engine = new tab.CrossTabEngine(LicProv);
-		tab.PandasRawData prd = engine.GenTabAsPandas(topData, sideData, dprops);
+		var engine = new TAB.CrossTabEngine(LicProv);
+		TAB.PandasRawData prd = engine.GenTabAsPandas(topData, sideData, dprops);
 		var dict = prd.ToShape1();
 		string respjson = JsonSerializer.Serialize(dict, new JsonSerializerOptions() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
 		Logger.LogInformation(410, "Pandas {Length}", respjson.Length);
@@ -177,7 +177,7 @@ public class PythonController : ServiceControllerBase
 			(request.Top == null) ||
 			(request.Side == null))
 		{
-			return new JsonResult(new ErrorResponse(666, "Mandatory parameter values are not specified in the request")) { StatusCode = StatusCodes.Status400BadRequest };
+			return new JsonResult(new ErrorResponse(ErrorResponseCode.PandasLackParameters, "Mandatory parameter values are not specified in the request")) { StatusCode = StatusCodes.Status400BadRequest };
 		}
 		if (request.FormatType < 1 || request.FormatType > 3)
 		{
@@ -198,7 +198,7 @@ public class PythonController : ServiceControllerBase
 		}
 		catch (Exception ex)
 		{
-			return new JsonResult(new ErrorResponse(666, $"Incorrect credentials: {ex.Message}")) { StatusCode = StatusCodes.Status400BadRequest };
+			return new JsonResult(new ErrorResponse(ErrorResponseCode.PandasBadCredentials, $"Incorrect credentials: {ex.Message}")) { StatusCode = StatusCodes.Status400BadRequest };
 		}
 		try
 		{
@@ -206,7 +206,7 @@ public class PythonController : ServiceControllerBase
 		}
 		catch (CarbonException ex)
 		{
-			return new JsonResult(new ErrorResponse(666, $"Open job failed: {ex.Message}"));
+			return new JsonResult(new ErrorResponse(ErrorResponseCode.OpenJobFailed, $"Open job failed: {ex.Message}"));
 		}
 		PandasRawData? raw = null;
 		try
@@ -222,7 +222,7 @@ public class PythonController : ServiceControllerBase
 		}
 		catch (CarbonException ex)
 		{
-			return new JsonResult(new ErrorResponse(666, $"GenTab failed: {ex.Message}")) { StatusCode = StatusCodes.Status400BadRequest };
+			return new JsonResult(new ErrorResponse(ErrorResponseCode.PandasGenTabFailed, $"GenTab failed: {ex.Message}")) { StatusCode = StatusCodes.Status400BadRequest };
 		}
 		object dict;
 		if (request.FormatType == 1)

@@ -2,18 +2,20 @@ using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using RCS.Carbon.Example.WebService.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Shared;
 using RCS.Licensing.Provider.Shared;
 using TAB = RCS.Carbon.Tables;
-using Microsoft.Extensions.Logging;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
 
 partial class SessionController
 {
+	readonly JsonSerializerOptions jsonOpts1 = new() { WriteIndented = true };
+
 	async Task<ActionResult<SessionInfo>> StartSessionFreeImpl(AuthenticateFreeRequest request)
 	{
 		var engine = new TAB.CrossTabEngine(LicProv);
@@ -38,8 +40,8 @@ partial class SessionController
 				string message = sessions.Length == 1 ?
 					$"A session for User Id {request.Id} is already active." :
 					$"{sessions.Length} sessions for User Id {request.Id} are already active.";
-				string[] ids = sessions.Select(s => s.SessionId).ToArray();
-				return BadRequest(new ErrorResponse(301, message, "The data property contains a string array of the sessionIds that are already active.", ids));
+				string[] ids = [.. sessions.Select(s => s.SessionId)];
+				return BadRequest(new ErrorResponse(ErrorResponseCode.DuplicateSession, message, "The data property contains a string array of the sessionIds that are already active.", ids));
 			}
 		}
 		// Perform the Carbon engine login and session start for a user id.
@@ -57,7 +59,7 @@ partial class SessionController
 		}
 		catch (CarbonException ex)
 		{
-			return BadRequest(new ErrorResponse(ex.Code, ex.Message));
+			return BadRequest(new ErrorResponse(ErrorResponseCode.GetLicenceIdFailed, ex.Message));
 		}
 	}
 
@@ -72,8 +74,8 @@ partial class SessionController
 				string message = sessions.Length == 1 ?
 					$"A session for User Name {request.Name} is already active." :
 					$"{sessions.Length} sessions for User Name {request.Name} are already active.";
-				string[] ids = sessions.Select(s => s.SessionId).ToArray();
-				return BadRequest(new ErrorResponse(302, message, "The data property contains a string array of the sessionIds that are already active.", ids));
+				string[] ids = [.. sessions.Select(s => s.SessionId)];
+				return BadRequest(new ErrorResponse(ErrorResponseCode.DuplicateSession, message, "The data property contains a string array of the sessionIds that are already active.", ids));
 			}
 		}
 		// Perform the Carbon engine login and session start for a user name.
@@ -91,14 +93,14 @@ partial class SessionController
 		}
 		catch (CarbonException ex)
 		{
-			return BadRequest(new ErrorResponse(ex.Code, ex.Message));
+			return BadRequest(new ErrorResponse(ErrorResponseCode.GetLicenceNameFailed, ex.Message));
 		}
 	}
 
 	async Task<ActionResult<int>> ForceSessionsImpl(string idlist)
 	{
 		string[] ids = idlist.Split(',');
-		bool[] flags = ids.Select(id => SessionManager.EndSession(id)).ToArray();
+		bool[] flags = [.. ids.Select(id => SessionManager.EndSession(id))];
 		int count = flags.Count(f => f);
 		long total = ids.Select(id => SessionManager.DeleteState(id)).Sum();
 		Logger.LogInformation(104, "Force {IdList} count {Count} bytes {Total}", idlist, count, total);
@@ -165,7 +167,7 @@ partial class SessionController
 			UserId = s.Item2.UserId,
 			UserName = s.Item2.UserName
 		}).ToArray();
-		string json = JsonSerializer.Serialize(list, new JsonSerializerOptions() { WriteIndented = true });
+		string json = JsonSerializer.Serialize(list, jsonOpts1);
 		return await Task.FromResult(list);
 	}
 
@@ -187,7 +189,7 @@ partial class SessionController
 		Email = licence.Email,
 		Roles = licence.Roles ?? [],
 		VartreeNames = licence.VartreeNames ?? [],
-		SessionCusts = licence.Customers.Select(c => new SessionCust()
+		SessionCusts = [.. licence.Customers.Select(c => new SessionCust()
 		{
 			Id = c.Id,
 			Name = c.Name,
@@ -199,21 +201,21 @@ partial class SessionController
 			Sequence = c.Sequence,
 			StorageKey = c.StorageKey,
 			ParentAgency = c.ParentAgency == null ? null : new SessionAgency() { Id = c.ParentAgency.Id, Name = c.ParentAgency.Name },
-			SessionJobs = c.Jobs.Select(j => new SessionJob()
+			SessionJobs = [.. c.Jobs.Select(j => new SessionJob()
 			{
 				Id = j.Id,
 				Name = j.Name,
 				DisplayName = j.DisplayName,
-				VartreeNames = j.VartreeNames ?? Array.Empty<string>(),
-				RealCloudVartreeNames = j.RealCloudVartreeNames ?? Array.Empty<string>(),
+				VartreeNames = j.VartreeNames ?? [],
+				RealCloudVartreeNames = j.RealCloudVartreeNames ?? [],
 				IsAccessible = j.IsAccessible,
 				Description = j.Description,
 				Info = j.Info,
 				Logo = j.Logo,
 				Url = j.Url,
 				Sequence = j.Sequence
-			}).ToArray()
-		}).ToArray(),
+			})]
+		})],
 		ProcessorCount = Environment.ProcessorCount,
 		OS = Environment.OSVersion.ToString()
 	};
@@ -233,6 +235,6 @@ partial class SessionController
 					let r = Guid.NewGuid().GetHashCode() & 0x7fffffff
 					let x = r % NiceChars.Length
 					select NiceChars[x];
-		return new string(chars.ToArray());
+		return new string([.. chars]);
 	}
 }

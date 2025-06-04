@@ -1,24 +1,23 @@
-namespace RCS.Carbon.Example.WebService.Common
+namespace RCS.Carbon.Example.WebService.Common.DTO;
+
+public sealed class ReadTimingRequest1
 {
-	public sealed class ReadTimingRequest1
+	public ReadTimingRequest1(string azconnect, string container, string names, int count, bool useCache)
 	{
-		public ReadTimingRequest1(string azconnect, string container, string names, int count, bool useCache)
-		{
-			AzConnect = azconnect;
-			Container = container;
-			Names = names;
-			Count = count;
-			UseCache = useCache;
-		}
-
-		public string AzConnect { get; set; }
-
-		public string Container { get; set; }
-
-		public string Names { get; set; }
-
-		public int Count { get; set; }
-
-		public bool UseCache { get; set; }
+		AzConnect = azconnect;
+		Container = container;
+		Names = names;
+		Count = count;
+		UseCache = useCache;
 	}
+
+	public string AzConnect { get; set; }
+
+	public string Container { get; set; }
+
+	public string Names { get; set; }
+
+	public int Count { get; set; }
+
+	public bool UseCache { get; set; }
 }

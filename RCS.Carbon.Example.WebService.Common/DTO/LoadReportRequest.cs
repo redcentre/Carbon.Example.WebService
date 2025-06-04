@@ -1,12 +1,11 @@
-namespace RCS.Carbon.Example.WebService.Common
-{
-	public sealed class LoadReportRequest
-	{
-		public LoadReportRequest(string name)
-		{
-			Name = name;
-		}
+namespace RCS.Carbon.Example.WebService.Common.DTO;
 
-		public string Name { get; set; }
+public sealed class LoadReportRequest
+{
+	public LoadReportRequest(string name)
+	{
+		Name = name;
 	}
+
+	public string Name { get; set; }
 }

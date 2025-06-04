@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using RCS.Carbon.Example.WebService.Common;
-using RCS.Azure.Data.Common;
 using Microsoft.Extensions.Logging;
+using RCS.Azure.Data.Common;
+using RCS.Carbon.Example.WebService.Common.DTO;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
 

@@ -1,9 +1,9 @@
-using RCS.Carbon.Example.WebService.Common;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Licensing.Provider.Shared;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
@@ -34,11 +34,10 @@ public class ErrorController : ServiceControllerBase
 			HttpContext.Items["ErrorType"] = handler.Error.GetType().Name;
 			HttpContext.Items["ErrorMessage"] = handler.Error.Message;
 			HttpContext.Items["ErrorStack"] = handler.Error.StackTrace;
-			return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(1, $"{handler.Error.Message}"));
+			return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(ErrorResponseCode.RequestFailed, $"{handler.Error.Message}"));
 		}
 		const string BadMessage = "The error handler could not find an error feature to provide error details";
-		//Logger.LogError(901, null, BadMessage);
 		HttpContext.Items["ErrorMessage"] = BadMessage;
-		return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(2, BadMessage));
+		return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(ErrorResponseCode.RequestFailedNoDetail, BadMessage));
 	}
 }
