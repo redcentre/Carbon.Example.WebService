@@ -116,12 +116,12 @@ partial class SessionController
 		return await Task.FromResult(success);
 	}
 
-	async Task<ActionResult<SessionStatus>> ReadSessionImpl([FromRoute] string id)
+	async Task<ActionResult> ReadSessionImpl([FromRoute] string id)
 	{
 		SessionItem? session = SessionManager.FindSession(id, false);
 		if (session == null)
 		{
-			return null;
+			return NotFound(new ErrorResponse(ErrorResponseCode.SessionNotFound, $"Session Id {id} not found"));
 		}
 		var ss = new SessionStatus()
 		{
@@ -131,9 +131,14 @@ partial class SessionController
 			CreatedUtc = session.CreatedUtc,
 			LastActivityUtc = session.LastActivityUtc,
 			LastActivity = session.LastActivity,
-			ActivityCount = session.ActivityCount
+			ActivityCount = session.ActivityCount,
+			OpenCustomerName = session.OpenCustomerName,
+			OpenJobName = session.OpenJobName,
+			OpenReportName = session.OpenReportName,
+			OpenVartreeName = session.OpenVartreeName
 		};
-		return await Task.FromResult(ss);
+		await Task.CompletedTask;
+		return Ok(ss);
 	}
 
 	/// <summary>
@@ -165,9 +170,12 @@ partial class SessionController
 			LastActivity = s.Item2.LastActivity,
 			LastActivityUtc = s.Item2.LastActivityUtc,
 			UserId = s.Item2.UserId,
-			UserName = s.Item2.UserName
+			UserName = s.Item2.UserName,
+			OpenCustomerName = s.Item2.OpenCustomerName,
+			OpenJobName = s.Item2.OpenJobName,
+			OpenReportName = s.Item2.OpenReportName,
+			OpenVartreeName = s.Item2.OpenVartreeName
 		}).ToArray();
-		string json = JsonSerializer.Serialize(list, jsonOpts1);
 		return await Task.FromResult(list);
 	}
 

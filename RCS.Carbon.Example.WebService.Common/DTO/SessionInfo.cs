@@ -1,5 +1,9 @@
 namespace RCS.Carbon.Example.WebService.Common.DTO;
 
+/// <summary>
+/// This class is returned by authentication endpoints. A full <c>LicenceInfo</c> class returned
+/// by the Carbon engine is stripped down to this simpler class.
+/// </summary>
 public sealed class SessionInfo
 {
 	public string? SessionId { get; set; }

@@ -172,11 +172,17 @@ void EmitClass(string rbase, PMethod[] methods)
 		[AuthFilter(<#=authjoin#>)]
 <#
 			}
+			if (m.WebAllowApiKey)
+			{
+#>
+		[AllowApiKey]
+<#
+			}
 		}
 #>
 		[Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 		[Consumes(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
-		[ProducesResponseType(typeof(<#=m.ReturnType#>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(<#=m.PlainReturnType#>), StatusCodes.Status200OK)]
 <#
 		if (m.Auths != null)
 		{
@@ -184,8 +190,15 @@ void EmitClass(string rbase, PMethod[] methods)
 		[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
 <#
 		}
+		if (m.WebNotFound)
+		{
 #>
-		public async Task<ActionResult<<#=m.ReturnType#>>> <#=m.Name#>(<#=m.MakeWebArgs()#>) => await <#=m.Name#>Impl(<#=m.MakeWebImplArgs()#>);
+		[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+<#
+		}
+		string rettype = m.WebActionResult ? "ActionResult" : string.Format("ActionResult<{0}>", m.ReturnType);
+#>
+		public async Task<<#=rettype#>> <#=m.Name#>(<#=m.MakeWebArgs()#>) => await <#=m.Name#>Impl(<#=m.MakeWebImplArgs()#>);
 
 <#
 	}

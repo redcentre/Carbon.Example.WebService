@@ -19,7 +19,8 @@ public enum ErrorResponseCode
 	NotRoleAuthorised = 382,
 	NoSessionHeader = 383,
 	RequestFailed = 391,
-	RequestFailedNoDetail = 392
+	RequestFailedNoDetail = 392,
+	SessionNotFound = 400
 }
 
 /// <summary>

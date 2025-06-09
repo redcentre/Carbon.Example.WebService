@@ -80,9 +80,10 @@ void EmitGroup(string groupname, PMethod[] methods)
 <#
 			}
 		}
-		if (m.ReturnDesc != null)
+		string bestdesc = m.ReturnClientDesc ?? m.ReturnDesc;
+		if (bestdesc != null)
 		{
-			string rdesc = Unesc(m.ReturnDesc);
+			string rdesc = Unesc(bestdesc);
 #>
 		/// <returns><#=rdesc#></returns>
 <#
@@ -132,9 +133,19 @@ void EmitGroup(string groupname, PMethod[] methods)
 		}
 		if (m.Method == "Get")
 		{
+			if (m.WebNotFound)
+			{
 #>
-			return await InnerGet<<#=m.ReturnType#>>($"<#=m.Endpoint#>");
+			return await InnerGet<<#=m.ReturnType#>>($"<#=m.Endpoint#>", true);
 <#
+			}
+			else
+			{
+#>
+			var data = await InnerGet<<#=m.ReturnType#>>($"<#=m.Endpoint#>");
+			return data!;
+<#
+			}
 		}
 		else if (m.Method == "Post")
 		{

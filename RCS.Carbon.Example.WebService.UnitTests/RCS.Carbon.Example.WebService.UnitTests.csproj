@@ -15,15 +15,15 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.5" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.14.2" />
-    <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="1.7.1" />
-    <PackageReference Include="MSTest.Analyzers" Version="3.9.1">
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Update="Microsoft.Testing.Extensions.CodeCoverage" Version="17.14.2" />
+    <PackageReference Update="Microsoft.Testing.Extensions.TrxReport" Version="1.7.1" />
+    <PackageReference Update="MSTest.Analyzers" Version="3.9.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MSTest.TestAdapter" Version="3.9.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.9.1" />
+    <PackageReference Update="MSTest.TestAdapter" Version="3.9.1" />
+    <PackageReference Update="MSTest.TestFramework" Version="3.9.1" />
     <PackageReference Include="Orthogonal.Common.Basic" Version="3.2.4" />
     <PackageReference Include="RCS.Azure.Data.Common" Version="3.0.5" />
     <ProjectReference Include="..\RCS.Carbon.Example.WebService.Common\RCS.Carbon.Example.WebService.Common.csproj" />

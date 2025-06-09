@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Hashing;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RCS.Carbon.Example.WebService.WebApi;
@@ -50,5 +52,13 @@ public static class ServiceUtility
 			yield return line;
 			line = reader.ReadLine();
 		}
+	}
+
+	/// <ignore/>
+	public static ulong HashApiKey(string apiKey)
+	{
+		var buff1 = Encoding.UTF8.GetBytes(apiKey);
+		var buff2 = XxHash64.Hash(buff1, 1111111111111111111L);
+		return BitConverter.ToUInt64(buff2);
 	}
 }

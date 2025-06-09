@@ -19,6 +19,7 @@ PMethod[] LoadCodegen(string rulesfile)
 		string meth = Getattr(melem, "method");
 		string ep = Getattr(melem, "endpoint");
 		bool? browsable = (bool?)melem.Attribute("browsable");
+		bool notFound = (bool?)melem.Attribute("notfound") ?? false;
 		string session = Getattr(melem, "session");
 		string summary = Getelem(melem, "summary");
 		string remarks = Getelem(melem, "remarks");
@@ -41,6 +42,7 @@ PMethod[] LoadCodegen(string rulesfile)
 			pm.ReturnType = Getattr(retelem, "type");
 			pm.ReturnContentType = Getattr(retelem, "contentType");
 			pm.ReturnDesc = Getattr(retelem, "description");
+			pm.ReturnClientDesc = Getattr(retelem, "clientDescription");
 		}
 		var pselem = melem.Element("parameters");
 		if (pselem != null)
@@ -78,6 +80,9 @@ PMethod[] LoadCodegen(string rulesfile)
 			pm.WebFromHeaderName = Getattr(webelem, "fromHeaderName");
 			pm.WebFromHeader = Getattr(webelem, "fromHeader");
 			pm.WebPostDirect = (bool?)webelem.Attribute("direct");
+			pm.WebActionResult = (bool?)webelem.Attribute("actionResult") ?? false;
+			pm.WebNotFound = (bool?)webelem.Attribute("notFound") ?? false;
+			pm.WebAllowApiKey = (bool?)webelem.Attribute("allowApiKey") ?? false;
 		}
 		mlist.Add(pm);
 	}
@@ -110,6 +115,7 @@ sealed class PMethod
 	public string ReturnType;
 	public string ReturnContentType;
 	public string ReturnDesc;
+	public string ReturnClientDesc;
 	public string Method;
 	public string Endpoint;
 	public bool? Browsable;
@@ -118,6 +124,9 @@ sealed class PMethod
 	public string[] Auths;
 	public string WebPostType;
 	public bool? WebPostDirect;
+	public bool WebActionResult;
+	public bool WebNotFound;
+	public bool WebAllowApiKey;
 	public string WebFromHeaderName;
 	public string WebFromHeader;
 	public string Session;
@@ -161,6 +170,7 @@ sealed class PMethod
 	}
 	public PParam[] RefTypeParams => Params.Where(p => !SkipNullCheckTypes.Contains(p.Type)).ToArray();
 	public string RouteBase => Endpoint?.Split('/').First();
+	public string PlainReturnType => ReturnType.TrimEnd('?');
 }
 
 void EmitHeader()

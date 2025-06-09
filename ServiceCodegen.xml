@@ -145,12 +145,14 @@
     <parameters>
       <parameter route="true" type="string" name="id" description="The Session Id to read."/>
     </parameters>
-    <return type="SessionStatus" description="A [c]SessionStatus[/c] object or null if not found."/>
+    <return type="SessionStatus?" description="A [c]SessionStatus[/c] object." clientDescription="A [c]SessionStatus[/c] object or null of the id is not found."/>
+  <web actionResult="true" notFound="true" allowApiKey="true"/>
   </method>
 
   <method name="ListSessions" method="Get" endpoint="session/list" auth="*">
     <summary>Lists web service sessions. Intended for use in monitoring tools.</summary>
     <return type="SessionStatus[]" description="An array of [c]SessionStatus[/c] objects."/>
+    <web allowApiKey="true"/>
   </method>
 
   <method name="ChangePassword" method="Post" endpoint="session/changepass" auth="*">
@@ -556,6 +558,7 @@
       <parameter route="true" type="string" name="cust" description="Customer name."/>
       <parameter route="true" type="string" name="job" description="Job name."/>
     </parameters>
+    <web allowApiKey="true"/>
     <return type="AzDashboard[]" description="An array of [c]AzDashboard[/c] objects."/>
   </method>
 
@@ -566,7 +569,7 @@
       <parameter type="string" name="job" description="Job name."/>
       <parameter type="string" name="name" description="Dashboard name."/>
     </parameters>
-    <web postType="DashboardRequest"/>
+    <web postType="DashboardRequest" allowApiKey="true"/>
     <return type="AzDashboard" description="The Dashboard or null if not found."/>
   </method>
 
@@ -577,7 +580,7 @@
       <parameter type="string" name="job" description="Job name."/>
       <parameter type="string" name="name" description="Dashboard name."/>
     </parameters>
-    <web postType="DashboardRequest"/>
+    <web postType="DashboardRequest" allowApiKey="true"/>
     <return type="bool" description="True if the dashboard was delete, false if was not found."/>
   </method>
 
@@ -586,7 +589,7 @@
     <parameters>
       <parameter type="UpsertDashboardRequest" name="request" description="Specifies the dashboard data to update or insert."/>
     </parameters>
-    <web postType="UpsertDashboardRequest" direct="true"/>
+    <web postType="UpsertDashboardRequest" direct="true" allowApiKey="true"/>
     <return type="AzDashboard" description="The dashboard after processing."/>
   </method>
   

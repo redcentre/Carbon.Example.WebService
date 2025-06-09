@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RCS.Carbon.Example.WebService.Common;
 using RCS.Carbon.Example.WebService.Common.DTO;
-using RCS.Carbon.Example.WebService.WebApi.Controllers;
 
 namespace RCS.Carbon.Example.WebService.WebApi;
 
@@ -19,6 +19,8 @@ namespace RCS.Carbon.Example.WebService.WebApi;
 public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 {
 	readonly string[] requiredRoles;
+	ulong[] apiKeyHashes;
+	static ILogger logger;
 
 	/// <ignore/>
 	public AuthFilterAttribute(params string[] requiredRoles)
@@ -32,58 +34,89 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 	/// </summary>
 	public void OnAuthorization(AuthorizationFilterContext context)
 	{
-		ILoggerFactory logfac = (ILoggerFactory)context.HttpContext.RequestServices.GetService(typeof(ILoggerFactory))!;
-		ILogger logger = logfac.CreateLogger("AUTH");
+		if (logger == null)
+		{
+			var logfac = (ILoggerFactory)context.HttpContext.RequestServices.GetService(typeof(ILoggerFactory))!;
+			logger = logfac.CreateLogger("AUTH");
+			var config = (IConfiguration)context.HttpContext.RequestServices.GetService(typeof(IConfiguration))!;
+			apiKeyHashes = config.GetSection("CarbonApi:ApiKeyHashes").Get<ulong[]>()!;
+		}
 		HttpRequest req = context.HttpContext.Request;
 		var mi = ((ControllerActionDescriptor)context.ActionDescriptor).MethodInfo;     // Note this tricky cast is needed
-		var attr = mi.GetCustomAttributes<AuthFilterAttribute>();
-		if (attr != null)
+		bool allowApiKey = mi.GetCustomAttribute<AllowApiKeyAttribute>() != null;
+		string? apiKey = req.Headers.TryGetValue(CarbonServiceClient.ApiKeyHeaderKey, out var svals) ? svals.FirstOrDefault() : null;
+		string? sessionId = req.Headers.TryGetValue(CarbonServiceClient.SessionIdHeaderKey, out svals) ? svals.FirstOrDefault() : null;
+		if (apiKey != null)
 		{
-			string? key = context.HttpContext.Request.Headers.TryGetValue(CarbonServiceClient.SessionIdHeaderKey, out var svals) ? svals.FirstOrDefault() : null;
-			if (key?.Length == SessionController.SessionIdLength)
+			// ┌───────────────────────────────────────────────────────────────┐
+			// │  The client has passed the x-api-key header with a magic      │
+			// │  value that can be used to invoke certain endpoints. This is  │
+			// │  useful for utilities, such as listing sessions for example.  │
+			// └───────────────────────────────────────────────────────────────┘
+			if (!allowApiKey)
 			{
-				// The header Session Id must have an entry in the session manager
-				// to indicate it's active, then the licensing name and roles can
-				// be used to construct a context 'User' for the request.
-				SessionItem? si = SessionManager.FindSession(key);
-				if (si == null)
-				{
-					logger.LogWarning(700, "No session {SessionId} exists for {Method} {Path}", key, req.Method, req.Path);
-					context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NoSessionFound, $"No session '{key}' exist for {req.Method} {req.Path}")) { StatusCode = StatusCodes.Status403Forbidden };
-					return;
-				}
-				// ╔══════════════════════════════════════════════════════════════════════════╗
-				// ║  NOTE -- This example web service does not by default use RBAC (roles    ║
-				// ║  based authentication). The feature can be enabled by changing an        ║
-				// ║  attribute on the endpoints like this example:                           ║
-				// ║                                                                          ║
-				// ║     before  [AuthFilter]                                                 ║
-				// ║     after   [AuthFilter("Import","DeleteReport")]                        ║
-				// ║             public Task ... MyEndpoint(...)                              ║
-				// ║                                                                          ║
-				// ║  Two mock roles have been invented and applied to an endpoint. A user    ║
-				// ║  account cannot use the endpoint unless is has at least one of those     ║
-				// ║  role names listed in their licensing account record.                    ║
-				// ╚══════════════════════════════════════════════════════════════════════════╝
-				if (requiredRoles.Length > 0 && !requiredRoles.Intersect(si.Roles).Any())
-				{
-					string needsJoin = string.Join(",", requiredRoles);
-					string hasJoin = string.Join(",", si.Roles);
-					logger.LogWarning(701, "Not authorised for {Method} {Path}. Needs [{NeedsJoin}] has [{HasJoin}].", req.Method, req.Path, needsJoin, hasJoin);
-					context.Result = new ObjectResult( new ErrorResponse(ErrorResponseCode.NotRoleAuthorised, $"Not authorised for {req.Method} {req.Path}. Needs [{needsJoin}] has [{hasJoin}].")) { StatusCode = StatusCodes.Status403Forbidden };
-					return;
-				}
-
-				var ident = new GenericIdentity(si.UserName!, "SessionId");
-				ident.AddClaim(new Claim("AuthKey", key));
-				context.HttpContext.User = new GenericPrincipal(ident, si.Roles);
-			}
-			else
-			{
-				logger.LogWarning(702, "Header {Key} is required for {Method} {Path}", CarbonServiceClient.SessionIdHeaderKey, req.Method, req.Path);
-				context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NoSessionHeader, $"Header key '{CarbonServiceClient.SessionIdHeaderKey}' is required for {req.Method} {req.Path}")) { StatusCode = StatusCodes.Status403Forbidden };
+				logger.LogWarning(704, "Api Key {ApiKey} not usable for {Method} {Path}", CarbonServiceClient.ApiKeyHeaderKey, req.Method, req.Path);
+				context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NoSessionFound, $"Api Key '{apiKey}' not usable for {req.Method} {req.Path}")) { StatusCode = StatusCodes.Status403Forbidden };
 				return;
 			}
+			ulong hash = ServiceUtility.HashApiKey(apiKey);
+			if (!apiKeyHashes.Contains(hash))
+			{
+				logger.LogWarning(703, "Api Key {ApiKey} not registered for {Method} {Path}", CarbonServiceClient.ApiKeyHeaderKey, req.Method, req.Path);
+				context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NoSessionFound, $"Api Key '{apiKey}' not registered for {req.Method} {req.Path}")) { StatusCode = StatusCodes.Status403Forbidden };
+				return;
+			}
+			var apiIdent = new GenericIdentity("Anonymous", "x-api-key");
+			apiIdent.AddClaim(new Claim("ApiKey", apiKey));
+			context.HttpContext.User = new GenericPrincipal(apiIdent, null);
+			return;
 		}
+		// ┌───────────────────────────────────────────────────────────────┐
+		// │  This is the traditional authorisation using x-session-id     │
+		// │  header with a value from a previous authentication.          │
+		// │  If the method has role restrictions then one of those roles  │
+		// │  must be in the user's account record.                        │
+		// └───────────────────────────────────────────────────────────────┘
+		if (sessionId == null)
+		{
+			logger.LogWarning(702, "An authorisation request header is required for {Method} {Path}", req.Method, req.Path);
+			context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NoSessionHeader, $"An authorisation request header is required for {req.Method} {req.Path}")) { StatusCode = StatusCodes.Status403Forbidden };
+			return;
+		}
+		// The header Session Id must have an entry in the session manager
+		// to indicate it's active, then the licensing name and roles can
+		// be used to construct a context 'User' for the request.
+		SessionItem? si = SessionManager.FindSession(sessionId);
+		if (si == null)
+		{
+			logger.LogWarning(700, "No session {SessionId} exists for {Method} {Path}", sessionId, req.Method, req.Path);
+			context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NoSessionFound, $"No session '{sessionId}' exist for {req.Method} {req.Path}")) { StatusCode = StatusCodes.Status403Forbidden };
+			return;
+		}
+		// ╔══════════════════════════════════════════════════════════════════════════╗
+		// ║  NOTE -- This example web service does not by default use RBAC (roles    ║
+		// ║  based authentication). The feature can be enabled by changing an        ║
+		// ║  attribute on the endpoints like this example:                           ║
+		// ║                                                                          ║
+		// ║     before  [AuthFilter]                                                 ║
+		// ║     after   [AuthFilter("Import","DeleteReport")]                        ║
+		// ║             public Task ... MyEndpoint(...)                              ║
+		// ║                                                                          ║
+		// ║  Two mock roles have been invented and applied to an endpoint. A user    ║
+		// ║  account cannot use the endpoint unless is has at least one of those     ║
+		// ║  role names listed in their licensing account record.                    ║
+		// ╚══════════════════════════════════════════════════════════════════════════╝
+		if (requiredRoles.Length > 0 && !requiredRoles.Intersect(si.Roles).Any())
+		{
+			string needsJoin = string.Join(",", requiredRoles);
+			string hasJoin = string.Join(",", si.Roles);
+			logger.LogWarning(701, "Not authorised for {Method} {Path}. Needs [{NeedsJoin}] has [{HasJoin}].", req.Method, req.Path, needsJoin, hasJoin);
+			context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NotRoleAuthorised, $"Not authorised for {req.Method} {req.Path}. Needs [{needsJoin}] has [{hasJoin}].")) { StatusCode = StatusCodes.Status403Forbidden };
+			return;
+		}
+
+		var sessIdent = new GenericIdentity(si.UserName!, "x-session-id");
+		sessIdent.AddClaim(new Claim("SessionId", sessionId));
+		context.HttpContext.User = new GenericPrincipal(sessIdent, si.Roles);
 	}
 }

@@ -90,13 +90,21 @@ builder.Services.AddSwaggerGen(c =>
 		c.IncludeXmlComments(file.FullName);
 		WebLog.Info($"Include XML file {file.FullName}");
 	}
-	c.AddSecurityDefinition("basic", new OpenApiSecurityScheme
+	c.AddSecurityDefinition("session", new OpenApiSecurityScheme
 	{
 		Name = CarbonServiceClient.SessionIdHeaderKey,
 		Type = SecuritySchemeType.ApiKey,
 		Scheme = "basic",
 		In = ParameterLocation.Header,
-		Description = "Simple authorisation using a request header."
+		Description = "Authorisation using a Session Id in a request header."
+	});
+	c.AddSecurityDefinition("apikey", new OpenApiSecurityScheme
+	{
+		Name = CarbonServiceClient.ApiKeyHeaderKey,
+		Type = SecuritySchemeType.ApiKey,
+		Scheme = "basic",
+		In = ParameterLocation.Header,
+		Description = "Authorisation using an Api Key in a request header."
 	});
 	c.AddSecurityRequirement(new OpenApiSecurityRequirement
 	{
@@ -106,7 +114,21 @@ builder.Services.AddSwaggerGen(c =>
 				Reference = new OpenApiReference
 				{
 					Type = ReferenceType.SecurityScheme,
-					Id = "basic"
+					Id = "session"
+				}
+			},
+			Array.Empty<string>()
+		}
+	});
+	c.AddSecurityRequirement(new OpenApiSecurityRequirement
+	{
+		{
+			new OpenApiSecurityScheme
+			{
+				Reference = new OpenApiReference
+				{
+					Type = ReferenceType.SecurityScheme,
+					Id = "apikey"
 				}
 			},
 			Array.Empty<string>()

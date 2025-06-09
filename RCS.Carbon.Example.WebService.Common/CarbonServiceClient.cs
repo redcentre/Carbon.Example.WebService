@@ -26,6 +26,7 @@ public sealed partial class CarbonServiceClient : IDisposable
 	/// headers using this key. The value is shared widely throughout the suite.
 	/// </summary>
 	public const string SessionIdHeaderKey = "x-session-id";
+	public const string ApiKeyHeaderKey = "x-api-key";
 
 	readonly string _baseAddress;
 	readonly int _timeoutSecs;
@@ -38,7 +39,7 @@ public sealed partial class CarbonServiceClient : IDisposable
 	/// <param name="baseAddress">Base Url address of the Carbon example web service.</param>
 	/// <param name="timeoutSeconds">The request timeout seconds for the web service client.</param>
 	/// <param name="customHander">An optional custom message handler that can be used to intercept
-	/// requests and responses in the http pipeline. Cients can use this handler to add custom headers
+	/// requests and responses in the http pipeline. Clients can use this handler to add custom headers
 	/// or validation to requests, and to globally inspect responses and perform custom processing.</param>
 	/// <exception cref="ArgumentNullException">Thrown if <paramref name="baseAddress"/> is null.</exception>
 	public CarbonServiceClient(string baseAddress, int timeoutSeconds = 20, HttpMessageHandler? customHander = null)
@@ -75,33 +76,28 @@ public sealed partial class CarbonServiceClient : IDisposable
 	/// </summary>
 	public SessionInfo? Session { get; private set; }
 
+	string? _apiKey;
 	/// <summary>
-	/// SPECIAL METHOD -- Static helper method that allows arbitrary apps to end a Carbon service session then
-	/// issue a Licensing logoff or return.
+	/// The API Key can be set by clients who know a value tha tis registered for the service.
+	/// When a valid value is set, it is sent in requests in the <c>x-api-key</c> header.
+	/// A valid API Key allows access to certain endpoints that don't use sessions and are useful
+	/// for utility applications querying the service.
 	/// </summary>
-	/// <remarks>
-	/// The method was initially created for the Carbon dekstop app so that it could start a short Process to
-	/// call this method during the main Window closing event where asynchronous calls are ineffective. See the
-	/// notes in the app's controller Shutdown method and Program class.
-	/// </remarks>
-	/// <param name="baseUri">The base address of the licensing web service.</param>
-	/// <param name="sessionId">The Carbon web service session Id.</param>
-	/// <param name="returnId">True to issuea a licensing <b>return</b>, False for a <b>logoff</b>.</param>
-	/// <returns>The number of licensing borrows remaining, or -1 if processing failed.</returns>
-	public static async Task<int> EndSessionExternal(string baseUri, string sessionId, bool returnId)
+	public string? ApiKey
 	{
-		if (!baseUri.EndsWith('/'))
+		get => _apiKey;
+		set
 		{
-			baseUri += "/";
+			_apiKey = value;
+			if (Client.DefaultRequestHeaders.TryGetValues(ApiKeyHeaderKey, out var values))
+			{
+				Client.DefaultRequestHeaders.Remove(ApiKeyHeaderKey);
+			}
+			if (_apiKey != null)
+			{
+				Client.DefaultRequestHeaders.Add(ApiKeyHeaderKey, ApiKey);
+			}
 		}
-		using var client = new HttpClient();
-		client.BaseAddress = new Uri(baseUri);
-		client.DefaultRequestHeaders.Add(SessionIdHeaderKey, sessionId);
-		string action = returnId ? "return" : "logoff";
-		HttpResponseMessage response = await client.DeleteAsync($"session/end/{action}");
-		response.EnsureSuccessStatusCode();
-		string json = await response.Content.ReadAsStringAsync();
-		return JsonSerializer.Deserialize<int>(json);
 	}
 
 	#region Special Calls
@@ -201,7 +197,7 @@ public sealed partial class CarbonServiceClient : IDisposable
 	/// Multi-threads may attempt to alter the client request headers for overlapping
 	/// logon or logoff, so they need to be locked (found during stress testing).
 	/// </summary>
-	void EnsureIdHeader()
+	void EnsureSessionIdHeader()
 	{
 		lock (Client.DefaultRequestHeaders)
 		{
@@ -216,12 +212,16 @@ public sealed partial class CarbonServiceClient : IDisposable
 		}
 	}
 
-	async Task<T> InnerGet<T>(string uri)
+	async Task<T?> InnerGet<T>(string uri, bool canNotFound = false)
 	{
 		HttpResponseMessage? response = null;
 		try
 		{
 			response = await Client.GetAsync(uri);
+			if (response.StatusCode == System.Net.HttpStatusCode.NotFound && canNotFound)
+			{
+				return default;
+			}
 			string respjson = await response.Content.ReadAsStringAsync();
 			if (response.StatusCode != System.Net.HttpStatusCode.OK)
 			{

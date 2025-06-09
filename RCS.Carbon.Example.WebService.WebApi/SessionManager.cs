@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Licensing.Provider.Shared;
 
 namespace RCS.Carbon.Example.WebService.WebApi;
@@ -26,7 +27,6 @@ namespace RCS.Carbon.Example.WebService.WebApi;
 /// </summary>
 static class SessionManager
 {
-	const string AnonymousSessionId = "(anonymous)";
 	static readonly DirectoryInfo sessDir;
 	static readonly FileInfo sessFile;
 	static Dictionary<string, SessionItem>? map;
@@ -120,15 +120,15 @@ static class SessionManager
 
 	static public bool UpdateActivity(string sessionId, string description)
 	{
-		string id = sessionId ?? AnonymousSessionId;
+		string id = sessionId ?? SessionStatus.AnonymousSessionId;
 		map!.TryGetValue(id, out SessionItem? item);
 		if (item == null)
 		{
-			if (!map.TryGetValue(AnonymousSessionId, out item))
+			if (!map.TryGetValue(SessionStatus.AnonymousSessionId, out item))
 			{
-				item = new SessionItem(AnonymousSessionId);
-				map.Add(AnonymousSessionId, item);
-				Trace($"Add mock {AnonymousSessionId}");
+				item = new SessionItem(SessionStatus.AnonymousSessionId);
+				map.Add(SessionStatus.AnonymousSessionId, item);
+				Trace($"Add mock {SessionStatus.AnonymousSessionId}");
 			}
 		}
 		item.ActivityCount++;
@@ -158,7 +158,7 @@ static class SessionManager
 
 	static public Tuple<string, SessionItem>[] ListSessions()
 	{
-		return map!.Select(m => Tuple.Create(m.Key, m.Value)).ToArray();
+		return [.. map!.Select(m => Tuple.Create(m.Key, m.Value))];
 	}
 
 	static public int Cleanup(int olderThanDays)
@@ -167,7 +167,7 @@ static class SessionManager
 		int cleanCount = 0;
 		foreach (var kvp in map!.ToArray())
 		{
-			if (kvp.Value.SessionId == AnonymousSessionId) continue;
+			if (kvp.Value.SessionId == SessionStatus.AnonymousSessionId) continue;
 			TimeSpan? span = DateTime.UtcNow - kvp.Value.LastActivityUtc;
 			if (span?.TotalDays >= olderThanDays)
 			{
@@ -180,7 +180,7 @@ static class SessionManager
 		int orphanCount = 0;
 		foreach (var kvp in map!.ToArray())
 		{
-			if (kvp.Value.SessionId == AnonymousSessionId) continue;
+			if (kvp.Value.SessionId == SessionStatus.AnonymousSessionId) continue;
 			FileInfo[] files = sessDir.GetFiles($"State-{kvp.Key}-*.*");
 			if (files.Length == 0)
 			{
