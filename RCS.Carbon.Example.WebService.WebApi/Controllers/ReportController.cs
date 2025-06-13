@@ -21,7 +21,6 @@ public enum TextOutputFormat
 	TSV = 1,
 	CSV = 2,
 	SSV = 3,
-	XML = 6,
 	HTML = 7,
 	OXT = 8,
 	OXTNums = 9,
@@ -171,6 +170,15 @@ public partial class ReportController : ServiceControllerBase
 		return await MakeXlsxAndUpload(wrap, "Generate");
 	}
 
+	async Task<ActionResult<PlatinumData>> GeneratePlatinumImpl()
+	{
+		var watch = new Stopwatch();
+		watch.Start();
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		var data = wrap.Engine.TableAsPlatinum();
+		return await Task.FromResult(data);
+	}
+
 	/// <summary>
 	/// This method generates multiple OXTs sequentially in a single call. It's only used in unit tests at
 	/// the moment because it will probably cause web service call from a client to timeout.
@@ -295,7 +303,7 @@ public partial class ReportController : ServiceControllerBase
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		string report = wrap.Engine.GenTabAsHTML(request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter);
 		var lines = CommonUtil.ReadStringLines(report).ToArray();
-		Logger.LogInformation(231, "GenTabHtml({Top},{Side},{Filter},{Weight},{CaseFilter) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, lines.Length);
+		Logger.LogInformation(231, "GenTabHtml({Top},{Side},{Filter},{Weight},{CaseFilter}) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, lines.Length);
 		return await Task.FromResult(lines);
 	}
 
@@ -303,7 +311,7 @@ public partial class ReportController : ServiceControllerBase
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		string report = wrap.Engine.GenTabAsHTML(request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter);
-		Logger.LogInformation(231, "GenTabHtmlJoined({Top},{Side},{Filter},{Weight},{CaseFilter) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, report.Length);
+		Logger.LogInformation(231, "GenTabHtmlJoined({Top},{Side},{Filter},{Weight},{CaseFilter}) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, report.Length);
 		return await Task.FromResult(report);
 	}
 
@@ -354,7 +362,7 @@ public partial class ReportController : ServiceControllerBase
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		string report = wrap.Engine.TableAsFormat(format);
-		string[] lines = ServiceUtility.ListStringLines(report).ToArray();
+		string[] lines = [.. ServiceUtility.ListStringLines(report)];  // TODO Reconcile ListStringLines and ReadStringLines
 		return await Task.FromResult(lines);
 	}
 }

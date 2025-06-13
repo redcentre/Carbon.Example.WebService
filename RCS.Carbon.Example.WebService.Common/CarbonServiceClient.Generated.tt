@@ -25,6 +25,7 @@ using TSAPI.Public.Domain.Interviews;
 using RCS.Licensing.Provider.Shared;
 using RCS.Licensing.Provider.Shared.Entities;
 using RCS.Carbon.Example.WebService.Common.DTO;
+using RCS.Carbon.Tables;
 
 #nullable enable
 
@@ -159,7 +160,7 @@ void EmitGroup(string groupname, PMethod[] methods)
 			{
 #>
 			Session = await InnerPost<<#=m.ReturnType#>>($"<#=m.Endpoint#>", request);
-			EnsureIdHeader();
+			EnsureSessionIdHeader();
 			return Session;
 <#
 			}
@@ -187,7 +188,7 @@ void EmitGroup(string groupname, PMethod[] methods)
 #>
 			<#=m.ReturnType#> result = await InnerDelete<<#=m.ReturnType#>>($"<#=m.Endpoint#>");
 			Session = null;
-			EnsureIdHeader();
+			EnsureSessionIdHeader();
 			return result;
 <#
 			}

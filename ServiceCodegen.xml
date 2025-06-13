@@ -373,6 +373,72 @@
 
   <!-- REPORT -->
 
+  <method name="GenTab" method="Post" endpoint="report/gentab" auth="*">
+    <summary>Generates a crosstab report in different formats.</summary>
+    <remarks>The response is a serialized string array of the text lines of a report in the output format specified in the [c]dprops[/c] Output.Format property. To retrieve a report as a text/plain response body, use the [c]report/gentab/text/{format}[/c] endpoint. All of the parameters used to generate the report are taken from the values in the request body which is a serialized [c]GenTabRequest[/c] object.</remarks>
+    <parameters>
+      <parameter type="string?" name="name" description="Cloud customer name (Storage Account name)."/>
+      <parameter type="string" name="top" description="Cross-tabulation top variable.."/>
+      <parameter type="string" name="side" description="Cross-tabulation side variable."/>
+      <parameter type="string?" name="filter" description="Cross-tabulation filter."/>
+      <parameter type="string?" name="weight" description="Cross-tabulation weight."/>
+      <parameter type="XSpecProperties" name="sprops" description="Specification properties."/>
+      <parameter type="XDisplayProperties" name="dprops" description="Display Properties."/>
+    </parameters>
+    <web postType="GenTabRequest"/>
+    <return type="string[]" description="Lines of a crosstab report."/>
+  </method>
+
+  <method name="GenTabHtml" method="Post" endpoint="report/gentab/html" auth="*">
+    <summary>Generates a crosstab report as lines of a HTML document.</summary>
+    <remarks>The response is a serialized string array of lines of a HTML document. To retrieve the HTML as a single string use the [c]report/gentab/html/joined[/c] endpoint.</remarks>
+    <parameters>
+      <parameter type="GenTabHtmlRequest" name="request" description="Request parameters."/>
+    </parameters>
+    <web postType="GenTabHtmlRequest" direct="true"/>
+    <return type="string[]" description="The lines of a crosstab report as a HTML document."/>
+  </method>
+
+  <method name="GenTabHtmlJoined" method="Post" endpoint="report/gentab/html/joined" auth="*">
+    <summary>Generates a crosstab report as a single line of a HTML document.</summary>
+    <remarks>The response is a serialized single string of HTML containing multiple lines. To retrieve the HTML as an array of string line use the [c]report/gentab/html[/c] endpoint.</remarks>
+    <parameters>
+      <parameter type="GenTabHtmlRequest" name="request" description="Request parameters."/>
+    </parameters>
+    <web postType="GenTabHtmlRequest" direct="true"/>
+    <return type="string" description="The lines of a crosstab report as a HTML document joined to a single string."/>
+  </method>
+
+  <method name="GenTabExcelBlob" method="Post" endpoint="report/gentab/excel/blob" auth="*">
+    <summary>Generates a crosstab report as an Excel workbook using provided parameters.</summary>
+    <remarks>The workbook is upload to the cloud container where all workbooks are stored. The reponse contains the full Uri of the generated workbook so client apps can download or process it as needed. Note that parameters are provided to control the report generation, in contrast see the [c]report/xlsx[/c] endpoint whcih uses the parameters in the active report.</remarks>
+    <parameters>
+      <parameter type="GenTabRequest" name="request" description="A serialized [c]GenTabRequest[/c] provided in the request body."/>
+    </parameters>
+    <web postType="GenTabRequest" direct="true"/>
+    <return type="XlsxResponse" description="A serialized [c]XlsxResponse[/c] containing the Uri and attributes of the generated Excel workbook Blob."/>
+  </method>
+
+  <method name="GenerateXlsx" method="Get" endpoint="report/xlsx" auth="*">
+    <summary>Generates an Excel workbook for the currently active report.</summary>
+    <remarks>The report is generated as a binary Excel workbook and uploaded to the cloud container where all report Excel workbooks are stored. The response contains the full Uri of the workbook so that client apps can display, download or otherwise manipulate the document in a way suitable for their platform and requirements. The currently active report provides the parameters for the report generation (in contrast see endpoint [c]report/gentab/excel/blob[/c]).</remarks>
+    <return type="XlsxResponse" description="The response gives the url and attributes of the generated XLSX workbook."/>
+  </method>
+
+  <method name="GeneratePlatinum" method="Get" endpoint="report/platinum" auth="*">
+    <summary>Generates a Platinum object for the currently active report.</summary>
+    <remarks>The currently active report provides the parameters to generate a report in the general-purpose Platinum format.</remarks>
+    <return type="PlatinumData" description="A serialized [c]PlatinumData[/c] object."/>
+  </method>
+
+  <method name="Format" method="Get" endpoint="report/format/{format}" auth="*">
+    <summary>Invokes a Carbon format.</summary>
+    <parameters>
+      <parameter route="true" type="XOutputFormat" name="format" description="Report format enumeration value."/>
+    </parameters>
+    <return type="string[]" description="An array of string lines of a report format."/>
+  </method>
+
   <method name="GetProps" method="Get" endpoint="report/props" auth="*">
     <summary>Get the display proeprties of the currently open report.</summary>
     <return type="XDisplayProperties" description="A [c]XDisplayProperties[/c] class instance containing report properties."/>
@@ -387,21 +453,6 @@
     <return type="XlsxResponse" description="TODO"/>
   </method>
 
-  <method name="GenTab" method="Post" endpoint="report/gentab" auth="*">
-    <summary>Generates a crosstab report in different formats.</summary>
-    <parameters>
-      <parameter type="string?" name="name" description="Cloud customer name (Storage Account name)."/>
-      <parameter type="string" name="top" description="Cloud job name (Container name)."/>
-      <parameter type="string" name="side" description="TODO"/>
-      <parameter type="string?" name="filter" description="TODO"/>
-      <parameter type="string?" name="weight" description="TODO"/>
-      <parameter type="XSpecProperties" name="sprops" description="TODO"/>
-      <parameter type="XDisplayProperties" name="dprops" description="TODO"/>
-    </parameters>
-    <web postType="GenTabRequest"/>
-    <return type="string[]" description="Lines of a crosstab report."/>
-  </method>
-
   <method name="LoadReport" method="Post" endpoint="report/load" auth="*">
     <summary>Loads a report and sets it as the currently loaded and active report for the session.</summary>
     <parameters>
@@ -414,11 +465,6 @@
   <method name="UnloadReport" method="Get" endpoint="report/unload" auth="*">
     <summary>Unloads any previously loaded report and sets a new unsaved report as active.</summary>
     <return type="bool" description="Always returns true."/>
-  </method>
-
-  <method name="GenerateXlsx" method="Get" endpoint="report/xlsx" auth="*">
-    <summary>Generates XLSX for the currently opened report.</summary>
-    <return type="XlsxResponse" description="The response gives the url and attributes of the generated XLSX workbook."/>
   </method>
 
   <method name="MultiOxt" method="Post" endpoint="report/multioxt" auth="*">
@@ -483,33 +529,6 @@
     <return type="GenericResponse" description="TODO"/>
   </method>
 
-  <method name="GenTabExcelBlob" method="Post" endpoint="report/gentab/excel/blob" auth="*">
-    <summary>Generates a crosstab report as an Excel workbook and saves it in a blob.</summary>
-    <parameters>
-      <parameter type="GenTabRequest" name="request" description="A serialized [c]GenTabRequest[/c] provided in the request body."/>
-    </parameters>
-    <web postType="GenTabRequest" direct="true"/>
-    <return type="XlsxResponse" description="A serialized [c]XlsxResponse[/c] containing the Uri and attributes of the generated Excel workbook Blob."/>
-  </method>
-
-  <method name="GenTabHtml" method="Post" endpoint="report/gentab/html" auth="*">
-    <summary>Generates a crosstab report as lines of a HTML document.</summary>
-    <parameters>
-      <parameter type="GenTabHtmlRequest" name="request" description="Request parameters."/>
-    </parameters>
-    <web postType="GenTabHtmlRequest" direct="true"/>
-    <return type="string[]" description="The lines of a crosstab report as a HTML document."/>
-  </method>
-
-  <method name="GenTabHtmlJoined" method="Post" endpoint="report/gentab/html/joined" auth="*">
-    <summary>Generates a crosstab report as a single line of a HTML document.</summary>
-    <parameters>
-      <parameter type="GenTabHtmlRequest" name="request" description="Request parameters."/>
-    </parameters>
-    <web postType="GenTabHtmlRequest" direct="true"/>
-    <return type="string" description="The lines of a crosstab report as a HTML document joined to a single string."/>
-  </method>
-
   <method name="AxisSyntaxToNodes" method="Post" endpoint="report/syntax/tonodes" auth="*">
     <summary>Converts a syntax string into a tree of generic nodes.</summary>
     <parameters>
@@ -540,14 +559,6 @@
     </parameters>
     <web postType="string" direct="true"/>
     <return type="string" description="An error message or null if the syntax is valid."/>
-  </method>
-
-  <method name="Format" method="Get" endpoint="report/format/{format}" auth="*">
-    <summary>Invokes a Carbon format.</summary>
-    <parameters>
-      <parameter route="true" type="XOutputFormat" name="format" description="Report format enumeration value."/>
-    </parameters>
-    <return type="string[]" description="An array of string lines of a report format."/>
   </method>
 
   <!-- DASHBOARD -->

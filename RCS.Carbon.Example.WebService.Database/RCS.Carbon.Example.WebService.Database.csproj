@@ -6,7 +6,7 @@
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
     <Description>Implements a simple general purpose string storage database using an Azure Table.</Description>
-    <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Testing;SQL Production</Configurations>
+    <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Testing;SQL Production;Debug-Carbon</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -30,6 +30,7 @@ using RCS.Carbon.Shared;
 using RCS.Licensing.Provider.Shared;
 using RCS.Licensing.Provider.Shared.Entities;
 using RCS.Carbon.Example.WebService.Common.DTO;
+using RCS.Carbon.Tables;
 
 #nullable enable
 

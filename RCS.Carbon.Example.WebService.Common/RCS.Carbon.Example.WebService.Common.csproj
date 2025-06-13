@@ -10,7 +10,11 @@
     <IsPublishable>false</IsPublishable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
-    <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Testing;SQL Production</Configurations>
+    <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Testing;SQL Production;Debug-Carbon</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug-Carbon' Or '$(Configuration)'=='Debug-RCS Testing' Or '$(Configuration)'=='SQL Testing'">
+    <DefineConstants>$(DefineConstants);DEBUG_CARBON</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -24,8 +28,15 @@
 
   <ItemGroup>
     <PackageReference Include="RCS.Azure.Data.Common" Version="3.0.5" />
-    <PackageReference Include="RCS.Carbon.Shared" Version="9.1.36" />
     <PackageReference Include="RCS.Licensing.Provider.Shared" Version="8.1.16" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)'!='Debug-Carbon' And '$(Configuration)'!='RCS Testing' And '$(Configuration)'!='SQL Testing'">
+    <PackageReference Include="RCS.Carbon.Shared" Version="9.1.36" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)'=='Debug-Carbon' Or '$(Configuration)'=='RCS Testing' Or '$(Configuration)'=='SQL Testing'">
+    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Shared\RCS.Carbon.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <Version>9.3.8</Version>
+    <Version>9.3.9</Version>
     <TargetFrameworks>net8.0</TargetFrameworks>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Authors>Red Centre Software</Authors>

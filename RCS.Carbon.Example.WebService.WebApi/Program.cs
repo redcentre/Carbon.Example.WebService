@@ -159,7 +159,7 @@ if (string.IsNullOrEmpty(licaddress))
 	licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
 }
 var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
-#elif (DEBUG || RELEASE)
+#elif (DEBUG || DEBUG_CARBON || RELEASE)
 // ┌───────────────────────────────────────────────────────────────┐
 // │  In local debug or release configuration it's necessary to    │
 // │  manually choose the provider its parameters.                 │
