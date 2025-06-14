@@ -75,10 +75,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.5" />
+    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.7" />
     <PackageReference Include="RCS.Licensing.Example.Provider" Version="9.2.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
-    <PackageReference Include="System.Runtime.Caching" Version="8.0.1" />
+    <PackageReference Include="System.Runtime.Caching" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
