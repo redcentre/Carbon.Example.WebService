@@ -47,7 +47,6 @@
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
-    <File Path="Directory.Build.targets" />
     <File Path="README.md" />
     <File Path="ServiceCodegen.ttinclude" />
     <File Path="ServiceCodegen.xml" />

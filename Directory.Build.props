@@ -10,4 +10,14 @@
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <PackageTags>redcentre;Red Centre Software;cross tabulation;crosstab</PackageTags>
   </PropertyGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>BuildMachine</_Parameter1>
+      <_Parameter2>$(COMPUTERNAME)</_Parameter2>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>BuildTime</_Parameter1>
+      <_Parameter2>$([System.DateTime]::Now.ToString("yyyy-MM-dd HH:mm:ss K"))</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>
