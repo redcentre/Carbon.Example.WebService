@@ -425,6 +425,16 @@
     <return type="XlsxResponse" description="The response gives the url and attributes of the generated XLSX workbook."/>
   </method>
 
+  <method name="GenTabPlatinum" method="Post" endpoint="report/gentab/platinum" auth="*">
+    <summary>Generates a crosstab report in the Platinum format.</summary>
+    <remarks>This is an experimental endpoint. The request values and response shape have not been fully defined yet.</remarks>
+    <parameters>
+      <parameter type="GenTabPlatinumRequest" name="request" description="Request parameters."/>
+    </parameters>
+    <web postType="GenTabPlatinumRequest" direct="true"/>
+    <return type="PlatinumData" description="A serialized [c]PlatinumData[/c] object."/>
+  </method>
+
   <method name="GeneratePlatinum" method="Get" endpoint="report/platinum" auth="*">
     <summary>Generates a Platinum object for the currently active report.</summary>
     <remarks>The currently active report provides the parameters to generate a report in the general-purpose Platinum format.</remarks>

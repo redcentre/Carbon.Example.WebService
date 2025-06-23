@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
+using RCS.Carbon.Tables.OutputFormatters;
 using RCS.RubyCloud.WebService;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
@@ -113,8 +114,6 @@ public partial class ReportController : ServiceControllerBase
 	async Task<ActionResult<XlsxResponse>> SetPropsImpl(XDisplayProperties request)
 	{
 		string json = JsonSerializer.Serialize(request);
-		var watch = new Stopwatch();
-		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		wrap.Engine.SetProps(request);
 		Logger.LogInformation(264, "Set props");
@@ -164,16 +163,23 @@ public partial class ReportController : ServiceControllerBase
 
 	async Task<ActionResult<XlsxResponse>> GenerateXlsxImpl()
 	{
-		var watch = new Stopwatch();
-		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		return await MakeXlsxAndUpload(wrap, "Generate");
 	}
 
+	async Task<ActionResult<PlatinumData>> GenTabPlatinumImpl(GenTabPlatinumRequest request)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, true);
+		var sprops = request.SProps ?? new XSpecProperties();
+		var dprops = request.DProps ?? new XDisplayProperties();
+		dprops.Output.Format = XOutputFormat.None;
+		wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
+		PlatinumData data = PlatinumFormatter.FormatAsPlatinumData(wrap.Engine.Job.DisplayTable);
+		return await Task.FromResult(data);
+	}
+
 	async Task<ActionResult<PlatinumData>> GeneratePlatinumImpl()
 	{
-		var watch = new Stopwatch();
-		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		var data = wrap.Engine.TableAsPlatinum();
 		return await Task.FromResult(data);
@@ -274,8 +280,6 @@ public partial class ReportController : ServiceControllerBase
 
 	async Task<ActionResult<XlsxResponse>> QuickUpdateReportImpl(QuickUpdateRequest request)
 	{
-		var watch = new Stopwatch();
-		watch.Start();
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		bool result = wrap.Engine.QuickEdit(request.ShowFreq, request.ShowColPct, request.ShowRowPct, request.ShowSig, request.Filter);
 		Logger.LogInformation(262, "QuickEdit {Freq} {Col} {Row} {Sig} {Filter}", request.ShowFreq, request.ShowColPct, request.ShowColPct, request.ShowSig, request.Filter);
@@ -290,7 +294,7 @@ public partial class ReportController : ServiceControllerBase
 		return await Task.FromResult(new GenericResponse(0, request.Name));
 	}
 
-	async Task<ActionResult<XlsxResponse>> GenTabExcelBlobImpl([FromBody] GenTabRequest request)
+	async Task<ActionResult<XlsxResponse>> GenTabExcelBlobImpl(GenTabRequest request)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
