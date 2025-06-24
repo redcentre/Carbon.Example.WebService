@@ -76,6 +76,9 @@
 
   <ItemGroup>
     <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.7" />
+    <PackageReference Include="RCS.Carbon.Export" Version="9.1.37" />
+    <PackageReference Include="RCS.Carbon.Import" Version="9.1.37" />
+    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.37" />
     <PackageReference Include="RCS.Licensing.Example.Provider" Version="9.2.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     <PackageReference Include="System.Runtime.Caching" Version="9.0.6" />
@@ -91,13 +94,6 @@
     <PackageReference Include="RCS.Carbon.Export" Version="9.1.36" />
     <PackageReference Include="RCS.Carbon.Import" Version="9.1.36" />
     <PackageReference Include="RCS.Carbon.Tables" Version="9.1.36" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)'=='Debug-Carbon' Or '$(Configuration)'=='RCS Testing' Or '$(Configuration)'=='SQL Testing'">
-    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Shared\RCS.Carbon.Shared.csproj" />
-    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Export\RCS.Carbon.Export.csproj" />
-    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Import\RCS.Carbon.Import.csproj" />
-    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Tables\RCS.Carbon.Tables.csproj" />
   </ItemGroup>
 
   <ItemGroup>

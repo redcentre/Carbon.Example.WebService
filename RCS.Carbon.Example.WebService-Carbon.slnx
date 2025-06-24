@@ -8,43 +8,6 @@
     <BuildType Name="SQL Production" />
     <BuildType Name="SQL Testing" />
   </Configurations>
-  <Folder Name="/Carbon Project References/">
-    <Project Path="../../Carbon/Carbon/RCS.Carbon.Export/RCS.Carbon.Export.csproj">
-      <BuildType Solution="Debug-Carbon|*" Project="Debug" />
-      <BuildType Solution="RCS Production|*" Project="Debug" />
-      <BuildType Solution="RCS Testing|*" Project="Debug" />
-      <BuildType Solution="SQL Production|*" Project="Debug" />
-      <BuildType Solution="SQL Testing|*" Project="Debug" />
-    </Project>
-    <Project Path="../../Carbon/Carbon/RCS.Carbon.Import/RCS.Carbon.Import.csproj">
-      <BuildType Solution="Debug-Carbon|*" Project="Debug" />
-      <BuildType Solution="RCS Production|*" Project="Debug" />
-      <BuildType Solution="RCS Testing|*" Project="Debug" />
-      <BuildType Solution="SQL Production|*" Project="Debug" />
-      <BuildType Solution="SQL Testing|*" Project="Debug" />
-    </Project>
-    <Project Path="../../Carbon/Carbon/RCS.Carbon.Shared/RCS.Carbon.Shared.csproj">
-      <BuildType Solution="Debug-Carbon|*" Project="Debug" />
-      <BuildType Solution="RCS Production|*" Project="Debug" />
-      <BuildType Solution="RCS Testing|*" Project="Debug" />
-      <BuildType Solution="SQL Production|*" Project="Debug" />
-      <BuildType Solution="SQL Testing|*" Project="Debug" />
-    </Project>
-    <Project Path="../../Carbon/Carbon/RCS.Carbon.Tables/RCS.Carbon.Tables.csproj">
-      <BuildType Solution="Debug-Carbon|*" Project="Debug" />
-      <BuildType Solution="RCS Production|*" Project="Debug" />
-      <BuildType Solution="RCS Testing|*" Project="Debug" />
-      <BuildType Solution="SQL Production|*" Project="Debug" />
-      <BuildType Solution="SQL Testing|*" Project="Debug" />
-    </Project>
-    <Project Path="../../Carbon/Carbon/RCS.Carbon.Variables/RCS.Carbon.Variables.csproj">
-      <BuildType Solution="Debug-Carbon|*" Project="Debug" />
-      <BuildType Solution="RCS Production|*" Project="Debug" />
-      <BuildType Solution="RCS Testing|*" Project="Debug" />
-      <BuildType Solution="SQL Production|*" Project="Debug" />
-      <BuildType Solution="SQL Testing|*" Project="Debug" />
-    </Project>
-  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />
     <File Path="README.md" />
