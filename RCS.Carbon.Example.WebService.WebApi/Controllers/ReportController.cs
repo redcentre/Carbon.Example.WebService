@@ -170,10 +170,12 @@ public partial class ReportController : ServiceControllerBase
 	async Task<ActionResult<PlatinumData>> GenTabPlatinumImpl(GenTabPlatinumRequest request)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, true);
-		var sprops = request.SProps ?? new XSpecProperties();
-		var dprops = request.DProps ?? new XDisplayProperties();
+		request.SProps ??= new XSpecProperties();
+		request.PProps ??= new PlatinumProperties();
+		var dprops = new XDisplayProperties();
+		dprops.FromPlatinum(request.PProps);
 		dprops.Output.Format = XOutputFormat.None;
-		wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
+		wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, dprops);
 		PlatinumData data = PlatinumFormatter.FormatAsPlatinumData(wrap.Engine.Job.DisplayTable);
 		return await Task.FromResult(data);
 	}
@@ -191,8 +193,10 @@ public partial class ReportController : ServiceControllerBase
 	/// </summary>
 	async Task<ActionResult<MultiOxtResponse>> MultiOxtImpl(MultiOxtRequest request)
 	{
-		var moxt = new MoxtState(request);
-		moxt.SessionId = SessionId;
+		var moxt = new MoxtState(request)
+		{
+			SessionId = SessionId
+		};
 		MultiOxtSequentialProc(moxt);
 		var response = new MultiOxtResponse
 		{
@@ -340,7 +344,7 @@ public partial class ReportController : ServiceControllerBase
 		var lines = CommonUtil.ReadStringLines(joined).ToArray();
 		static string? Reduce(string s) => string.IsNullOrEmpty(s) ? null : s;
 		// The lines in the format Key=Value are parsed and the values are returned in an array in the following Key index order.
-		string[] Keys = { "Top", "Side", "Filter", "Weight", "Case" };
+		string[] Keys = ["Top", "Side", "Filter", "Weight", "Case"];
 		var query = lines
 			.Select(x => Regex.Match(x, @"^(\w+)=(.*)"))
 			.Where(m => m.Success)

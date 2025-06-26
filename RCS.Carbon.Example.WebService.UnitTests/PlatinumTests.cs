@@ -22,15 +22,27 @@ public class PlatinumTests : TestBase
 		await GuardedSession(userId, userPass, client);
 		OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName, null, true);
 		Trace($"OpenCloudJob {jobresp.DProps} {jobresp.DrillFilters} {jobresp.VartreeNames} {jobresp.AxisTreeNames}");
+		
 		jobresp.DProps!.Output.Format = XOutputFormat.TSV;
 		WriteTemp("_platest_dprops_jobopen", jobresp.DProps);
-		string[] lines = await client.GenTab(null, genTop, genSide, null, null, sprops, jobresp.DProps);
+		string[] lines = await client.GenTab("GenTab TSV and Platinum", genTop, genSide, null, null, sprops, jobresp.DProps);
 		Sep1("TSV");
 		DumpLines(lines);
 		var data = await client.GeneratePlatinum();
-		WriteTemp("_platest_data", data);
+		WriteTemp("_platest_GeneratePlatinum", data);
+
+		var pprops = new PlatinumProperties();
+		pprops.Description = "Created by GenTabPlatinum";
+		pprops.Cells.Frequencies.Visible = true;
+		pprops.Cells.ColumnPercents.Visible = true;
+		pprops.Cells.RowPercents.Visible = true;
+		var platreq = new GenTabPlatinumRequest("GenTab Platinum", "occupation", "income", null, null, null, sprops, pprops);
+		data = await client.GenTabPlatinum(platreq);
+		WriteTemp("_platest_GenTabPlatinum", data);
+
 		bool closed = await client.CloseJob();
 		Trace($"Closed → {closed}");
+		
 		bool ended = await client.EndSession();
 		Trace($"EndSession → {ended}");
 	}
@@ -40,7 +52,7 @@ public class PlatinumTests : TestBase
 	static void WriteTemp(string name, object value)
 	{
 		string s = JsonSerializer.Serialize(value, seropts);
-		string fullname = Path.Combine(@"D:\temp", name + ".json");
+		string fullname = Path.Combine(Path.GetTempPath(), name + ".json");
 		File.WriteAllText(fullname, s);
 	}
 }

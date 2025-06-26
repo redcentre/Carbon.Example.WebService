@@ -57,8 +57,9 @@ partial class SessionController
 			Logger.LogInformation(100, "Login Session {SessionId} Id {LicenceId} Name {LicenceName}", sessionId, licence.Id, licence.Name);
 			return Ok(sessinfo);
 		}
-		catch (CarbonException ex)
+		catch (Exception ex)
 		{
+			// Different providers throw different exception types, so we must catch them all.
 			return BadRequest(new ErrorResponse(ErrorResponseCode.GetLicenceIdFailed, ex.Message));
 		}
 	}
@@ -91,8 +92,9 @@ partial class SessionController
 			Logger.LogInformation(102, "Login Session {SessionName} Name {LicenceName}", sessionId, licence.Name);
 			return Ok(sessinfo);
 		}
-		catch (CarbonException ex)
+		catch (Exception ex)
 		{
+			// Different providers throw different exception types, so we must catch them all.
 			return BadRequest(new ErrorResponse(ErrorResponseCode.GetLicenceNameFailed, ex.Message));
 		}
 	}

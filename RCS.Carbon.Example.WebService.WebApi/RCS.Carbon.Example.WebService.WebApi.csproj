@@ -20,10 +20,6 @@
     <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Production;SQL Testing;Debug-Carbon</Configurations>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Debug-Carbon' Or '$(Configuration)'=='Debug-RCS Testing' Or '$(Configuration)'=='SQL Testing'">
-    <DefineConstants>$(DefineConstants);DEBUG_CARBON</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup>
     <NoWarn>1591;CS8618</NoWarn>
   </PropertyGroup>
@@ -76,9 +72,9 @@
 
   <ItemGroup>
     <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.7" />
-    <PackageReference Include="RCS.Carbon.Export" Version="9.1.37" />
-    <PackageReference Include="RCS.Carbon.Import" Version="9.1.37" />
-    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.37" />
+    <PackageReference Include="RCS.Carbon.Export" Version="9.1.38" />
+    <PackageReference Include="RCS.Carbon.Import" Version="9.1.38" />
+    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.38" />
     <PackageReference Include="RCS.Licensing.Example.Provider" Version="9.2.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     <PackageReference Include="System.Runtime.Caching" Version="9.0.6" />
@@ -88,12 +84,6 @@
     <ProjectReference Include="..\RCS.Carbon.Example.WebService.Common\RCS.Carbon.Example.WebService.Common.csproj" />
     <ProjectReference Include="..\RCS.Carbon.Example.WebService.Database\RCS.Carbon.Example.WebService.Database.csproj" />
     <ProjectReference Include="..\RCS.Carbon.Example.WebService.Logging\RCS.Carbon.Example.WebService.Logging.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)'!='Debug-Carbon' And '$(Configuration)'!='RCS Testing' And '$(Configuration)'!='SQL Testing'">
-    <PackageReference Include="RCS.Carbon.Export" Version="9.1.36" />
-    <PackageReference Include="RCS.Carbon.Import" Version="9.1.36" />
-    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.36" />
   </ItemGroup>
 
   <ItemGroup>

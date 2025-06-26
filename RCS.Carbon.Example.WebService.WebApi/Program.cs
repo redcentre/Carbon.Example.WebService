@@ -159,22 +159,22 @@ if (string.IsNullOrEmpty(licaddress))
 	licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
 }
 var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
-#elif (DEBUG || DEBUG_CARBON || RELEASE)
+#elif (DEBUG || RELEASE)
 // ┌───────────────────────────────────────────────────────────────┐
 // │  In local debug or release configuration it's necessary to    │
-// │  manually choose the provider its parameters.                 │
+// │  manually choose the provider and its parameters.             │
 // └───────────────────────────────────────────────────────────────┘
 //━━━━━━━━━━━━━ RCS DEBUGGING ━━━━━━━━━━━━━
 //string licaddress = "http://localhost:52123/";
 //string licaddress = "https://localhost:7238/";
-string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
-string apiKey = builder.Configuration["CarbonApi:LicensingApiKey"]!;
-int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
-var licprov = new RedCentreLicensingProvider(licaddress, apiKey, timeout);
+//string licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
+//string apiKey = builder.Configuration["CarbonApi:LicensingApiKey"]!;
+//int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
+//var licprov = new RedCentreLicensingProvider(licaddress, apiKey, timeout);
 //━━━━━━━━━━━━━ SQL DEBUGGING ━━━━━━━━━━━━━
-//string adoconnect = builder.Configuration["CarbonApi:AdoConnect"]!;
-//string productKey = builder.Configuration["CarbonApi:ProductKey"]!;
-//var licprov = new ExampleLicensingProvider(adoconnect, productKey);
+string adoconnect = builder.Configuration["CarbonApi:AdoConnect"]!;
+string productKey = builder.Configuration["CarbonApi:ProductKey"]!;
+var licprov = new ExampleLicensingProvider(adoconnect, productKey);
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #else
 #error "No recognised licensing provider defined"

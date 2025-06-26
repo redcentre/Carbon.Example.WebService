@@ -78,7 +78,7 @@ public sealed partial class CarbonServiceClient : IDisposable
 
 	string? _apiKey;
 	/// <summary>
-	/// The API Key can be set by clients who know a value tha tis registered for the service.
+	/// The API Key can be set by clients who know a value that is registered for the service.
 	/// When a valid value is set, it is sent in requests in the <c>x-api-key</c> header.
 	/// A valid API Key allows access to certain endpoints that don't use sessions and are useful
 	/// for utility applications querying the service.
