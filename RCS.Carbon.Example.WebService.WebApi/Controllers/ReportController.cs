@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Mime;
 using System.Text.Json;
@@ -17,6 +16,9 @@ using RCS.RubyCloud.WebService;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
 
+/// <summary>
+/// Keep these the same as the Carbon output format enums.
+/// </summary>
 public enum TextOutputFormat
 {
 	TSV = 1,
