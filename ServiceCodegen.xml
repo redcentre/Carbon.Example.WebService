@@ -295,6 +295,14 @@
     <return type="GenNode[]" description="An array of GenNode containing children of a variable name."/>
   </method>
 
+  <method name="DeleteVariable" method="Delete" endpoint="job/variable/{name}" auth="*">
+    <summary>Deletes a variable by name.</summary>
+    <parameters>
+      <parameter route="true" type="string" name="name" description="The name of the variable to delete."/>
+    </parameters>
+    <return type="bool" description="A flag indicating if the variable was found and deleted."/>
+  </method>
+
   <method name="FunctionAction" method="Post" endpoint="job/function" auth="*">
     <summary>Creates, edits or deletes functions.</summary>
     <parameters>

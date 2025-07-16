@@ -252,7 +252,7 @@ partial class JobController
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.VarTreeAsNodes();
 		Logger.LogInformation(280, "List vartree nodes -> {Count}", gnodes?.Length);
-		return await Task.FromResult(gnodes);
+		return await Task.FromResult(gnodes!);
 	}
 
 	async Task<ActionResult<GenNode[]>> AxisTreeAsNodesImpl()
@@ -260,7 +260,7 @@ partial class JobController
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.AxisTreeAsNodes();
 		Logger.LogInformation(281, "Get axis tree Nodes -> {Count}", gnodes?.Length);
-		return await Task.FromResult(gnodes);
+		return await Task.FromResult(gnodes!);
 	}
 
 	async Task<ActionResult<GenNode[]>> FunctionTreeAsNodesImpl()
@@ -268,7 +268,7 @@ partial class JobController
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.FunctionListAsNodes();
 		Logger.LogInformation(282, "Get function tree Nodes -> {Count}", gnodes?.Length);
-		return await Task.FromResult(gnodes);
+		return await Task.FromResult(gnodes!);
 	}
 
 	async Task<ActionResult<GenNode[]>> ListAxisTreeChildrenImpl(string name)
@@ -276,7 +276,7 @@ partial class JobController
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] gnodes = wrap.Engine.AxisAsNodes(name);
 		Logger.LogInformation(283, "List axis '{Name}' child nodes -> {Count}", name, gnodes?.Length);
-		return await Task.FromResult(gnodes);
+		return await Task.FromResult(gnodes!);
 	}
 
 	async Task<ActionResult<GenNode[]>> VarAsNodesImpl(string name)
@@ -284,8 +284,16 @@ partial class JobController
 		using var wrap = new StateWrap(SessionId, LicProv, false);
 		GenNode[] nodes = wrap.Engine.VarAsNodes(name);
 		Logger.LogInformation(284, "Get varmeta '{Name}' Nodes -> {Count}", name, nodes?.Length);
-		return await Task.FromResult(nodes);
+		return await Task.FromResult(nodes!);
 	}
+
+	async Task<ActionResult<bool>> DeleteVariableImpl(string name)
+	{
+		using var wrap = new StateWrap(SessionId, LicProv, false);
+		bool deleted = wrap.Engine.RemoveVar(name);
+		return await Task.FromResult(deleted);
+	}
+
 
 	async Task<ActionResult<GenNode[]>> FunctionActionImpl(FunctionActionRequest request)
 	{
@@ -352,7 +360,6 @@ partial class JobController
 	[AuthFilter]
 	[Produces("application/json", "text/xml")]
 	[ProducesResponseType(typeof(OpenCloudJobResponse), StatusCodes.Status200OK)]
-	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
 	public async Task<ActionResult<SurveyMetadata>> TsapiMetadata([FromQuery] string[] varnames, [FromQuery] string filter)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
@@ -383,7 +390,6 @@ partial class JobController
 	[AuthFilter]
 	[Produces("application/json", "text/xml")]
 	[ProducesResponseType(typeof(OpenCloudJobResponse), StatusCodes.Status200OK)]
-	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
 	public async Task<ActionResult<Interview[]>> TsapiInterview([FromQuery] string[] varnames, [FromQuery] string filter)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
@@ -414,7 +420,6 @@ partial class JobController
 	[AuthFilter]
 	[Produces("application/json", "text/xml")]
 	[ProducesResponseType(typeof(TSAPIData), StatusCodes.Status200OK)]
-	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
 	public async Task<ActionResult<TSAPIData>> TsapiCombined([FromQuery] string[] varnames, [FromQuery] string filter)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, false);
