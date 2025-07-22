@@ -41,7 +41,7 @@ public class SessionTests : TestBase
 	public async Task T040_SessionName_Out()
 	{
 		using var client = MakeClient();
-		SessionInfo sinfo = await client.StartSessionName(userName, userPass);
+		SessionInfo sinfo = await client.StartSessionName(userName, userPass, appId: AppId);
 		Trace($"Session → {sinfo}");
 		Dumpobj(sinfo);
 		bool ended = await client.EndSession();
@@ -52,7 +52,7 @@ public class SessionTests : TestBase
 	public async Task T050_OpenJob()
 	{
 		using var client = MakeClient();
-		SessionInfo sinfo = await client.StartSessionName(userName, userPass);
+		SessionInfo sinfo = await client.StartSessionName(userName, userPass, appId: AppId);
 		Trace($"Session → {sinfo}");
 		OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName, null, true, true, true, JobTocType.ExecUser, true);
 		Trace($"OpenCloudJob {jobresp.DProps} {jobresp.DrillFilters} {jobresp.VartreeNames} {jobresp.AxisTreeNames}");

@@ -17,6 +17,7 @@ namespace RCS.Carbon.Example.WebService.UnitTests;
 
 public class TestBase
 {
+	protected const string AppId = "UnitTests";
 	protected readonly JsonSerializerOptions Jopts = new JsonSerializerOptions() { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 	public TestContext TestContext { get; set; }
 	protected string baseUri;
@@ -64,7 +65,7 @@ public class TestBase
 	{
 		try
 		{
-			var sinfo = useId ? await client.StartSessionId(idOrName, password, skipCache) : await client.StartSessionName(idOrName, password);
+			var sinfo = useId ? await client.StartSessionId(idOrName, password, skipCache) : await client.StartSessionName(idOrName, password, appId: AppId);
 			Trace($"Login OK → {sinfo}");
 			return sinfo;
 		}
@@ -76,7 +77,7 @@ public class TestBase
 			int count = await client.ForceSessions(join);
 			Trace($"ForceSessions({join}) → {count}");
 			Assert.AreEqual(sessIds.Length, count);
-			var sinfo = useId ? await client.StartSessionId(idOrName, password, skipCache) : await client.StartSessionName(idOrName, password);
+			var sinfo = useId ? await client.StartSessionId(idOrName, password, skipCache) : await client.StartSessionName(idOrName, password, appId: AppId);
 			Trace($"Login RETRY → {sinfo}");
 			return sinfo;
 		}

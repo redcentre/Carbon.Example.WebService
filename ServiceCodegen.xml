@@ -102,6 +102,7 @@
       <parameter type="string" name="id" description="Licensing account Id."/>
       <parameter type="string" name="password" description="Licensing account password."/>
       <parameter type="bool" name="skipCache" description="True to skip any cached licence and force retrieval of a new one from the licensing web service." default="false"/>
+      <parameter type="string?" name="appId" description="Optional application Id." default="null"/>
     </parameters>
     <web postType="AuthenticateIdRequest"/>
     <return type="SessionInfo" description="Summary information about the licensing account associated with the session."/>
@@ -115,6 +116,8 @@
     <parameters>
       <parameter type="string" name="name" description="Licensing account Name."/>
       <parameter type="string" name="password" description="Licensing account password."/>
+      <parameter type="bool" name="skipCache" description="True to skip any cached licence and force retrieval of a new one from the licensing web service." default="false"/>
+      <parameter type="string?" name="appId" description="Optional application Id." default="null"/>
     </parameters>
     <web postType="AuthenticateNameRequest"/>
     <return type="SessionInfo" description="Summary information about the licensing account associated with the session."/>
