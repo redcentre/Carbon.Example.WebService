@@ -19,7 +19,7 @@ namespace RCS.Carbon.Example.WebService.WebApi;
 public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 {
 	readonly string[] requiredRoles;
-	ulong[] apiKeyHashes;
+	string[] registeredApiKeys;
 	static ILogger logger;
 
 	/// <ignore/>
@@ -39,7 +39,7 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 			var logfac = (ILoggerFactory)context.HttpContext.RequestServices.GetService(typeof(ILoggerFactory))!;
 			logger = logfac.CreateLogger("AUTH");
 			var config = (IConfiguration)context.HttpContext.RequestServices.GetService(typeof(IConfiguration))!;
-			apiKeyHashes = config.GetSection("CarbonApi:ApiKeyHashes").Get<ulong[]>()!;
+			registeredApiKeys = config.GetSection("CarbonApi:RegisteredApiKeys").Get<string[]>()!;
 		}
 		HttpRequest req = context.HttpContext.Request;
 		var mi = ((ControllerActionDescriptor)context.ActionDescriptor).MethodInfo;     // Note this tricky cast is needed
@@ -59,8 +59,7 @@ public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 				context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NoSessionFound, $"Api Key '{apiKey}' not usable for {req.Method} {req.Path}")) { StatusCode = StatusCodes.Status403Forbidden };
 				return;
 			}
-			ulong hash = ServiceUtility.HashApiKey(apiKey);
-			if (!apiKeyHashes.Contains(hash))
+			if (!registeredApiKeys.Contains(apiKey))
 			{
 				logger.LogWarning(703, "Api Key {ApiKey} not registered for {Method} {Path}", CarbonServiceClient.ApiKeyHeaderKey, req.Method, req.Path);
 				context.Result = new ObjectResult(new ErrorResponse(ErrorResponseCode.NoSessionFound, $"Api Key '{apiKey}' not registered for {req.Method} {req.Path}")) { StatusCode = StatusCodes.Status403Forbidden };

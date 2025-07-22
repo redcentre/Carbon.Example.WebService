@@ -5,6 +5,7 @@ public enum ErrorResponseCode
 	DuplicateSession = 301,
 	GetLicenceIdFailed = 302,
 	GetLicenceNameFailed = 303,
+	UnregisteredAppId = 304,
 	DatabaseReadNotFound = 311,
 	DatabaseDeleteNotFound = 312,
 	OpenJobFailed = 321,

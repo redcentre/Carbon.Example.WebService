@@ -45,9 +45,9 @@ static class SessionManager
 
 	#region Session Map
 
-	static public bool StartSession(string sessionId, LicenceInfo licence)
+	static public bool StartSession(string sessionId, string? appId, LicenceInfo licence)
 	{
-		var item = new SessionItem(sessionId)
+		var item = new SessionItem(sessionId, appId)
 		{
 			UserId = licence.Id,
 			UserName = licence.Name,
@@ -126,7 +126,7 @@ static class SessionManager
 		{
 			if (!map.TryGetValue(SessionStatus.AnonymousSessionId, out item))
 			{
-				item = new SessionItem(SessionStatus.AnonymousSessionId);
+				item = new SessionItem(SessionStatus.AnonymousSessionId, null);
 				map.Add(SessionStatus.AnonymousSessionId, item);
 				Trace($"Add mock {SessionStatus.AnonymousSessionId}");
 			}
@@ -148,12 +148,22 @@ static class SessionManager
 
 	static public SessionItem[] FindSessionsForId(string userId)
 	{
-		return map!.Where(x => x.Value.UserId == userId).Select(x => x.Value).ToArray();
+		return [.. map!.Where(x => x.Value.UserId == userId).Select(x => x.Value)];
+	}
+
+	static public SessionItem[] FindSessionsForIdAndApp(string userId, string? appId)
+	{
+		return [.. map!.Where(x => x.Value.UserId == userId && x.Value.Appid == appId).Select(x => x.Value)];
 	}
 
 	static public SessionItem[] FindSessionsForName(string userName)
 	{
-		return map!.Where(x => string.Compare(x.Value.UserName, userName, true) == 0).Select(x => x.Value).ToArray();
+		return [.. map!.Where(x => string.Compare(x.Value.UserName, userName, true) == 0).Select(x => x.Value)];
+	}
+
+	static public SessionItem[] FindSessionsForNameAndApp(string userName, string? appId)
+	{
+		return [.. map!.Where(x => string.Compare(x.Value.UserName, userName, true) == 0 && x.Value.Appid == appId).Select(x => x.Value)];
 	}
 
 	static public Tuple<string, SessionItem>[] ListSessions()

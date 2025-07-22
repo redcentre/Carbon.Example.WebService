@@ -1,7 +1,9 @@
 using System;
+using System.Configuration;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -21,7 +23,7 @@ partial class SessionController
 		var engine = new TAB.CrossTabEngine(LicProv);
 		LicenceInfo licence = await engine.GetFreeLicence(request.Email, request.SkipCache);
 		string sessionId = MakeSessionId();
-		SessionManager.StartSession(sessionId, licence);
+		SessionManager.StartSession(sessionId, null, licence);
 		var sessinfo = LicToInfo(licence, sessionId);
 		string[] state = engine.SaveState();
 		SessionManager.SaveState(sessionId, state);
@@ -29,17 +31,31 @@ partial class SessionController
 		return Ok(sessinfo);
 	}
 
+	string[]? registeredAppIds;
+
+	bool CheckAppId(string? appId)
+	{
+		registeredAppIds ??= Config.GetSection("CarbonApi:RegisteredAppIds").Get<string[]>()!;
+		return appId == null || registeredAppIds.Contains(appId);
+	}
+
 	async Task<ActionResult<SessionInfo>> StartSessionIdImpl(AuthenticateIdRequest request)
 	{
-		// Optional single session enforcement for user id.
+		// Optional single session enforcement for user id and application id.
 		if (Config.GetValue<bool>("CarbonApi:EnforceSingleSession"))
 		{
-			var sessions = SessionManager.FindSessionsForId(request.Id);
+			if (!CheckAppId(request.Appid)) return BadRequest(new ErrorResponse(ErrorResponseCode.UnregisteredAppId, $"Authentication application Id '{request.Appid}' is not registered"));
+			var sessions = SessionManager.FindSessionsForIdAndApp(request.Id, request.Appid);
 			if (sessions.Length > 0)
 			{
 				string message = sessions.Length == 1 ?
-					$"A session for User Id {request.Id} is already active." :
-					$"{sessions.Length} sessions for User Id {request.Id} are already active.";
+					$"A session for User Id {request.Id} is already active" :
+					$"{sessions.Length} sessions for User Id {request.Id} are already active";
+				if (request.Appid != null)
+				{
+					message += $" with application {request.Appid}";
+				}
+				message += ".";
 				string[] ids = [.. sessions.Select(s => s.SessionId)];
 				return BadRequest(new ErrorResponse(ErrorResponseCode.DuplicateSession, message, "The data property contains a string array of the sessionIds that are already active.", ids));
 			}
@@ -50,7 +66,7 @@ partial class SessionController
 			var engine = new TAB.CrossTabEngine(LicProv);
 			LicenceInfo licence = await engine.GetLicenceId(request.Id, request.Password, request.SkipCache);
 			string sessionId = MakeSessionId();
-			SessionManager.StartSession(sessionId, licence);
+			SessionManager.StartSession(sessionId, request.Appid, licence);
 			var sessinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);
@@ -66,15 +82,21 @@ partial class SessionController
 
 	async Task<ActionResult<SessionInfo>> StartSessionNameImpl(AuthenticateNameRequest request)
 	{
-		// Optional single session enforcement for user name.
+		// Optional single session enforcement for user name and application id.
 		if (Config.GetValue<bool>("CarbonApi:EnforceSingleSession"))
 		{
-			var sessions = SessionManager.FindSessionsForName(request.Name);
+			if (!CheckAppId(request.Appid)) return BadRequest(new ErrorResponse(ErrorResponseCode.UnregisteredAppId, $"Authentication application Id '{request.Appid}' is not registered"));
+			var sessions = SessionManager.FindSessionsForNameAndApp(request.Name, request.Appid);
 			if (sessions.Length > 0)
 			{
 				string message = sessions.Length == 1 ?
-					$"A session for User Name {request.Name} is already active." :
-					$"{sessions.Length} sessions for User Name {request.Name} are already active.";
+					$"A session for User Name {request.Name} is already active" :
+					$"{sessions.Length} sessions for User Name {request.Name} are already active";
+				if (request.Appid != null)
+				{
+					message += $" with application {request.Appid}";
+				}
+				message += ".";
 				string[] ids = [.. sessions.Select(s => s.SessionId)];
 				return BadRequest(new ErrorResponse(ErrorResponseCode.DuplicateSession, message, "The data property contains a string array of the sessionIds that are already active.", ids));
 			}
@@ -85,7 +107,7 @@ partial class SessionController
 			var engine = new TAB.CrossTabEngine(LicProv);
 			LicenceInfo licence = await engine.GetLicenceName(request.Name, request.Password);
 			string sessionId = MakeSessionId();
-			SessionManager.StartSession(sessionId, licence);
+			SessionManager.StartSession(sessionId, request.Appid, licence);
 			var sessinfo = LicToInfo(licence, sessionId);
 			string[] state = engine.SaveState();
 			SessionManager.SaveState(sessionId, state);

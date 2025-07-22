@@ -8,13 +8,15 @@ namespace RCS.Carbon.Example.WebService.WebApi;
 /// </summary>
 sealed class SessionItem
 {
-	public SessionItem(string sessionId)
+	public SessionItem(string sessionId, string? appid)
 	{
 		SessionId = sessionId;
+		Appid = appid;
 		CreatedUtc = DateTime.UtcNow;
 	}
 
 	public string SessionId { get; }
+	public string? Appid { get; }
 	public DateTime CreatedUtc { get; }
 	// The following members are for activity tracking
 	public DateTime? LastActivityUtc { get; set; }
@@ -41,5 +43,5 @@ sealed class SessionItem
 
 	public string? OpenStorageKey => CustStorageKeys?.FirstOrDefault(c => c[0] == OpenCustomerName)?.ElementAtOrDefault(1);
 
-	public override string ToString() => $"({SessionId},{CreatedUtc:s},{LastActivity},{OpenCustomerName},{OpenJobName},{OpenVartreeName},{OpenReportName})";
+	public override string ToString() => $"({SessionId},{Appid},{CreatedUtc:s},{LastActivity},{OpenCustomerName},{OpenJobName},{OpenVartreeName},{OpenReportName})";
 }

@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "RCS.Carbon.Example.WebService.WebApi": {
+    "dev-local": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
