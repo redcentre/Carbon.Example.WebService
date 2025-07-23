@@ -8,10 +8,10 @@ namespace RCS.Carbon.Example.WebService.WebApi;
 /// </summary>
 sealed class SessionItem
 {
-	public SessionItem(string sessionId, string? appid)
+	public SessionItem(string sessionId, string? appId)
 	{
 		SessionId = sessionId;
-		Appid = appid;
+		Appid = appId;
 		CreatedUtc = DateTime.UtcNow;
 	}
 
