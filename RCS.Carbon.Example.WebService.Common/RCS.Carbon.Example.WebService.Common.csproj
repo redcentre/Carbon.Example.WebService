@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RCS.Azure.Data.Common" Version="3.0.7" />
+    <PackageReference Include="RCS.Azure.Data.Common" Version="3.0.8" />
     <PackageReference Include="RCS.Carbon.Tables" Version="9.1.45" />
     <PackageReference Include="RCS.Licensing.Provider.Shared" Version="8.1.16" />
   </ItemGroup>
