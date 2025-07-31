@@ -28,7 +28,7 @@ namespace RCS.Carbon.Example.WebService.WebApi;
 static class SessionManager
 {
 	static readonly DirectoryInfo sessDir;
-	static readonly FileInfo sessFile;
+	static FileInfo sessFile;
 	static Dictionary<string, SessionItem>? map;
 	static readonly JsonSerializerOptions jopts = new() { WriteIndented = true };
 
@@ -40,7 +40,18 @@ static class SessionManager
 	static SessionManager()
 	{
 		sessDir = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "CarbonService"));
-		sessFile = new FileInfo(Path.Combine(sessDir.FullName, "session-state-v1.json"));
+		SetStateSuffix(null);
+	}
+
+	/// <summary>
+	/// Appends a suffix string to the internal name of the file that serializes session states.
+	/// The default is null (no suffix), but in testing or development hosting it's wise to set
+	/// the suffix to something else to avoid possible clashes.
+	/// </summary>
+	public static void SetStateSuffix(string? suffix)
+	{
+		suffix = suffix?.Length > 0 ? $"-{suffix}" : "";
+		sessFile = new FileInfo(Path.Combine(sessDir.FullName, $"session-state-v1{suffix}.json"));
 	}
 
 	#region Session Map

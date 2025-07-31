@@ -139,10 +139,15 @@ builder.Services.AddSwaggerGen(c =>
 // Different licensing providers with possibly different parameters are
 // created depending on the build configuration.
 
-#if (SQL_PRODUCTION || SQL_TESTING)
+#if SQL_PRODUCTION
 string adoconnect = builder.Configuration["CarbonApi:AdoConnect"]!;
 string productKey = builder.Configuration["CarbonApi:ProductKey"]!;
 var licprov = new ExampleLicensingProvider(adoconnect, productKey);
+#elif SQL_TESTING
+string adoconnect = builder.Configuration["CarbonApi:AdoConnect"]!;
+string productKey = builder.Configuration["CarbonApi:ProductKey"]!;
+var licprov = new ExampleLicensingProvider(adoconnect, productKey);
+SessionManager.SetStateSuffix("testing");
 #elif RCS_PRODUCTION
 int timeout = builder.Configuration.GetValue<int>("CarbonApi:LicensingTimeout");
 string? licaddress = builder.Configuration["CarbonApi:LicensingBaseAddress"];
@@ -159,11 +164,13 @@ if (string.IsNullOrEmpty(licaddress))
 	licaddress = "https://rcsapps.azurewebsites.net/licensing2test/";
 }
 var licprov = new RedCentreLicensingProvider(licaddress, null, timeout);
+SessionManager.SetStateSuffix("testing");
 #elif (DEBUG || RELEASE)
 // ┌───────────────────────────────────────────────────────────────┐
 // │  In local debug or release configuration it's necessary to    │
 // │  manually choose the provider and its parameters.             │
 // └───────────────────────────────────────────────────────────────┘
+SessionManager.SetStateSuffix("development");
 //━━━━━━━━━━━━━ RCS DEBUGGING ━━━━━━━━━━━━━
 //string licaddress = "http://localhost:52123/";
 //string licaddress = "https://localhost:7238/";

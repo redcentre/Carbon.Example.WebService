@@ -34,7 +34,7 @@ public class ErrorController : ServiceControllerBase
 			HttpContext.Items["ErrorType"] = handler.Error.GetType().Name;
 			HttpContext.Items["ErrorMessage"] = handler.Error.Message;
 			HttpContext.Items["ErrorStack"] = handler.Error.StackTrace;
-			return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(ErrorResponseCode.RequestFailed, $"{handler.Error.Message}"));
+			return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(ErrorResponseCode.RequestFailed, $"{handler.Error.Message}", handler.Error.StackTrace));
 		}
 		const string BadMessage = "The error handler could not find an error feature to provide error details";
 		HttpContext.Items["ErrorMessage"] = BadMessage;
