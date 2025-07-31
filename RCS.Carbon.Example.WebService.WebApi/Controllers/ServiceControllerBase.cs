@@ -135,7 +135,7 @@ public abstract class ServiceControllerBase : ControllerBase
 	{
 		var watch = new Stopwatch();
 		watch.Start();
-		byte[] blob = XTableOutputManager.AsSingleXLSXBuffer(wrap.Engine.Job.DisplayTable);
+		byte[] blob = wrap.Engine.TableAsExcelBlob();
 		double xlsxsecs = watch.Elapsed.TotalSeconds;
 		Logger.LogDebug(610, "Make XLSX {BlobLength} [{XlsxSecs:F2}] - {Reason}", blob.Length, xlsxsecs, reason);
 		watch.Restart();

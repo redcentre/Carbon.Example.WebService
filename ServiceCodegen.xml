@@ -400,26 +400,6 @@
     <return type="string[]" description="Lines of a crosstab report."/>
   </method>
 
-  <method name="GenTabHtml" method="Post" endpoint="report/gentab/html" auth="*">
-    <summary>Generates a crosstab report as lines of a HTML document.</summary>
-    <remarks>The response is a serialized string array of lines of a HTML document. To retrieve the HTML as a single string use the [c]report/gentab/html/joined[/c] endpoint.</remarks>
-    <parameters>
-      <parameter type="GenTabHtmlRequest" name="request" description="Request parameters."/>
-    </parameters>
-    <web postType="GenTabHtmlRequest" direct="true"/>
-    <return type="string[]" description="The lines of a crosstab report as a HTML document."/>
-  </method>
-
-  <method name="GenTabHtmlJoined" method="Post" endpoint="report/gentab/html/joined" auth="*">
-    <summary>Generates a crosstab report as a single line of a HTML document.</summary>
-    <remarks>The response is a serialized single string of HTML containing multiple lines. To retrieve the HTML as an array of string line use the [c]report/gentab/html[/c] endpoint.</remarks>
-    <parameters>
-      <parameter type="GenTabHtmlRequest" name="request" description="Request parameters."/>
-    </parameters>
-    <web postType="GenTabHtmlRequest" direct="true"/>
-    <return type="string" description="The lines of a crosstab report as a HTML document joined to a single string."/>
-  </method>
-
   <method name="GenTabExcelBlob" method="Post" endpoint="report/gentab/excel/blob" auth="*">
     <summary>Generates a crosstab report as an Excel workbook using provided parameters.</summary>
     <remarks>The workbook is upload to the cloud container where all workbooks are stored. The reponse contains the full Uri of the generated workbook so client apps can download or process it as needed. Note that parameters are provided to control the report generation, in contrast see the [c]report/xlsx[/c] endpoint whcih uses the parameters in the active report.</remarks>

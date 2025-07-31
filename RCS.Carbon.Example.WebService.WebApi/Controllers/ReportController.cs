@@ -86,7 +86,7 @@ public partial class ReportController : ServiceControllerBase
 		request.DProps.Cells.ColumnPercents.Visible = false;
 		request.DProps.Output.Format = XOutputFormat.None;
 		wrap.Engine.GenTab(null, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
-		PandasRawData raw = wrap.Engine.GetTabAsPandas();
+		PandasRawData raw = wrap.Engine.TableAsPandas();
 		object dict;
 		if (shape == 1)
 		{
@@ -125,27 +125,14 @@ public partial class ReportController : ServiceControllerBase
 	async Task<ActionResult<string[]>> GenTabImpl(GenTabRequest request)
 	{
 		using var wrap = new StateWrap(SessionId, LicProv, true);
-		string[] lines;
-		if (request.DProps.Output.Format == XOutputFormat.XLSX)
+		string report = wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
+		if (report == null)
 		{
-			// XLSX Excel output is a special case and does not return a typical set of report lines.
-			// It natively generates the buffer of an XLSX workbook, which is converted to a single
-			// base64 encoded string line for return.
-			byte[] buff = wrap.Engine.GenTabAsXLSX(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
-			lines = [Convert.ToBase64String(buff)];
+			return NoContent();
 		}
-		else
-		{
-			// All other reports can be returned as lines. The lines maybe null for format None.
-			string report = wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
-			if (report == null)
-			{
-				return NoContent();
-			}
-			lines = [.. CommonUtil.ReadStringLines(report)];
-		}
+		string[] lines = [.. CommonUtil.ReadStringLines(report)];
 		Logger.LogInformation(230, "GenTab({Format},{Top},{Side},{Filter},{Weight}) -> #{Length})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight, lines?.Length);
-		return await Task.FromResult(lines);
+		return await Task.FromResult(Ok(lines));
 	}
 
 	async Task<ActionResult<GenericResponse>> LoadReportImpl(LoadReportRequest request)
@@ -178,7 +165,7 @@ public partial class ReportController : ServiceControllerBase
 		dprops.FromPlatinum(request.PProps);
 		dprops.Output.Format = XOutputFormat.None;
 		wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, dprops);
-		PlatinumData data = PlatinumFormatter.FormatAsPlatinumData(wrap.Engine.Job.DisplayTable);
+		PlatinumData data = wrap.Engine.TableAsPlatinum();
 		return await Task.FromResult(data);
 	}
 
@@ -306,23 +293,6 @@ public partial class ReportController : ServiceControllerBase
 		wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
 		var resp = await MakeXlsxAndUpload(wrap, "ReportGenTabExcelBlob");
 		return await Task.FromResult(resp);
-	}
-
-	async Task<ActionResult<string[]>> GenTabHtmlImpl(GenTabHtmlRequest request)
-	{
-		using var wrap = new StateWrap(SessionId, LicProv, true);
-		string report = wrap.Engine.GenTabAsHTML(request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter);
-		var lines = CommonUtil.ReadStringLines(report).ToArray();
-		Logger.LogInformation(231, "GenTabHtml({Top},{Side},{Filter},{Weight},{CaseFilter}) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, lines.Length);
-		return await Task.FromResult(lines);
-	}
-
-	async Task<ActionResult<string>> GenTabHtmlJoinedImpl(GenTabHtmlRequest request)
-	{
-		using var wrap = new StateWrap(SessionId, LicProv, true);
-		string report = wrap.Engine.GenTabAsHTML(request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter);
-		Logger.LogInformation(231, "GenTabHtmlJoined({Top},{Side},{Filter},{Weight},{CaseFilter}) -> #{Length})", request.Top, request.Side, request.Filter, request.Weight, request.CaseFilter, report.Length);
-		return await Task.FromResult(report);
 	}
 
 	async Task<ActionResult<GenNode[]>> AxisSyntaxToNodesImpl(string syntax)

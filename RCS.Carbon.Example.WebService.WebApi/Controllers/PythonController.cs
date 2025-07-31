@@ -217,8 +217,7 @@ public class PythonController : ServiceControllerBase
 			dprops.Cells.RowPercents.Visible = request.ColumnPercents == true;
 			dprops.Cells.ColumnPercents.Visible = false;
 			dprops.Output.Format = XOutputFormat.None;
-			engine.GenTab(null, request.Top, request.Side, request.Filter, request.Weight, sprops, dprops);
-			raw = engine.GetTabAsPandas();
+			raw = engine.GenTabAsPandasRaw(null, request.Top, request.Side, request.Filter, request.Weight, sprops, dprops);
 		}
 		catch (CarbonException ex)
 		{
