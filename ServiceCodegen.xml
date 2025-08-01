@@ -512,9 +512,10 @@
   </method>
 
   <method name="QuickUpdateReport" method="Post" endpoint="report/quickupdate" auth="*">
-    <summary>PENDING.</summary>
+    <summary>Updates the active report's bands, sig and filter.</summary>
+    <remarks>The call simulates the same 'quick update' processing that was implemented in the legacy Cadmium and Silver. The call remains here temporarily until it's clear if it's needed or not in the future.</remarks>
     <parameters>
-      <parameter type="QuickUpdateRequest" name="request" description="TODO"/>
+      <parameter type="QuickUpdateRequest" name="request" description="Parameters for the quick update."/>
     </parameters>
     <web postType="QuickUpdateRequest" direct="true"/>
     <return type="XlsxResponse" description="Details of the generated report."/>

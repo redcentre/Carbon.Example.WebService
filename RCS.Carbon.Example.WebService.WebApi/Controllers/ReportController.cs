@@ -36,30 +36,6 @@ public partial class ReportController : ServiceControllerBase
 	#region Endpoints needing manual coding
 
 	/// <summary>
-	/// Generates a crosstab report as plain text in different formats.
-	/// </summary>
-	/// <param name="format">The text format for the generated report.</param>
-	/// <param name="request">A serialized <c>GenTabRequest</c> provided in the request body.</param>
-	/// <response code="200">The string body of a crosstab report as plain text.</response>
-	/// <include file='DocInclude.xml' path='doc/members[@name="Auth403"]/*'/>
-	/// <remarks>The response content-type is always text/plain.</remarks>
-	[HttpPost]
-	[Route("gentab/text/{format}")]
-	[AuthFilter]
-	[Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
-	[ProducesResponseType(typeof(string), StatusCodes.Status200OK, MediaTypeNames.Text.Plain)]
-	[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
-	public async Task<ActionResult<string>> ReportGenTabText([FromRoute] TextOutputFormat format, [FromBody] GenTabRequest request)
-	{
-		request.DProps.Output.Format = (XOutputFormat)(int)format;
-		using var wrap = new StateWrap(SessionId, LicProv, false);
-		string report = wrap.Engine.GenTab(request.Name, request.Top, request.Side, request.Filter, request.Weight, request.SProps, request.DProps);
-		Logger.LogInformation(510, "GenTab({Format},{Top},{Side},{Filter},{Weight})", request.DProps.Output.Format, request.Top, request.Side, request.Filter, request.Weight);
-		var result = new ContentResult() { Content = report, ContentType = MediaTypeNames.Text.Plain, StatusCode = StatusCodes.Status200OK };
-		return await Task.FromResult(result);
-	}
-
-	/// <summary>
 	/// Generates a crosstab report as JSON compatible with a Python pandas DataFrame.
 	/// </summary>
 	/// <param name="shape">JSON response shape number 1, 2 or 3.</param>

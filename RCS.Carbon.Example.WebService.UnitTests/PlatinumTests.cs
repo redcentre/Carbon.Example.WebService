@@ -36,7 +36,7 @@ public class PlatinumTests : TestBase
 		pprops.Cells.Frequencies.Visible = true;
 		pprops.Cells.ColumnPercents.Visible = true;
 		pprops.Cells.RowPercents.Visible = true;
-		var platreq = new GenTabPlatinumRequest("GenTab Platinum", "occupation", "income", null, null, null, sprops, pprops);
+		var platreq = new GenTabPlatinumRequest("GenTab Platinum", "occupation", "income", null, null, sprops, pprops);
 		data = await client.GenTabPlatinum(platreq);
 		WriteTemp("_platest_GenTabPlatinum", data);
 
