@@ -60,11 +60,10 @@ builder.Services.AddControllers(opt =>
 	opt.OutputFormatters.RemoveType<HttpNoContentOutputFormatter>();
 	opt.OutputFormatters.Add(new TextPlainOutputFormatter());
 	opt.InputFormatters.Add(new TextPlainInputFormatter());
-});
+}).AddJsonOptions(jopts => jopts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 SessionManager.CacheSlidingSeconds = builder.Configuration.GetValue<int>("CarbonApi:SessionCacheSlideSeconds");
 
-builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
 string swaggerTitle = builder.Configuration["CarbonApi:SwaggerTitle"]!;
 string swaggerDesc = builder.Configuration["CarbonApi:SwaggerDesc"]!;

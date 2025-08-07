@@ -21,7 +21,8 @@ public enum ErrorResponseCode
 	NoSessionHeader = 383,
 	RequestFailed = 391,
 	RequestFailedNoDetail = 392,
-	SessionNotFound = 400
+	SessionNotFound = 400,
+	PlatinumBatchNotFound = 500
 }
 
 /// <summary>

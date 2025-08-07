@@ -33,6 +33,9 @@ public abstract class ServiceControllerBase : ControllerBase
 
 	protected ILicensingProvider LicProv { get; private set; }
 
+	protected const string ReportVDirPrefix = "report";
+	protected const string PlatinumbatchVDirPrefix = "platinum-batch";
+
 	/// <ignore/>
 	public ServiceControllerBase(ILoggerFactory logfac, IConfiguration config, ILicensingProvider licprov)
 	{
@@ -116,15 +119,17 @@ public abstract class ServiceControllerBase : ControllerBase
 	/// <summary>
 	/// Lazy reference to a single instance of an RCS Azure data processor.
 	/// Don't forget to look for the config values in development user secrets.
+	/// This property can only be used for the duration of a request, not in background
+	/// work like what happens in the Platinum and OXT multi report processing.
 	/// </summary>
 	protected StorageProcessor AzProc => LazyInitializer.EnsureInitialized(ref _azproc, () =>
 	{
 		var azp = new StorageProcessor(
-			Config["CarbonApi:ApplicationStorageConnect"],
-			Config["CarbonApi:ArtefactsContainerName"]
+			Config["CarbonApi:ApplicationStorageConnect"]!,
+			Config["CarbonApi:AppContainerName"]!
 		);
-		var m = Regex.Match(azp.ApplicationStorageConnect, @"AccountName=(\w+).+AccountKey=([^;]+)");
-		Logger.LogDebug(600, "Created {Name} {AccName} {AccKey}… {ArtefactCon}", azp.GetType().Name, m.Groups[1].Value, m.Groups[2].Value.Substring(0, 8), azp.ArtefactsContainerName);
+		var m = Regex.Match(azp.StorageConnect, @"AccountName=(\w+).+AccountKey=([^;]+)");
+		Logger.LogDebug(600, "Created {Name} {AccName} {AccKey}… {AppCon}", azp.GetType().Name, m.Groups[1].Value, m.Groups[2].Value.Substring(0, 8), azp.ContainerName);
 		return azp;
 	});
 
@@ -142,7 +147,7 @@ public abstract class ServiceControllerBase : ControllerBase
 		var sess = SessionManager.FindSession(SessionId, true);
 		string repname = sess.OpenReportName ?? "UnsavedReport";
 		string upname = Path.ChangeExtension(repname, ".xlsx");
-		var azblob = await AzProc.UploadBufferForReport(sess.UserId, sess.OpenCustomerName, sess.OpenJobName, upname, blob);
+		var azblob = await AzProc.UploadBufferForReport(sess.UserId, sess.OpenCustomerName, sess.OpenJobName, upname, ReportVDirPrefix, blob);
 		double upsecs = watch.Elapsed.TotalSeconds;
 		Logger.LogDebug(612, "Upload {BlobUri} [{upsecs:F2}]", azblob.Uri, upsecs);
 		return new XlsxResponse()

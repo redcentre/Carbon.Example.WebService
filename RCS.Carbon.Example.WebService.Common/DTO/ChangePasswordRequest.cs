@@ -6,7 +6,7 @@ public sealed class ChangePasswordRequest
 	{
 	}
 
-	public ChangePasswordRequest(string userId, string oldPassword, string newPassword)
+	public ChangePasswordRequest(string userId, string? oldPassword, string newPassword)
 	{
 		UserId = userId;
 		OldPassword = oldPassword;
@@ -14,6 +14,6 @@ public sealed class ChangePasswordRequest
 	}
 
 	public string UserId { get; set; }
-	public string OldPassword { get; set; }
+	public string? OldPassword { get; set; }
 	public string Newpassword { get; set; }
 }

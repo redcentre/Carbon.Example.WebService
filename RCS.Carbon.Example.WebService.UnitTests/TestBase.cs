@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,7 +39,7 @@ public class TestBase
 		var args = Environment.GetCommandLineArgs();
 		Config = new ConfigurationBuilder()
 			.AddJsonFile("appsettings.json")
-			.AddUserSecrets("RCS.Carbon.Example.WebService.UnitTests")
+			.AddUserSecrets("RCS.Carbon.Example.WebService")
 			.Build();
 		baseUri = Config["UnitTests:BaseUri"]!;
 		userId = Config["UnitTests:UserId"]!;
@@ -197,6 +198,20 @@ public class TestBase
 			string pfx = string.Join("", Enumerable.Repeat("|  ", node.Level));
 			Trace($"{pfx}{node.Id},{node.ParentId},{node.Type},{node.Value2},{node.Value1}");
 		}
+	}
+
+	protected static string SafeName(string value)
+	{
+		char[] badpath = Path.GetInvalidPathChars();
+		char[] badfile = Path.GetInvalidFileNameChars();
+		char[] badall = [.. badpath.Union(badfile)];
+		string bads = new string(badall);
+		string s = Regex.Replace(value, "[" + Regex.Escape(bads) + "]", m => "_");
+		while (s.Contains("__"))
+		{
+			s = s.Replace("__", "_");
+		}
+		return s.Trim("_ ".ToCharArray());
 	}
 
 	//protected void Trace(string message) => System.Diagnostics.Trace.WriteLine(message);

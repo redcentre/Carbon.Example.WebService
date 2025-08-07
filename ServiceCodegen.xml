@@ -162,7 +162,7 @@
     <summary>Changes a licensing account password.</summary>
     <parameters>
       <parameter type="string" name="userId" description="Licensing account user Id."/>
-      <parameter type="string" name="oldPassword" description="Old password."/>
+      <parameter type="string?" name="oldPassword" description="Old password."/>
       <parameter type="string" name="newPassword" description="New password."/>
     </parameters>
     <web postType="ChangePasswordRequest"/>
@@ -441,7 +441,7 @@
   </method>
 
   <method name="GetProps" method="Get" endpoint="report/props" auth="*">
-    <summary>Get the display proeprties of the currently open report.</summary>
+    <summary>Get the display properties of the currently open report.</summary>
     <return type="XDisplayProperties" description="A [c]XDisplayProperties[/c] class instance containing report properties."/>
   </method>
 
@@ -468,6 +468,52 @@
     <return type="bool" description="Always returns true."/>
   </method>
 
+  <method name="MultiPlatinumStart" method="Post" endpoint="report/multiplatinum/start" auth="*">
+    <summary>Starts background batch processing of multiple Platinum reports.</summary>
+    <remarks>The [c]MultiPlatinumRequest[/c] object in the POST request body contains parameters to control report processing, including the report names, the filter expression, the requested parallelism count and a flag indicating if the results will be delivered in the response body or saved in cloud blobs for later retrieval. For more information see the documentation generated for the request class.</remarks>
+    <parameters>
+      <parameter type="MultiPlatinumRequest" name="request"/>
+    </parameters>
+    <web postType="MultiPlatinumRequest" direct="true" async="false"/>
+    <return type="string" description="A unique Batch Id of the background batch processing. The Id can be passed into other endpoints to query, cancel or remove the batch."/>
+  </method>
+
+  <method name="MultiPlatinumQuery" method="Get" endpoint="report/multiplatinum/query/{id}" auth="*">
+    <summary>Gets the processing status of a Platinum report batch.</summary>
+    <remarks>The response [c]MultiPlatinumResponse[/c] object contains information about the state of overall processing, and the state of each report in the batch. Convenient properties are defined to help clients quickly determine the batch processing state. Note that if SaveAsBlobs was specified as False in the request (the default), then the possibly large amount of report data is not returned in the query response until all reports are completed, which avoids returning large amounts of data prematurely. For more information see the documentation generated for the response class.</remarks>
+    <parameters>
+      <parameter route="true" type="string" name="id" description="Batch Id of the background batch processing to query."/>
+    </parameters>
+    <web allowApiKey="true" async="false" notFound="true" />
+    <return type="MultiPlatinumResponse" description="A serialized [c]MultiPlatinumResponse[/c] with batch progress information."/>
+  </method>
+
+  <method name="MultiPlatinumCancel" method="Get" endpoint="report/multiplatinum/cancel/{id}" auth="*">
+    <summary>Cancels a batch processing of multiple Platinum reports.</summary>
+    <remarks>Any running reports will run to completion before the batch responds to the cancel request and becomes completed. There may therefore be an unpredictable delay before the cancel request is fully processed. A cancelled batch may contain reports that are in the IsWaiting state becuase they never started. Use the properties of the reports to determine the completion state of the whole batch,</remarks>
+    <parameters>
+      <parameter route="true" type="string" name="id" description="Id of the batch to cancel."/>
+    </parameters>
+    <web allowApiKey="true" async="false" notFound="true" />
+    <return type="bool" description="True if the background batch was found, was in the running state, and the cancel request was issued."/>
+  </method>
+
+  <method name="MultiPlatinumRemove" method="Get" endpoint="report/multiplatinum/remove/{id}" auth="*">
+    <summary>Removes a background batch generation of multiple Platinum reports from the history.</summary>
+    <remarks>Clients should call this method after a batch has completed processing and the results have been retrieved via a call to the /query endpoint.</remarks>
+    <parameters>
+      <parameter route="true" type="string" name="id" description="Batch Id of the background batch processing to remove."/>
+    </parameters>
+    <web allowApiKey="true" async="false" notFound="true" />
+    <return type="bool" description="True if the background batch was found, was in the waiting or complete state, and was removed from the history."/>
+  </method>
+
+  <method name="MultiPlatinumList" method="Get" endpoint="report/multiplatinum/list" auth="*">
+    <summary>Lists the Batch Ids of active and recently completed batches of multiple Platinum reports.</summary>
+    <return type="string[]" description="The Batch Ids of background batch processing of Platinum reports."/>
+    <web allowApiKey="true" async="false" />
+  </method>
+
   <method name="MultiOxt" method="Post" endpoint="report/multioxt" auth="*">
     <summary>Generates OXT outputs for multiple reports.</summary>
     <parameters>
@@ -478,7 +524,7 @@
   </method>
 
   <method name="MultiOxtStart" method="Post" endpoint="report/multioxt/start" auth="*">
-    <summary>Starts backgorund generation of OXT outputs for multiple reports.</summary>
+    <summary>Starts background generation of OXT outputs for multiple reports.</summary>
     <parameters>
       <parameter type="MultiOxtRequest" name="request" description="TODO"/>
     </parameters>

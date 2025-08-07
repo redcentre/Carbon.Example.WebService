@@ -19,7 +19,7 @@ namespace RCS.Carbon.Example.WebService.WebApi;
 public sealed class AuthFilterAttribute : Attribute, IAuthorizationFilter
 {
 	readonly string[] requiredRoles;
-	string[] registeredApiKeys;
+	static string[] registeredApiKeys;
 	static ILogger logger;
 
 	/// <ignore/>

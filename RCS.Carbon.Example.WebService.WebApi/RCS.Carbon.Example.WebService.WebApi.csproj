@@ -16,7 +16,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
     <IsPublishable>true</IsPublishable>
-    <UserSecretsId>a05e8c94-92ae-4346-a204-d10b0c4516ce</UserSecretsId>
+    <UserSecretsId>RCS.Carbon.Example.WebService</UserSecretsId>
     <Configurations>Debug;Release;RCS Production;RCS Testing;SQL Production;SQL Testing;Debug-Carbon</Configurations>
   </PropertyGroup>
 
@@ -71,7 +71,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.0.8" />
+    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.1.0" />
     <PackageReference Include="RCS.Carbon.Export" Version="9.1.48" />
     <PackageReference Include="RCS.Carbon.Import" Version="9.1.48" />
     <PackageReference Include="RCS.Carbon.Tables" Version="9.1.48" />

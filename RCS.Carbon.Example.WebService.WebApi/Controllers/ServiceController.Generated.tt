@@ -124,6 +124,12 @@ void EmitClass(string rbase, PMethod[] methods)
 		/// <response code="403">The request failed because no authenticated session has been established with the web service.</response>
 <#
 		}
+		if (m.WebNotFound)
+		{
+#>
+		/// <response code="404">The request data was not found.</response>
+<#
+		}
 		if (m.Remarks != null)
 		{
 			string[] lines = NiceLines(m.Remarks);
@@ -198,10 +204,20 @@ void EmitClass(string rbase, PMethod[] methods)
 <#
 		}
 		string rettype = m.WebActionResult ? "ActionResult" : string.Format("ActionResult<{0}>", m.ReturnType);
+		if (m.WebAsync)
+		{
 #>
 		public async Task<<#=rettype#>> <#=m.Name#>(<#=m.MakeWebArgs()#>) => await <#=m.Name#>Impl(<#=m.MakeWebImplArgs()#>);
 
 <#
+		}
+		else
+		{
+#>
+		public <#=rettype#> <#=m.Name#>(<#=m.MakeWebArgs()#>) => <#=m.Name#>Impl(<#=m.MakeWebImplArgs()#>);
+
+<#
+		}
 	}
 #>
 	}

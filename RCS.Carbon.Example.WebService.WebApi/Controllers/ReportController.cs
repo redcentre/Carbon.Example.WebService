@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
-using RCS.Carbon.Tables.OutputFormatters;
 using RCS.RubyCloud.WebService;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
@@ -150,6 +149,53 @@ public partial class ReportController : ServiceControllerBase
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		var data = wrap.Engine.TableAsPlatinum();
 		return await Task.FromResult(data);
+	}
+
+	ActionResult<string> MultiPlatinumStartImpl(MultiPlatinumRequest request)
+	{
+		var ts = new ParameterizedThreadStart(PlatinumBatchProc);
+		var t = new Thread(ts);
+		var sess = SessionManager.FindSession(SessionId);
+		string? connect = Config["CarbonApi:ApplicationStorageConnect"];
+		string? conname = Config["CarbonApi:AppContainerName"];
+		var data = new BatchData(SessionId, sess.UserId, sess.OpenCustomerName, sess.OpenJobName, connect, conname, request);
+		BatchManager.Add(data);
+		t.Start(data);
+		data.StartedEvent.WaitOne();
+		return data.Response.Id;
+	}
+
+
+	ActionResult<MultiPlatinumResponse> MultiPlatinumQueryImpl(string id)
+	{
+		var batch = BatchManager.Get(id);
+		return batch == null ?
+			NotFound(new ErrorResponse(ErrorResponseCode.PlatinumBatchNotFound, $"Batch Id {id} not found")) :
+			Ok(batch.Response);
+	}
+
+	ActionResult<bool> MultiPlatinumCancelImpl(string id)
+	{
+		var data = BatchManager.Get(id);
+		if (data?.Response.AnyReportsRunning != true) return false;
+		data.Cts.Cancel();
+		return true;
+	}
+
+	ActionResult<bool> MultiPlatinumRemoveImpl(string id)
+	{
+		var data = BatchManager.Get(id);
+		if (data == null) return false;
+		if (data.Response.AllReportsWaiting || data.Response.AllReportsCompleted)
+		{
+			return BatchManager.Remove(id);
+		}
+		return false;
+	}
+
+	ActionResult<string[]> MultiPlatinumListImpl()
+	{
+		return BatchManager.ListIds();
 	}
 
 	/// <summary>

@@ -83,6 +83,7 @@ PMethod[] LoadCodegen(string rulesfile)
 			pm.WebActionResult = (bool?)webelem.Attribute("actionResult") ?? false;
 			pm.WebNotFound = (bool?)webelem.Attribute("notFound") ?? false;
 			pm.WebAllowApiKey = (bool?)webelem.Attribute("allowApiKey") ?? false;
+			pm.WebAsync = (bool?)webelem.Attribute("async") ?? true;
 		}
 		mlist.Add(pm);
 	}
@@ -127,6 +128,7 @@ sealed class PMethod
 	public bool WebActionResult;
 	public bool WebNotFound;
 	public bool WebAllowApiKey;
+	public bool WebAsync = true;
 	public string WebFromHeaderName;
 	public string WebFromHeader;
 	public string Session;
