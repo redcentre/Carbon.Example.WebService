@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using RCS.Carbon.Example.WebService.Common.DTO;
 
-namespace RCS.RubyCloud.WebService;
+namespace RCS.Carbon.Example.WebService.WebApi;
 
 /// <summary>
 /// A class to encapsulate the state of a single Multi-OXT processing run.

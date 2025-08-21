@@ -70,7 +70,7 @@ public class TestBase
 			Trace($"Login OK → {sinfo}");
 			return sinfo;
 		}
-		catch (CarbonServiceException ex) when (ex.Code is 301 or 302)
+		catch (CarbonServiceException ex) when (ex.Code is 301)
 		{
 			Trace(ex.Message);
 			string[] sessIds = ex.GetDataStrings()!;

@@ -8,13 +8,47 @@ using RCS.Carbon.Example.WebService.Common.DTO;
 namespace RCS.Carbon.Example.WebService.UnitTests;
 
 [TestClass]
-public class PlatinumBatchTests : TestBase
+public class MultiTests : TestBase
 {
+	/// <summary>
+	/// Test the new Mmilti-sheet endpoint created for the Platinum team in August 2025.
+	/// </summary>
 	[TestMethod]
-	public async Task T100_Platinum()
+	public async Task T10_Multi_Sheet()
 	{
-		//var sprops = new XSpecProperties();
-		//var dprops = new XDisplayProperties();
+		using var client = MakeClient();
+		await GuardedSession(userId, userPass, client);
+		OpenCloudJobResponse jobresp = await client.OpenCloudJob(custName, jobName, null, true);
+		Trace($"OpenCloudJob {jobresp.DProps} {jobresp.DrillFilters} {jobresp.VartreeNames} {jobresp.AxisTreeNames}");
+
+		var request = new MultiSheetRequest()
+		{
+			ReportNames = [
+				//"Tables/Exec/PPTX Reports/UK/Charts/Broadband/PP_BC ActivelyLooking",
+				//"Tables/Exec/PPTX Reports/UK/Charts/Broadband/PP_BC BI_10 Driver BRa Val",
+				//"Tables/Exec/PPTX Reports/UK/Charts/Broadband/PP_BC BI_10 Driver C Val",
+				"Tables/Exec/Standard Tables/UK/TV Set/TVS WillingPayTV",
+				"Tables/Exec/Standard Tables/UK/TV Set/TVS WillingCommit",
+				"Tables/Exec/Standard Tables/UK/Cinema/V WillingPayTV"
+			],
+			Filter = null//"bb_Age(1)"
+		};
+		MultiSheetResponse result = await client.MultiSheet(request);
+		Trace($"Mutil sheet uri → {result.ExcelBlobUri} [{result.Seconds:F1}]");
+
+		bool closed = await client.CloseJob();
+		Trace($"Closed → {closed}");
+
+		bool ended = await client.EndSession();
+		Trace($"EndSession → {ended}");
+	}
+
+	/// <summary>
+	/// Generates lots of platinum reports using the parallel multi-engine workarond technique.
+	/// </summary>
+	[TestMethod]
+	public async Task T200_MultiPlatinum()
+	{
 		using var client = MakeClient();
 		await GuardedSession(userId, userPass, client);
 		var meta = await client.GetServiceInfo();

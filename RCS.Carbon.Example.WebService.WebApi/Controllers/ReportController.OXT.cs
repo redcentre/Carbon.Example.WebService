@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Shared;
-using RCS.RubyCloud.WebService;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
 

@@ -16,7 +16,6 @@ using RCS.Azure.Data.Processor;
 using RCS.Carbon.Example.WebService.Common;
 using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Shared;
-using RCS.Carbon.Tables;
 using RCS.Licensing.Provider.Shared;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
@@ -33,8 +32,8 @@ public abstract class ServiceControllerBase : ControllerBase
 
 	protected ILicensingProvider LicProv { get; private set; }
 
-	protected const string ReportVDirPrefix = "report";
-	protected const string PlatinumbatchVDirPrefix = "platinum-batch";
+	protected const string ReportVDirPrefix = "service-report";
+	protected const string PlatinumbatchVDirPrefix = "service-platinum-batch";
 
 	/// <ignore/>
 	public ServiceControllerBase(ILoggerFactory logfac, IConfiguration config, ILicensingProvider licprov)
@@ -54,7 +53,7 @@ public abstract class ServiceControllerBase : ControllerBase
 		{
 			HttpRequest req = HttpContext.Request;
 			[DoesNotReturn]
-			void Chuck(string message) => throw new CarbonServiceException(1000, $"Header '{CarbonServiceClient.SessionIdHeaderKey}' {message}'. Request {req.Method} {req.Path}. Session ????.");
+			void Chuck(string message) => throw new CarbonServiceException(1000, $"Header '{CarbonServiceClient.SessionIdHeaderKey}' {message}'. Request {req.Method} {req.Path}.");
 			if (!HttpContext.Request.Headers.TryGetValue(CarbonServiceClient.SessionIdHeaderKey, out StringValues values))
 			{
 				Chuck("not found");

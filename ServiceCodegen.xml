@@ -468,6 +468,16 @@
     <return type="bool" description="Always returns true."/>
   </method>
 
+  <method name="MultiSheet" method="Post" endpoint="report/multisheet" auth="*">
+    <summary>Generates an Excel document blob with multiple reports, one per sheet.</summary>
+    <remarks>The [c]MultiSheetRequest[/c] object in the POST request body contains parameters to control report processing, including the report names, the optional filter expression and th eoption weight.</remarks>
+    <parameters>
+      <parameter type="MultiSheetRequest" name="request"/>
+    </parameters>
+    <web postType="MultiSheetRequest" direct="true"/>
+    <return type="MultiSheetResponse" description="Results of muti-sheet processing."/>
+  </method>
+
   <method name="MultiPlatinumStart" method="Post" endpoint="report/multiplatinum/start" auth="*">
     <summary>Starts background batch processing of multiple Platinum reports.</summary>
     <remarks>The [c]MultiPlatinumRequest[/c] object in the POST request body contains parameters to control report processing, including the report names, the filter expression, the requested parallelism count and a flag indicating if the results will be delivered in the response body or saved in cloud blobs for later retrieval. For more information see the documentation generated for the request class.</remarks>

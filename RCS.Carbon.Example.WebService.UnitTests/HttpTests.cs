@@ -34,7 +34,7 @@ public class HttpTests : TestBase
 				int i;
 				var elem = JsonSerializer.Deserialize<JsonElement>(json);
 				int? code = elem.TryGetProperty("code", out e) ? e.TryGetInt32(out i) ? i : null : null;
-				if (code is 301 or 302)
+				if (code is 301)
 				{
 					// Special case - force session end and get a fresh one.
 					string[] sessIds = [.. elem.GetProperty("data").EnumerateArray().Select(x => x.GetString()!)];

@@ -71,16 +71,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RCS.Azure.Data.Processor" Version="3.1.0" />
-    <PackageReference Include="RCS.Carbon.Export" Version="9.1.49" />
-    <PackageReference Include="RCS.Carbon.Import" Version="9.1.49" />
-    <PackageReference Include="RCS.Carbon.Tables" Version="9.1.49" />
-    <PackageReference Include="RCS.Licensing.Example.Provider" Version="9.2.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     <PackageReference Include="System.Runtime.Caching" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Azure.Data\RCS.Azure.Data.Processor\RCS.Azure.Data.Processor.csproj" />
+    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Export\RCS.Carbon.Export.csproj" />
+    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Import\RCS.Carbon.Import.csproj" />
+    <ProjectReference Include="..\..\..\Carbon\Carbon\RCS.Carbon.Tables\RCS.Carbon.Tables.csproj" />
+    <ProjectReference Include="..\..\Example.Licensing.Provider\RCS.Licensing.Example.Provider\RCS.Licensing.Example.Provider.csproj" />
     <ProjectReference Include="..\RCS.Carbon.Example.WebService.Common\RCS.Carbon.Example.WebService.Common.csproj" />
     <ProjectReference Include="..\RCS.Carbon.Example.WebService.Database\RCS.Carbon.Example.WebService.Database.csproj" />
     <ProjectReference Include="..\RCS.Carbon.Example.WebService.Logging\RCS.Carbon.Example.WebService.Logging.csproj" />

@@ -327,7 +327,7 @@ public sealed partial class CarbonServiceClient : IDisposable
 		if (code != null && message != null)
 		{
 			var ex = new CarbonServiceException(code.Value, message);
-			if (code is 301 or 302)
+			if (code is 301)
 			{
 				// This is a duplicate session failure which can be treaed as a special
 				// case to return the existing session Ids so the caller can force those

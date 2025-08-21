@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Mime;
 using System.Text.Json;
@@ -11,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using RCS.Carbon.Example.WebService.Common.DTO;
 using RCS.Carbon.Shared;
 using RCS.Carbon.Tables;
-using RCS.RubyCloud.WebService;
+using IO = System.IO;
 
 namespace RCS.Carbon.Example.WebService.WebApi.Controllers;
 
@@ -149,6 +151,53 @@ public partial class ReportController : ServiceControllerBase
 		using var wrap = new StateWrap(SessionId, LicProv, true);
 		var data = wrap.Engine.TableAsPlatinum();
 		return await Task.FromResult(data);
+	}
+
+	async Task<ActionResult<MultiSheetResponse>> MultiSheetImpl(MultiSheetRequest request)
+	{
+		var response = new MultiSheetResponse();
+		response.ParallelUsed = request.ParallelMax;
+		if (response.ParallelUsed < 1 || response.ParallelUsed > Environment.ProcessorCount)
+		{
+			response.ParallelUsed = Math.Min(4, Environment.ProcessorCount);
+		}
+		var watch = new Stopwatch();
+		watch.Start();
+		var errors = new List<MutilSheetError>();
+		using var wrap = new StateWrap(SessionId, LicProv, false);
+		var dt = wrap.Engine.Job.DisplayTable;
+		var dprops = dt.DisplayProps;
+		dprops.Output.Format = XOutputFormat.XLSX;
+		string xlfile = IO.Path.Combine(IO.Path.GetTempPath(), $"{wrap.Engine.Licence.Id}-multi-sheet.xlsx");
+		wrap.Engine.OutputManager.Open(dprops, xlfile);
+		foreach (var tup in request.ReportNames.Select((n,i) => new { n, i }))
+		{
+			try
+			{
+				wrap.Engine.TableLoadCBT(tup.n);
+				dprops = wrap.Engine.Job.DisplayTable.DisplayProps;
+				dprops.Output.Format = XOutputFormat.XLSX;
+				if (request.Filter != null)
+				{
+					wrap.Engine.DrillFilter(request.Filter);
+				}
+				wrap.Engine.OutputManager.AppendTable();
+			}
+			catch (Exception ex)
+			{
+				errors.Add(new MutilSheetError() { Index = tup.i, Type = ex.GetType().Name, Message = ex.Message });
+			}
+		}
+		string relfile = wrap.Engine.OutputManager.Close();
+		byte[] buffer = IO.File.ReadAllBytes(relfile);
+		var sess = SessionManager.FindSession(SessionId, true);
+		string repname = sess.OpenReportName ?? "UnsavedReport";
+		string upname = IO.Path.ChangeExtension(repname, ".xlsx");
+		var azblob = await AzProc.UploadBufferForReport(sess.UserId, sess.OpenCustomerName, sess.OpenJobName, upname, ReportVDirPrefix, buffer);
+		response.ExcelBlobUri = azblob.Uri.AbsoluteUri;
+		response.Errors = [.. errors];
+		response.Seconds = watch.Elapsed.TotalSeconds;
+		return await Task.FromResult(response);
 	}
 
 	ActionResult<string> MultiPlatinumStartImpl(MultiPlatinumRequest request)
